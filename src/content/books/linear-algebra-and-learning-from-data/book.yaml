@@ -24,11 +24,11 @@ accessNotice: >-
   MIT does not host the full book. What is published free is the Table of
   Contents, the Preface, the Deep Learning essay, three complete sample
   sections (I.1, I.2 and VII.1), the errata, and three sets of solutions.
-  What *is* fully free is MIT 18.065, the course Strang taught directly from
+  Fully free, however, is MIT 18.065, the course Strang taught directly from
   this book: 36 video lectures plus problem sets, mapped section by section
   below. So for most sections the video and problems are your free route; a
   full section PDF exists only for the three samples. Everything here links to
-  MIT's own servers. If you can afford the book, buy it, it supports the
+  MIT's own servers. If you can afford the book, buy it. That supports the
   author.
 
 course:
@@ -226,7 +226,7 @@ lectures:
 parts:
   - id: I
     title: Highlights of Linear Algebra
-    summary: Column spaces, factorizations, eigenvalues, SVD, the foundation.
+    summary: 'Column spaces, factorizations, eigenvalues, SVD: the foundation.'
     sections:
       - code: I.1
         title: Multiplication Ax Using Columns of A
@@ -410,7 +410,7 @@ parts:
 
   - id: V
     title: Probability and Statistics
-    summary: Mean, variance, covariance, the statistical toolkit behind learning.
+    summary: 'Mean, variance, covariance: the statistical toolkit behind learning.'
     sections:
       - code: V.1
         title: Mean, Variance, and Probability
