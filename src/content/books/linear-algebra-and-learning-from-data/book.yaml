@@ -145,7 +145,7 @@ lectures:
     slug: lecture-2-multiplying-and-factoring-matrices
   - n: 3
     title: Orthonormal Columns in Q Give Q'Q = I
-    slug: lecture-3-orthonormal-columns-in-q-give-q-q-i
+    slug: lecture-3-orthonormal-columns-in-q-give-q2019q-i
   - n: 4
     title: Eigenvalues and Eigenvectors
     slug: lecture-4-eigenvalues-and-eigenvectors
@@ -169,7 +169,7 @@ lectures:
     slug: lecture-10-survey-of-difficulties-with-ax-b
   - n: 11
     title: Minimizing the Norm of x Subject to Ax = b
-    slug: lecture-11-minimizing-x-subject-to-ax-b
+    slug: lecture-11-minimizing-2016x2016-subject-to-ax-b
   - n: 12
     title: Computing Eigenvalues and Singular Values
     slug: lecture-12-computing-eigenvalues-and-singular-values
@@ -226,19 +226,19 @@ lectures:
     slug: lecture-31-eigenvectors-of-circulant-matrices-fourier-matrix
   - n: 32
     title: ImageNet is a CNN — The Convolution Rule
-    slug: lecture-32-imagenet-is-a-convolutional-neural-network-cnn-the-convolution-rule
+    slug: lecture-32-imagenet-is-a-cnn-the-convolution-rule
   - n: 33
     title: Neural Nets and the Learning Function
     slug: lecture-33-neural-nets-and-the-learning-function
   - n: 34
     title: Distance Matrices, Procrustes Problem
-    slug: lecture-34-distance-matrices-procrustes-problem
+    slug: lecture-34-distance-matrices-procrustes-problem-first-project
   - n: 35
     title: Finding Clusters in Graphs
-    slug: lecture-35-finding-clusters-in-graphs
+    slug: lecture-35-finding-clusters-in-graphs-second-project-handwriting
   - n: 36
     title: Alan Edelman and Julia Language
-    slug: lecture-36-alan-edelman-and-julia-language
+    slug: lecture-36-third-project-alan-edelman-and-julia-language
 
 # ------------------------------------------------------------------ #
 # The roadmap.
