@@ -23,7 +23,7 @@ export const SITE = {
   url: 'https://readbooks.pages.dev',
 
   /** Contact address for copyright / takedown enquiries. */
-  contactEmail: 'dirosh2005@gmail.com',
+  contactEmail: 'dilrukshanofficial@gmail.com',
 
   /** Repository URL, surfaced in the footer and contribution docs. */
   repo: 'https://github.com/dilrukshan/readbooks',
