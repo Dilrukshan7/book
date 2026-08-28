@@ -1,0 +1,162 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import {
+  findSection,
+  resolveSectionLinks,
+  sectionAnchor,
+  sectionCodes,
+  sectionHref,
+  sectionSlug,
+} from '../../../lib/books';
+
+export async function getStaticPaths() {
+  const books = await getCollection('books');
+  const allGuides = await getCollection('guides');
+
+  return books
+    .filter((bookEntry) => bookEntry.data.status === 'available')
+    .flatMap((bookEntry) => {
+      const order = sectionCodes(bookEntry.data);
+      const bookGuides = allGuides
+        .filter((g) => g.id.startsWith(`${bookEntry.id}/`))
+        .sort(
+          (a, b) =>
+            order.indexOf(a.data.section) - order.indexOf(b.data.section),
+        );
+
+      return bookGuides.map((guide, index) => {
+        const found = findSection(bookEntry.data, guide.data.section);
+        // A guide pointing at a section code the book does not contain
+        // would otherwise render an orphan page; fail the build instead.
+        if (!found) {
+          throw new Error(
+            `Study guide "${guide.id}.md" declares section "${guide.data.section}", ` +
+              `which does not exist in book "${bookEntry.id}".`,
+          );
+        }
+
+        return {
+          params: {
+            slug: bookEntry.data.slug,
+            section: sectionSlug(found.section.code),
+          },
+          props: {
+            bookEntry,
+            guide,
+            prev: bookGuides[index - 1] ?? null,
+            next: bookGuides[index + 1] ?? null,
+          },
+        };
+      });
+    });
+}
+
+interface Props {
+  bookEntry: CollectionEntry<'books'>;
+  guide: CollectionEntry<'guides'>;
+  prev: CollectionEntry<'guides'> | null;
+  next: CollectionEntry<'guides'> | null;
+}
+
+const { bookEntry, guide, prev, next } = Astro.props as Props;
+const book = bookEntry.data;
+
+const found = findSection(book, guide.data.section)!;
+const { section } = found;
+const links = resolveSectionLinks(book, section);
+const { Content } = await render(guide);
+---
+
+<BaseLayout
+  title={`${section.code} ${section.title}`}
+  description={guide.data.summary}
+>
+  <div class="wrap book-header">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Books</a> <span aria-hidden="true">›</span>
+      <a href={`/books/${book.slug}`}>{book.title}</a>
+      <span aria-hidden="true">›</span>
+      <span>{section.code}</span>
+    </nav>
+
+    <h1>
+      <span class="section__code">{section.code}</span>
+      {section.title}
+    </h1>
+    <p class="book-header__lede">{guide.data.summary}</p>
+
+    <ul class="chips" style="margin-top: var(--space-4)">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              class={`chip${link.variant === 'free' ? ' chip--free' : ''}`}
+              href={link.href}
+              target="_blank"
+              rel="noopener"
+            >
+              <span aria-hidden="true">{link.icon}</span>
+              {link.label}
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <article class="wrap" style="margin-top: var(--space-5)">
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+
+  <nav
+    class="wrap"
+    style="margin-top: var(--space-7)"
+    aria-label="Section navigation"
+  >
+    <div class="panel">
+      <div
+        style="display:flex; gap:var(--space-4); flex-wrap:wrap; justify-content:space-between; align-items:center;"
+      >
+        {
+          prev ? (
+            <a
+              class="pill"
+              style="text-decoration:none"
+              href={sectionHref(book.slug, prev.data.section)}
+            >
+              ← {prev.data.section}
+            </a>
+          ) : (
+            <span />
+          )
+        }
+
+        <a
+          class="pill"
+          style="text-decoration:none"
+          href={`/books/${book.slug}#${sectionAnchor(section.code)}`}
+        >
+          Back to the roadmap
+        </a>
+
+        {
+          next ? (
+            <a
+              class="pill"
+              style="text-decoration:none"
+              href={sectionHref(book.slug, next.data.section)}
+            >
+              {next.data.section} →
+            </a>
+          ) : (
+            <span />
+          )
+        }
+      </div>
+    </div>
+  </nav>
+</BaseLayout>

@@ -250,6 +250,7 @@ parts:
     sections:
       - code: I.1
         title: Multiplication Ax Using Columns of A
+        guide: i-1
         links:
           - kind: section-pdf
             url: https://math.mit.edu/~gs/learningfromdata/dsla1-1.pdf
@@ -257,6 +258,7 @@ parts:
             ref: 1
       - code: I.2
         title: Matrix-Matrix Multiplication AB
+        guide: i-2
         links:
           - kind: section-pdf
             url: https://math.mit.edu/~gs/learningfromdata/dsla1-2.pdf
@@ -283,11 +285,13 @@ parts:
             ref: 5
       - code: I.8
         title: Singular Values and Singular Vectors in the SVD
+        guide: i-8
         links:
           - kind: lecture
             ref: 6
       - code: I.9
         title: Principal Components and the Best Low Rank Matrix
+        guide: i-9
         links:
           - kind: lecture
             ref: 7
@@ -498,6 +502,7 @@ parts:
     sections:
       - code: VII.1
         title: The Construction of Deep Neural Networks
+        guide: vii-1
         links:
           - kind: section-pdf
             url: https://math.mit.edu/~gs/learningfromdata/dsla7-1.pdf

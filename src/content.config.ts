@@ -1,5 +1,9 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
+// Namespace import of Astro's own zod build: same module instance Astro
+// validates with, and avoids the deprecated `z` alias re-exported from
+// `astro:content`.
+import * as z from 'astro/zod';
 
 /* ------------------------------------------------------------------ *
  * Link kinds
