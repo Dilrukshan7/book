@@ -1,0 +1,85 @@
+name: Link check
+
+# Every reading link on this site points at somebody else's server. Those
+# can move or disappear without warning, so check them on a schedule rather
+# than waiting for a reader to report a dead link.
+on:
+  schedule:
+    - cron: '17 6 * * 1' # Mondays, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    name: Verify outbound links
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Check links
+        id: links
+        run: |
+          set +e
+          npm run check:links 2>&1 | tee link-report.txt
+          echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Open an issue if links are broken
+        if: steps.links.outputs.exit_code != '0'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('link-report.txt', 'utf8');
+            const failures = report
+              .split('Broken external links')[1] ?? report.slice(-3000);
+
+            const title = 'Broken outbound links detected';
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'broken-links',
+            });
+
+            const body = [
+              'The weekly link check found links that no longer resolve.',
+              '',
+              'Fix by updating the affected `book.yaml`. Take replacement URLs',
+              "from the publisher's own index rather than guessing at them.",
+              '',
+              '```',
+              failures.trim().slice(0, 55000),
+              '```',
+              '',
+              `[Full run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`,
+            ].join('\n');
+
+            if (existing.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['broken-links'],
+              });
+            }
