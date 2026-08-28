@@ -1,0 +1,46 @@
+---
+import type { Book } from '../lib/books';
+import { totalSections } from '../lib/books';
+
+interface Props {
+  book: Book;
+}
+
+const { book } = Astro.props;
+const sections = totalSections(book);
+const planned = book.status === 'planned';
+---
+
+<li
+  class:list={['book-card', planned && 'book-card--planned']}
+  style={`--cover-accent:${book.cover.accent};--cover-accent-2:${book.cover.accent2}`}
+>
+  <span class="book-cover" aria-hidden="true">{book.cover.initials}</span>
+
+  <div class="book-card__body">
+    <h3 class="book-card__title">
+      {
+        planned ? (
+          book.title
+        ) : (
+          <a href={`/books/${book.slug}`}>{book.title}</a>
+        )
+      }
+    </h3>
+    <p class="book-card__meta">{book.author} · {book.year}</p>
+    <p class="book-card__tagline">{book.tagline}</p>
+
+    <div class="book-card__foot">
+      {
+        planned ? (
+          <span class="tag">Coming soon</span>
+        ) : (
+          <>
+            <span class="tag tag--free">Free to follow</span>
+            <span>{sections} sections</span>
+          </>
+        )
+      }
+    </div>
+  </div>
+</li>

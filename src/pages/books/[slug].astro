@@ -1,0 +1,275 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PartAccordion from '../../components/PartAccordion.astro';
+import { assertGuidesResolve, totalSections } from '../../lib/books';
+import { SITE } from '../../site.config';
+
+export async function getStaticPaths() {
+  const books = await getCollection('books');
+  const guides = await getCollection('guides');
+  const guideIds = guides.map((g) => g.id);
+
+  return books
+    .filter((entry) => entry.data.status === 'available')
+    .map((entry) => {
+      // The directory name is the route, so a mismatch with the declared
+      // slug would silently publish the book at an unexpected URL.
+      if (entry.id !== entry.data.slug) {
+        throw new Error(
+          `Book directory "src/content/books/${entry.id}" declares ` +
+            `slug "${entry.data.slug}". The directory name and the slug must ` +
+            'match, because the directory name is what routes the page.',
+        );
+      }
+      assertGuidesResolve(entry.data, entry.id, guideIds);
+      return { params: { slug: entry.data.slug }, props: { entry } };
+    });
+}
+
+const { entry } = Astro.props;
+const book = entry.data;
+
+const guides = await getCollection(
+  'guides',
+  (g) => g.id.startsWith(`${entry.id}/`),
+);
+const guidedCodes = new Set(guides.map((g) => g.data.section));
+
+const sections = totalSections(book);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Book',
+  name: book.title,
+  author: { '@type': 'Person', name: book.author },
+  datePublished: String(book.year),
+  publisher: book.publisher
+    ? { '@type': 'Organization', name: book.publisher }
+    : undefined,
+  isbn: book.isbn,
+  url: `${SITE.url}/books/${book.slug}`,
+  sameAs: book.officialPage,
+};
+---
+
+<BaseLayout
+  title={book.title}
+  description={`A free, step-by-step reading roadmap for ${book.title} by ${book.author}. ${sections} sections, each linked to the free material published for it.`}
+  jsonLd={jsonLd}
+>
+  <div class="wrap book-header">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">Books</a> <span aria-hidden="true">›</span>
+      <span>{book.title}</span>
+    </nav>
+    <h1>{book.title}</h1>
+    <p class="book-header__byline">
+      {book.author} · {book.year}{book.publisher ? ` · ${book.publisher}` : ''}
+    </p>
+    <p class="book-header__lede">{book.description}</p>
+  </div>
+
+  <div class="wrap" style="margin-top: var(--space-4)">
+    <div class="notice">
+      <strong>What's actually free here.</strong>
+      {' '}{book.accessNotice}
+    </div>
+  </div>
+
+  {
+    book.resources.length > 0 && (
+      <div class="wrap" style="margin-top: var(--space-4)">
+        <div class="panel">
+          <h2 class="panel__title">Book-wide resources — all free, all direct links</h2>
+          <ul class="linklist">
+            {book.resources.map((resource) => (
+              <li>
+                <a href={resource.url} target="_blank" rel="noopener">
+                  <span aria-hidden="true">{resource.icon}</span>
+                  {resource.label}
+                  <span class="sr-only">
+                    , from {resource.source} (opens in a new tab)
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  {/* Everything the tracker touches lives inside this root. */}
+  <div data-tracker data-book-slug={book.slug}>
+    <div class="wrap" style="margin-top: var(--space-5)">
+      <ul class="stats">
+        <li class="stat">
+          <div class="stat__num" data-stat-done>0 / {sections}</div>
+          <div class="stat__label">Sections read</div>
+        </li>
+        <li class="stat">
+          <div class="stat__num" data-stat-percent>0%</div>
+          <div class="stat__label">Book complete</div>
+        </li>
+        <li class="stat">
+          <div class="stat__num">
+            <span aria-hidden="true">🔥</span>
+            <span data-stat-streak>0</span>
+          </div>
+          <div class="stat__label">Day streak</div>
+        </li>
+        <li class="stat">
+          <div class="stat__num" data-stat-today>0</div>
+          <div class="stat__label">Checked today</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="wrap" style="margin-top: var(--space-4)">
+      <div
+        class="bar"
+        data-progressbar
+        role="progressbar"
+        aria-label="Overall reading progress"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      >
+        <div class="bar__fill" data-progress-fill></div>
+      </div>
+      <p class="bar__label">
+        <span>Overall progress</span>
+        <span data-progress-text>0%</span>
+      </p>
+    </div>
+
+    <nav class="wrap" style="margin-top: var(--space-4)" aria-label="Jump to part">
+      <ul class="jumpnav">
+        {
+          book.parts.map((part) => (
+            <li>
+              <a href={`#part-${part.id}`}>
+                <span class="jumpnav__roman">{part.id}</span>
+                {part.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="wrap" style="margin-top: var(--space-6)">
+      <ul class="parts">
+        {
+          book.parts.map((part, index) => (
+            <li>
+              <PartAccordion
+                book={book}
+                bookSlug={book.slug}
+                part={part}
+                guidedCodes={guidedCodes}
+                open={index === 0}
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="wrap" style="margin-top: var(--space-5)">
+      <div class="toolbar">
+        <button type="button" class="pill" data-action="next-unread">
+          Jump to next unread
+        </button>
+        <button type="button" class="pill" data-action="expand-all">
+          Expand all
+        </button>
+        <button type="button" class="pill" data-action="collapse-all">
+          Collapse all
+        </button>
+        <button type="button" class="pill" data-action="export">
+          Export progress
+        </button>
+        <button type="button" class="pill" data-action="import">
+          Import progress
+        </button>
+        <button type="button" class="pill pill--danger" data-action="reset">
+          Reset this book
+        </button>
+        <input
+          type="file"
+          accept="application/json,.json"
+          data-import-input
+          class="sr-only"
+          tabindex="-1"
+          aria-hidden="true"
+        />
+      </div>
+      <p style="margin-top: var(--space-3); color: var(--muted); font-size: var(--text-sm); max-width: 70ch;">
+        Progress is stored in this browser only. Use export and import to carry
+        it to another device — there is no account to sign in to.
+      </p>
+    </div>
+
+    <div class="toast" data-toast role="status" aria-live="polite"></div>
+  </div>
+
+  <div class="wrap" style="margin-top: var(--space-7)">
+    <div class="panel">
+      <h2 class="panel__title">Attribution</h2>
+      <div class="prose" style="font-size: var(--text-sm)">
+        <p>
+          <strong>{book.title}</strong> is © {book.year} {book.author}{
+            book.publisher ? `, published by ${book.publisher}` : ''
+          }. This page is an independent reading guide. It reproduces no part of
+          the book and hosts no files — every link above points to
+          {' '}<a href={book.officialPage} target="_blank" rel="noopener"
+            >the author's own page</a
+          >{' '}or to the publishing university's servers.
+        </p>
+        {
+          book.course && (
+            <p>
+              Lecture and problem-set links go to{' '}
+              <a href={book.course.url} target="_blank" rel="noopener">
+                {book.course.name}
+              </a>
+              {book.course.license && (
+                <>
+                  , used under{' '}
+                  {book.course.licenseUrl ? (
+                    <a href={book.course.licenseUrl} target="_blank" rel="noopener">
+                      {book.course.license}
+                    </a>
+                  ) : (
+                    book.course.license
+                  )}
+                </>
+              )}
+              .
+            </p>
+          )
+        }
+        {
+          book.buyUrl && (
+            <p>
+              If this book is useful to you and you can afford it,{' '}
+              <a href={book.buyUrl} target="_blank" rel="noopener">
+                buy a copy
+              </a>
+              . That is what keeps authors writing them.
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initTracker } from '../../lib/tracker';
+
+  const root = document.querySelector<HTMLElement>('[data-tracker]');
+  if (root) initTracker(root);
+</script>

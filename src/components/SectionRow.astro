@@ -1,0 +1,114 @@
+---
+import type { Book, Section } from '../lib/books';
+import { resolveSectionLinks, sectionAnchor, sectionHref } from '../lib/books';
+
+interface Props {
+  book: Book;
+  bookSlug: string;
+  section: Section;
+  /** True when a study guide page exists for this section. */
+  hasGuide: boolean;
+}
+
+const { book, bookSlug, section, hasGuide } = Astro.props;
+
+const links = resolveSectionLinks(book, section);
+const anchor = sectionAnchor(section.code);
+const inputId = `chk-${anchor}`;
+const noteId = `note-${anchor}`;
+---
+
+<li class="section" id={anchor} data-section-row>
+  <input
+    class="section__input"
+    type="checkbox"
+    id={inputId}
+    data-section
+    data-code={section.code}
+    data-title={section.title}
+  />
+  <label class="section__check" for={inputId}>
+    <span class="sr-only">
+      Mark section {section.code}, {section.title}, as read
+    </span>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M5 13l4 4L19 7"
+        stroke="var(--on-accent)"
+        stroke-width="3"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+  </label>
+
+  <div class="section__body">
+    <div class="section__head">
+      <h3 class="section__title">
+        <span class="section__code">{section.code}</span>
+        {
+          hasGuide ? (
+            <a href={sectionHref(bookSlug, section.code)}>{section.title}</a>
+          ) : (
+            section.title
+          )
+        }
+      </h3>
+
+      <button
+        type="button"
+        class="notebtn"
+        data-note-toggle
+        data-code={section.code}
+        aria-expanded="false"
+        aria-controls={noteId}
+      >
+        <span aria-hidden="true">✎</span>
+        <span data-note-label>Add note</span>
+        <span class="sr-only">for section {section.code}</span>
+      </button>
+    </div>
+
+    <ul class="chips">
+      {
+        hasGuide && (
+          <li>
+            <a
+              class="chip chip--guide"
+              href={sectionHref(bookSlug, section.code)}
+            >
+              <span aria-hidden="true">🧭</span> Study guide
+            </a>
+          </li>
+        )
+      }
+      {
+        links.map((link) => (
+          <li>
+            <a
+              class={`chip${link.variant === 'free' ? ' chip--free' : ''}`}
+              href={link.href}
+              target="_blank"
+              rel="noopener"
+            >
+              <span aria-hidden="true">{link.icon}</span>
+              {link.label}
+              <span class="sr-only">(opens in a new tab)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="note-panel" id={noteId} data-note-panel data-code={section.code} hidden>
+      <label class="sr-only" for={`ta-${anchor}`}>
+        Your notes on section {section.code}
+      </label>
+      <textarea
+        id={`ta-${anchor}`}
+        data-note
+        data-code={section.code}
+        placeholder={`Key definitions, questions, or what confused you in ${section.code}…`}
+      ></textarea>
+    </div>
+  </div>
+</li>

@@ -1,0 +1,145 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCard from '../components/BookCard.astro';
+import { SITE } from '../site.config';
+
+const entries = await getCollection('books');
+const books = entries
+  .map((entry) => entry.data)
+  .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+
+const available = books.filter((b) => b.status === 'available');
+const planned = books.filter((b) => b.status === 'planned');
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: SITE.name,
+  description: SITE.description,
+  url: SITE.url,
+  hasPart: available.map((book) => ({
+    '@type': 'Book',
+    name: book.title,
+    author: { '@type': 'Person', name: book.author },
+    url: `${SITE.url}/books/${book.slug}`,
+  })),
+};
+---
+
+<BaseLayout
+  title={`${SITE.name} — ${SITE.tagline}`}
+  description={SITE.description}
+  suffix={false}
+  jsonLd={jsonLd}
+>
+  <section class="wrap hero">
+    <h1>Read hard books for free, in the right order.</h1>
+    <p class="hero__lede">
+      Great technical books have free material scattered across university
+      servers — lecture videos, sample chapters, problem sets, solutions. It is
+      real, it is legal, and it is almost impossible to follow in order. These
+      roadmaps put it back in sequence, section by section, and remember how far
+      you got.
+    </p>
+
+    <ul class="hero__points">
+      <li>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+          ><path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+        No account, ever
+      </li>
+      <li>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+          ><path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+        No tracking, no ads
+      </li>
+      <li>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+          ><path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+        Progress stays on your device
+      </li>
+      <li>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"
+          ><path
+            d="M5 13l4 4L19 7"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path></svg
+        >
+        Links only to the rights holders
+      </li>
+    </ul>
+  </section>
+
+  <section class="wrap" aria-labelledby="books-heading">
+    <div class="section-heading">
+      <h2 id="books-heading">Available roadmaps</h2>
+      <p>{available.length} book{available.length === 1 ? '' : 's'}</p>
+    </div>
+    <ul class="book-grid">
+      {available.map((book) => <BookCard book={book} />)}
+    </ul>
+  </section>
+
+  {
+    planned.length > 0 && (
+      <section class="wrap" style="margin-top: var(--space-7)" aria-labelledby="planned-heading">
+        <div class="section-heading">
+          <h2 id="planned-heading">In progress</h2>
+        </div>
+        <ul class="book-grid">
+          {planned.map((book) => (
+            <BookCard book={book} />
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="wrap" style="margin-top: var(--space-8)" aria-labelledby="how-heading">
+    <div class="section-heading">
+      <h2 id="how-heading">How this works</h2>
+    </div>
+    <div class="prose">
+      <p>
+        Pick a book and you get its full table of contents as an ordered
+        roadmap. Each section carries direct links to whatever the author or
+        university publishes free for it — the lecture that covers it, the
+        problem set, the sample chapter where one exists — plus a place to keep
+        your own notes.
+      </p>
+      <p>
+        Tick sections off as you read. Your progress, notes, and reading streak
+        are saved in your own browser, never sent anywhere. Moving to another
+        device is an export and an import, not a login.
+      </p>
+      <p>
+        <strong>We host nothing.</strong> Every reading link points at the
+        rights holder's own server. Where a book is sold, we link to buy it —
+        following one of these roadmaps is a supplement to owning the book, not
+        a replacement for it. See the
+        <a href="/copyright">copyright notice</a> for the full position.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

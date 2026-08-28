@@ -1,0 +1,102 @@
+---
+import { SITE, NAV } from '../site.config';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Appended to the site name in <title>. Set false for the landing page. */
+  suffix?: boolean;
+  /** JSON-LD structured data, serialized into a script tag. */
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description = SITE.description,
+  suffix = true,
+  jsonLd,
+} = Astro.props;
+
+const pageTitle = suffix ? `${title} — ${SITE.name}` : title;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+---
+
+<!doctype html>
+<html lang={SITE.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0f1115" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      jsonLd && (
+        <script
+          is:inline
+          type="application/ld+json"
+          set:html={JSON.stringify(jsonLd)}
+        />
+      )
+    }
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header">
+      <div class="wrap site-header__inner">
+        <a class="brand" href="/">
+          <span class="brand__mark" aria-hidden="true">RB</span>
+          <span>{SITE.name}</span>
+        </a>
+        <nav class="site-nav" aria-label="Primary">
+          {
+            NAV.map((item) => (
+              <a
+                href={item.href}
+                aria-current={currentPath === item.href ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap site-footer__inner">
+        <p>
+          {SITE.name} hosts no copyrighted material. Every reading link points
+          to the author's or university's own servers. Read the{' '}
+          <a href="/copyright">copyright and attribution notice</a>.
+        </p>
+        <p>
+          <a href="/about">About</a> · <a href={SITE.repo}>Source</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+/*
+ * Design tokens.
+ *
+ * Palette is carried over from the original prototype so the rebuild looks
+ * like the thing it replaces. A light theme can be added later by
+ * redefining these under a `[data-theme="light"]` selector — no component
+ * stylesheet needs to change.
+ */
+:root {
+  /* Surfaces */
+  --bg: #0f1115;
+  --panel: #171a21;
+  --panel-2: #1e222b;
+  --border: #2a2f3a;
+
+  /* Ink */
+  --text: #e9ecf1;
+  --muted: #9aa3b2;
+  --faint: #666f80;
+
+  /* Accents */
+  --accent: #5b8cff;
+  --accent-2: #7ad3b2;
+  --warn: #f2b84b;
+  --danger: #ef6a6a;
+
+  /* Contrast ink for use on top of accent fills */
+  --on-accent: #0d1017;
+
+  /* Shape */
+  --radius-sm: 7px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 26px;
+  --space-7: 34px;
+  --space-8: 48px;
+
+  /* Type scale */
+  --text-xs: 0.72rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.88rem;
+  --text-md: 0.93rem;
+  --text-lg: 1.05rem;
+  --text-xl: 1.35rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.2rem;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  /* Layout */
+  --measure: 1000px;
+  --measure-wide: 1140px;
+  --measure-prose: 68ch;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 200ms;
+}
