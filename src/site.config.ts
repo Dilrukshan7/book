@@ -26,7 +26,7 @@ export const SITE = {
   contactEmail: 'dilrukshanofficial@gmail.com',
 
   /** Repository URL, surfaced in the footer and contribution docs. */
-  repo: 'https://github.com/dilrukshan/readbooks',
+  repo: 'https://github.com/Dilrukshan7/book',
 
   /** Default social preview locale. */
   locale: 'en',
