@@ -1,0 +1,71 @@
+---
+import type { Book } from '../lib/books';
+import { freeMaterialBreakdown } from '../lib/books';
+
+interface Props {
+  book: Book;
+}
+
+const { book } = Astro.props;
+const { total, buckets } = freeMaterialBreakdown(book);
+
+/**
+ * Three categories, so a legend is always present and identity never rests on
+ * colour alone. An inline value is drawn only on segments wide enough to hold
+ * it without clipping; the legend carries every count regardless, and the
+ * visually hidden table means the numbers are never gated behind the graphic.
+ */
+const MIN_WIDE_PCT = 14;
+---
+
+<figure class="figure" data-reveal>
+  <figcaption class="figure__head">
+    <span class="figure__title">What is free, section by section</span>
+    <span class="figure__total">{total} sections</span>
+  </figcaption>
+
+  <div class="stack" data-stack>
+    {
+      buckets.map((bucket, i) => {
+        const pct = (bucket.count / total) * 100;
+        return (
+          <span
+            class="stack__seg"
+            style={`--seg-color: var(--series-${i + 1}); flex-grow: ${bucket.count}`}
+            data-wide={pct >= MIN_WIDE_PCT ? '' : undefined}
+          >
+            {/* Native SVG-style tooltip: works with no JavaScript at all. */}
+            <span class="u-sr">
+              {bucket.label}: {bucket.count} of {total} sections
+            </span>
+            <span class="stack__value" aria-hidden="true">
+              {bucket.count}
+            </span>
+          </span>
+        );
+      })
+    }
+  </div>
+
+  <ul class="legend">
+    {
+      buckets.map((bucket, i) => (
+        <li class="legend__item">
+          <span
+            class="legend__swatch"
+            style={`--seg-color: var(--series-${i + 1})`}
+            aria-hidden="true"
+          />
+          {bucket.label}{' '}
+          <span class="legend__count">{bucket.count}</span>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p class="figure__note">
+    Most of this book is followed through the lectures rather than the page.
+    That is the honest shape of what MIT publishes, and it is why the roadmap
+    is built around the course rather than around chapter downloads.
+  </p>
+</figure>

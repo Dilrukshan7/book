@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PartSection from '../../components/PartSection.astro';
+import FreeMaterialFigure from '../../components/FreeMaterialFigure.astro';
 import {
   assertGuidesResolve,
   sectionAnchor,
@@ -9,6 +10,7 @@ import {
 } from '../../lib/books';
 import { SITE } from '../../site.config';
 import '../../styles/roadmap.css';
+import '../../styles/charts.css';
 
 export async function getStaticPaths() {
   const books = await getCollection('books');
@@ -164,6 +166,9 @@ const jsonLd = {
                 <span class="railnav__count" data-railnav-count>
                   0/{part.sections.length}
                 </span>
+                <span class="barlist__track" aria-hidden="true">
+                  <span class="barlist__fill" data-railnav-fill></span>
+                </span>
               </a>
             ))
           }
@@ -202,6 +207,10 @@ const jsonLd = {
           <span class="notice__title">What is actually free</span>
           {book.accessNotice}
         </p>
+
+        <div class="freefig">
+          <FreeMaterialFigure book={book} />
+        </div>
 
         <div class="parts">
           {

@@ -124,6 +124,42 @@ export function findSection(
   return null;
 }
 
+/**
+ * How much of the book has free material behind it, and of what kind.
+ *
+ * Computed from the book data rather than written down, so the figure cannot
+ * drift away from the roadmap it describes. The buckets are exclusive and
+ * ordered best-first, which is also the order the chart series are assigned
+ * in, so slot 1 always means "the most complete material".
+ */
+export function freeMaterialBreakdown(book: Book): {
+  total: number;
+  buckets: { label: string; count: number }[];
+} {
+  let chapter = 0;
+  let lecture = 0;
+  let neither = 0;
+
+  for (const part of book.parts) {
+    for (const section of part.sections) {
+      const hasChapter = section.links.some((l) => l.kind === 'section-pdf');
+      const hasLecture = section.links.some((l) => l.kind === 'lecture');
+      if (hasChapter) chapter += 1;
+      else if (hasLecture) lecture += 1;
+      else neither += 1;
+    }
+  }
+
+  return {
+    total: chapter + lecture + neither,
+    buckets: [
+      { label: 'Full chapter, free to read', count: chapter },
+      { label: 'Covered by a lecture', count: lecture },
+      { label: 'Problem set and contents only', count: neither },
+    ],
+  };
+}
+
 /** Every section code in reading order. The canonical ordering for stats. */
 export function sectionCodes(book: Book): string[] {
   return book.parts.flatMap((part) => part.sections.map((s) => s.code));

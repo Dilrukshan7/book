@@ -56,6 +56,26 @@
   --accent-deep: #a72a0d; /* 6.86:1, for accent text on tinted grounds */
   --accent-wash: #fbeeea; /* the only tinted fill in the system */
 
+  /* --- Chart series -------------------------------------------------------
+     A categorical set, used ONLY inside charts, where a legend defines what
+     each hue means locally. This is deliberately separate from --accent's
+     site-wide meaning: outside a chart, vermillion still means only "your
+     position in the book".
+
+     Validated, not eyeballed. From the dataviz validator, all-pairs, light,
+     against --paper:
+       CVD separation      worst pair 11.6  (target >= 8)
+       normal-vision floor worst pair 19.6  (floor 15)
+       contrast vs surface all >= 3:1; all >= 4.5:1 as text
+     The first ochre candidate failed at CVD 0.4 against vermillion, which is
+     invisible to the eye and obvious to the script. Re-run before changing a
+     value:
+       node scripts/validate_palette.js "#cc3311,#1f4e9c,#0f7f63"             --mode light --surface "#fcfcfa" --pairs all
+     (validator lives in the dataviz skill) */
+  --series-1: #cc3311; /* vermillion */
+  --series-2: #1f4e9c; /* deep blue  */
+  --series-3: #0f7f63; /* deep teal  */
+
   /* --- Type ---------------------------------------------------------------
      Families come from Astro's font pipeline (see astro.config.mjs). */
   --face-serif: var(--font-serif), Georgia, Cambria, serif;

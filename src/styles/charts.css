@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Charts
+
+   Two figures, both carrying real numbers from the book data. Neither exists
+   to decorate a section.
+
+   One deliberate departure from the usual chart mark spec: data-ends are
+   square, not 4px rounded. This site's shape language is square throughout
+   (`--radius: 0`), and rounded bar caps in a page with square buttons, square
+   inputs and hairline rules would read as an import from another system. The
+   2px surface gap between segments does the separating instead, which is what
+   the gap is for.
+   ========================================================================== */
+
+.figure {
+  margin: 0;
+}
+
+.figure__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-3);
+}
+
+.figure__title {
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.figure__total {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Stacked bar: what free material exists across the book
+   -------------------------------------------------------------------------- */
+
+.stack {
+  display: flex;
+  width: 100%;
+  height: 22px;
+  /* The surface doing the separating, at one consistent width. */
+  gap: 2px;
+  background: var(--paper);
+}
+
+.stack__seg {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2px;
+  background: var(--seg-color);
+  /* Grows from zero on reveal. Transform would blur the fill's edge, so this
+     animates flex-basis, which is cheap here: three segments, once, on a
+     layout that is already settled. */
+  transition: flex-grow var(--slow) var(--ease);
+}
+
+.stack__value {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-micro);
+  font-weight: 500;
+  color: #fff;
+  opacity: 0;
+  transition: opacity var(--mid) var(--ease) 260ms;
+}
+/* Only labelled inline where the number actually fits; the legend carries
+   the rest. A clipped label is worse than no label. */
+.stack__seg[data-wide] .stack__value {
+  opacity: 1;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+  margin-top: var(--s-4);
+}
+
+.legend__item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+
+.legend__swatch {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--seg-color);
+  transform: translateY(0.05rem);
+}
+
+.legend__count {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+}
+
+.figure__note {
+  margin-top: var(--s-3);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+  max-width: 60ch;
+}
+
+/* --------------------------------------------------------------------------
+   Bar list: progress per part, in the contents rail
+
+   The rail already listed the parts with a count. Making that list
+   quantitative is better than adding a second chart that says the same thing
+   in a different shape.
+   -------------------------------------------------------------------------- */
+
+.barlist__track {
+  grid-column: 1 / -1;
+  height: 2px;
+  margin-top: 0.35rem;
+  background: var(--rule);
+}
+
+.barlist__fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--slow) var(--ease);
+}
+
+/* A finished part is stated in ink rather than with a badge, matching how the
+   count is treated. */
+.railnav a[data-complete] .barlist__fill {
+  background: var(--ink);
+}
+
+/* --------------------------------------------------------------------------
+   Motion
+
+   Charts animate once, on entry, because a bar growing from its baseline is
+   how a reader is told "this is a quantity". Under reduced motion they are
+   simply present at their final value.
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .stack__seg,
+  .stack__value,
+  .barlist__fill {
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Placement on the book page
+   -------------------------------------------------------------------------- */
+
+.freefig {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule);
+  max-width: 46rem;
+}

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BookCover from '../components/BookCover.astro';
 import { resolveSectionLinks, totalSections } from '../lib/books';
 import { SITE } from '../site.config';
 import '../styles/home.css';
@@ -136,11 +137,11 @@ const jsonLd = {
       <section class="u-page u-band" aria-labelledby="book-heading" data-reveal>
         <div class="record">
           <div>
-            <div class="cover" aria-hidden="true">
-              <span class="cover__rule" />
-              <span class="cover__title">{featured.title}</span>
-              <span class="cover__author">{featured.author}</span>
-            </div>
+            <BookCover
+              title={featured.title}
+              author={featured.author}
+              motif={featured.coverMotif}
+            />
           </div>
 
           <div>

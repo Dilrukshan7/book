@@ -100,6 +100,15 @@ const bookSchema = z
     /** Honest, per-book explanation of exactly what is and isn't free. */
     accessNotice: z.string().min(1),
 
+    /**
+     * Which diagram the cover carries. We never reproduce a publisher's
+     * artwork, so each book gets a drawn motif of its own subject instead.
+     *   svd   a matrix factorised into tall, square, and wide blocks
+     *   grid  a matrix of cells
+     *   curve a decaying quantity
+     */
+    coverMotif: z.enum(['svd', 'grid', 'curve']).default('grid'),
+
     /** Optional free course the book maps onto. */
     course: z
       .object({

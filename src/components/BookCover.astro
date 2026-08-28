@@ -1,0 +1,88 @@
+---
+interface Props {
+  title: string;
+  author: string;
+  /** Which diagram to set on the cover. See the switch below. */
+  motif?: 'svd' | 'grid' | 'curve';
+}
+
+const { title, author, motif = 'grid' } = Astro.props;
+---
+
+{/*
+  A publisher's cover is their artwork, so we never reproduce one. This is our
+  own object instead: a ruled card carrying a diagram of what the book is
+  actually about, set in the book face.
+
+  The motifs are drawn, not decorative. `svd` is the factorisation the whole of
+  Strang's book turns on, with the blocks in true proportion: a tall U, a small
+  square sigma, and a wide V-transpose multiplying out to a matrix far larger
+  than the information it takes to store. That is the low-rank idea the book is
+  about, stated as a picture.
+*/}
+<div class="cover">
+  <span class="cover__rule" aria-hidden="true"></span>
+
+  <svg
+    class="cover__motif"
+    viewBox="0 0 104 46"
+    role="img"
+    aria-label={
+      motif === 'svd'
+        ? 'Diagram: a matrix factorised into a tall, a small square, and a wide block'
+        : 'Cover diagram'
+    }
+  >
+    {
+      motif === 'svd' && (
+        <g>
+          {/* A */}
+          <rect x="1" y="1" width="30" height="44" class="m-outline" />
+          <text x="16" y="27" class="m-label">A</text>
+
+          <text x="38" y="27" class="m-eq">=</text>
+
+          {/* U, tall and narrow */}
+          <rect x="47" y="1" width="11" height="44" class="m-fill-1" />
+          {/* Sigma, small and square, with its diagonal */}
+          <rect x="61" y="1" width="11" height="11" class="m-fill-2" />
+          <line x1="62.4" y1="2.4" x2="70.6" y2="10.6" class="m-diag" />
+          {/* V transpose, wide and short */}
+          <rect x="75" y="1" width="28" height="11" class="m-fill-3" />
+        </g>
+      )
+    }
+    {
+      motif === 'grid' && (
+        <g>
+          {Array.from({ length: 4 }).map((_, r) =>
+            Array.from({ length: 9 }).map((__, c) => (
+              <rect
+                x={2 + c * 11.4}
+                y={2 + r * 11}
+                width="8"
+                height="8"
+                class={(r + c) % 3 === 0 ? 'm-fill-2' : 'm-outline'}
+              />
+            )),
+          )}
+        </g>
+      )
+    }
+    {
+      motif === 'curve' && (
+        <g>
+          <line x1="2" y1="44" x2="102" y2="44" class="m-axis" />
+          <line x1="2" y1="2" x2="2" y2="44" class="m-axis" />
+          <path
+            d="M2 4 C 22 4, 26 34, 46 39 S 78 43, 102 43"
+            class="m-curve"
+          />
+        </g>
+      )
+    }
+  </svg>
+
+  <span class="cover__title">{title}</span>
+  <span class="cover__author">{author}</span>
+</div>

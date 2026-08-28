@@ -228,7 +228,80 @@
   height: 2px;
   background: var(--accent);
   margin-bottom: var(--s-4);
+  transition: width var(--slow) var(--ease);
 }
+.record:hover .cover__rule {
+  width: 3rem;
+}
+
+/* --- Cover motif --------------------------------------------------------
+   A drawn diagram of what the book is about, in the chart palette. The
+   blocks are in true proportion, so the picture states the low-rank idea
+   rather than gesturing at it. */
+.cover__motif {
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--s-4);
+  overflow: visible;
+}
+.cover__motif .m-outline {
+  fill: none;
+  stroke: var(--ink-4);
+  stroke-width: 1.4;
+}
+.cover__motif .m-fill-1 { fill: var(--series-1); }
+.cover__motif .m-fill-2 { fill: var(--series-2); }
+.cover__motif .m-fill-3 { fill: var(--series-3); }
+.cover__motif .m-diag {
+  stroke: var(--paper-raised);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.cover__motif .m-axis {
+  stroke: var(--ink-4);
+  stroke-width: 1.2;
+}
+.cover__motif .m-curve {
+  fill: none;
+  stroke: var(--series-1);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.cover__motif .m-label,
+.cover__motif .m-eq {
+  fill: var(--ink-3);
+  font-family: var(--face-serif);
+  font-size: 15px;
+  font-style: italic;
+  text-anchor: middle;
+}
+.cover__motif .m-eq {
+  font-style: normal;
+}
+
+/* The three factors settle into place once, on entry. The order is the
+   order you would write them: U, then sigma, then V-transpose. */
+@media (prefers-reduced-motion: no-preference) {
+  .cover__motif .m-fill-1,
+  .cover__motif .m-fill-2,
+  .cover__motif .m-fill-3 {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition:
+      opacity var(--slow) var(--ease),
+      transform var(--slow) var(--ease);
+  }
+  [data-reveal].is-revealed .cover__motif .m-fill-1 { transition-delay: 120ms; }
+  [data-reveal].is-revealed .cover__motif .m-fill-2 { transition-delay: 220ms; }
+  [data-reveal].is-revealed .cover__motif .m-fill-3 { transition-delay: 320ms; }
+  [data-reveal].is-revealed .cover__motif .m-fill-1,
+  [data-reveal].is-revealed .cover__motif .m-fill-2,
+  [data-reveal].is-revealed .cover__motif .m-fill-3 {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .cover__title {
   font-size: 1rem;
   line-height: 1.22;

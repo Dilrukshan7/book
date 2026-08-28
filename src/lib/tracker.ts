@@ -127,6 +127,10 @@ export function initTracker(root: HTMLElement): void {
       if (link) {
         setText(link, '[data-railnav-count]', `${done}/${total}`);
         link.toggleAttribute('data-complete', complete);
+        const fill = link.querySelector<HTMLElement>('[data-railnav-fill]');
+        if (fill) {
+          fill.style.width = total ? `${(done / total) * 100}%` : '0%';
+        }
       }
     }
   }
