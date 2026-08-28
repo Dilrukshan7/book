@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found" description="That page does not exist.">
+  <div class="wrap book-header">
+    <h1>That page doesn't exist</h1>
+    <p class="book-header__lede">
+      The link may be out of date, or the book may have moved. Everything
+      available is listed on the home page.
+    </p>
+    <p style="margin-top: var(--space-5)">
+      <a class="pill pill--primary" href="/">Browse the books</a>
+    </p>
+  </div>
+</BaseLayout>
