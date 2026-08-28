@@ -1,0 +1,419 @@
+/* ==========================================================================
+   Landing page
+
+   Five sections, five different layout families, so nothing reads as a
+   repeated template:
+     1. hero            asymmetric split, live specimen on the right
+     2. premise         single editorial column, wide measure
+     3. the book        featured record, cover plus part index
+     4. what you get    numbered sequence, asymmetric grid
+     5. position        ruled statement band
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Hero
+   -------------------------------------------------------------------------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: var(--s-9);
+  align-items: center;
+  padding-top: var(--s-8);
+  padding-bottom: var(--s-9);
+  min-height: min(76dvh, 640px);
+}
+
+.hero__title {
+  /* Sized and measured together so the headline sets in two lines at every
+     width. Three lines pushes the CTA toward the fold and reads as an
+     accident rather than a decision. */
+  font-size: clamp(2.25rem, 1.4rem + 3vw, 2.875rem);
+  line-height: 1.06;
+  letter-spacing: var(--track-display);
+  font-weight: 400;
+  max-width: 20ch;
+  /* Descender reserve lives on the block, not on the italic span. Putting it
+     on the span made the span taller than its own line box; here it protects
+     any descender the headline copy might later contain. */
+  padding-bottom: 0.09em;
+}
+/* Italic on the operative word. Same family, never a second face. */
+.hero__em {
+  font-style: italic;
+}
+
+.hero__sub {
+  margin-top: var(--s-5);
+  max-width: 42ch;
+  font-family: var(--face-sans);
+  font-size: var(--t-lead);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+  margin-top: var(--s-6);
+}
+
+/* The specimen is the real roadmap component with real rows, not a mock-up
+   of one. It shows the product instead of describing it. */
+.specimen {
+  border-top: 2px solid var(--ink);
+  padding-top: var(--s-4);
+}
+.specimen__cap {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  font-family: var(--face-sans);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.specimen__rows {
+  margin-top: var(--s-3);
+}
+.specimen__row {
+  display: grid;
+  grid-template-columns: 0.875rem 2.75rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--s-3);
+  padding-block: var(--s-3);
+  border-bottom: 1px solid var(--rule);
+}
+.specimen__mark {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1.5px solid var(--ink-4);
+  transform: translateY(0.15rem);
+}
+.specimen__row[data-read] .specimen__mark {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.specimen__row[data-here] .specimen__mark {
+  border-color: var(--accent);
+}
+.specimen__code {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.specimen__row[data-here] .specimen__code {
+  color: var(--accent);
+  font-weight: 500;
+}
+.specimen__name {
+  display: block;
+  font-size: var(--t-ui);
+  line-height: 1.35;
+  color: var(--ink);
+}
+.specimen__row[data-read] .specimen__name {
+  color: var(--ink-3);
+}
+.specimen__src {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: var(--face-sans);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+.specimen__legend {
+  margin-top: var(--s-4);
+  font-family: var(--face-sans);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+    gap: var(--s-7);
+    min-height: 0;
+    padding-top: var(--s-7);
+    padding-bottom: var(--s-8);
+  }
+  .hero__title {
+    max-width: 16ch;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   2. Premise
+   -------------------------------------------------------------------------- */
+
+.premise {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: var(--s-8);
+  align-items: start;
+}
+.premise__lead {
+  font-size: clamp(1.375rem, 1rem + 1.4vw, 1.75rem);
+  line-height: 1.32;
+  letter-spacing: var(--track-heading);
+  color: var(--ink);
+  font-weight: 400;
+}
+.premise__body {
+  max-width: 60ch;
+}
+.premise__body > * + * {
+  margin-top: var(--s-4);
+}
+.premise__body p {
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+.premise__body strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+@media (max-width: 860px) {
+  .premise {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   3. The book, as a featured record
+   -------------------------------------------------------------------------- */
+
+.record {
+  display: grid;
+  grid-template-columns: 11rem minmax(0, 1fr);
+  gap: var(--s-8);
+  align-items: start;
+  padding-top: var(--s-6);
+}
+
+/* Typographic cover. We never reproduce the publisher's cover art, so this
+   is our own object: ruled, set in the book face, proportioned 2:3. */
+.cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  padding: var(--s-4);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--mid) var(--ease);
+}
+.record:hover .cover {
+  border-color: var(--ink);
+}
+.cover::after {
+  /* Spine: a single rule, the only structural ornament on the object. */
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0.55rem;
+  width: 1px;
+  background: var(--rule);
+}
+.cover__rule {
+  width: 1.75rem;
+  height: 2px;
+  background: var(--accent);
+  margin-bottom: var(--s-4);
+}
+.cover__title {
+  font-size: 1rem;
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  font-weight: 500;
+}
+.cover__author {
+  margin-top: auto;
+  font-family: var(--face-sans);
+  font-size: var(--t-micro);
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+
+.record__title {
+  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2rem);
+  line-height: 1.14;
+  letter-spacing: var(--track-display);
+  font-weight: 400;
+  max-width: 20ch;
+}
+.record__title a {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size var(--mid) var(--ease);
+}
+.record:hover .record__title a {
+  background-size: 100% 1px;
+}
+.record__meta {
+  margin-top: var(--s-3);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.record__blurb {
+  margin-top: var(--s-4);
+  max-width: 56ch;
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+
+/* Part index: proves the depth of the roadmap without a screenshot. */
+.record__parts {
+  margin-top: var(--s-5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0 var(--s-6);
+}
+.record__part {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s-2);
+  padding-block: 0.45rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+}
+.record__part span:first-child {
+  font-family: var(--face-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+.record__part span:last-child {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+
+.record__actions {
+  margin-top: var(--s-6);
+}
+
+@media (max-width: 720px) {
+  .record {
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--s-5);
+  }
+  .cover {
+    padding: var(--s-3);
+  }
+  .cover__title {
+    font-size: 0.8125rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   4. What you get, as a numbered sequence
+   -------------------------------------------------------------------------- */
+
+.seq {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-7);
+  margin-top: var(--s-6);
+}
+/* Deliberately not three equal cards: no borders, no boxes, and the first
+   item is given a wider measure so the row is not a mechanical triptych. */
+.seq__item:first-child {
+  grid-column: span 1;
+}
+.seq__num {
+  font-family: var(--face-mono);
+  font-size: var(--t-micro);
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.seq__title {
+  margin-top: var(--s-3);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--ink);
+  font-size: var(--t-h4);
+  line-height: 1.25;
+  font-weight: 500;
+}
+.seq__body {
+  margin-top: var(--s-3);
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+
+@media (max-width: 860px) {
+  .seq {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   5. Position statement
+   -------------------------------------------------------------------------- */
+
+/* A full-width claim over a two-column text set. Deliberately not another
+   left-statement / right-body split: the premise section already uses that
+   composition, and repeating it would make the page read as a template. */
+.position__claim {
+  max-width: 28ch;
+  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem);
+  line-height: 1.2;
+  letter-spacing: var(--track-display);
+  font-weight: 400;
+  color: var(--ink);
+}
+.position__body {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule);
+  columns: 2;
+  column-gap: var(--s-8);
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+.position__body p {
+  break-inside: avoid;
+  margin-bottom: var(--s-4);
+}
+.position__body p:last-child {
+  margin-bottom: 0;
+}
+.position__body a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-4);
+  text-underline-offset: 0.16em;
+}
+.position__body a:hover {
+  text-decoration-color: var(--accent);
+}
+
+@media (max-width: 860px) {
+  .position__body {
+    columns: 1;
+  }
+}

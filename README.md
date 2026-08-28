@@ -22,7 +22,8 @@ or university's own server. See [the copyright position](#copyright).
 |---|---|
 | Framework | [Astro](https://astro.build) 7, static output |
 | Hosting | Cloudflare Pages (free tier) |
-| Client JS | ~4 KB of hand-written TypeScript, no framework runtime |
+| Client JS | ~16 KB of hand-written TypeScript, no framework runtime |
+| Type | Literata, IBM Plex Sans, IBM Plex Mono, self-hosted by Astro |
 | Persistence | `localStorage`, with JSON export/import |
 | Cost | $0, permanently |
 
@@ -62,9 +63,15 @@ src/
 │  ├─ progress.ts       Pure progress/streak logic, no DOM
 │  ├─ tracker.ts        The only client-side script
 │  └─ books.ts          Build-time link resolution and integrity checks
+├─ styles/
+│  ├─ tokens.css       The design system: colour, type, space, motion
+│  ├─ global.css       Reset, primitives, buttons, prose, masthead
+│  ├─ roadmap.css      Book page: contents rail and section rows
+│  ├─ home.css         Landing page
+│  └─ guide.css        Study guide pages
 ├─ components/          Astro components, all server-rendered
 └─ pages/
-   ├─ index.astro                  Landing: book grid
+   ├─ index.astro                  Landing: featured book record
    ├─ books/[slug].astro           Book roadmap
    └─ books/[slug]/[section].astro Study guide
 ```
@@ -76,10 +83,46 @@ saved state to that markup through `data-*` hooks; it never renders content.
 
 That means all 46 section titles of a book are crawlable, and with JavaScript
 disabled the page still reads and every link still works — only the checkboxes
-go inert. Section toggles are real `<input type="checkbox">` elements and part
-accordions are native `<details>`, so keyboard support, screen-reader
-semantics, and the checked state all come from the platform rather than from
-our code.
+go inert. Section toggles are real `<input type="checkbox">` elements, so
+keyboard support, screen-reader semantics, and the checked state all come from
+the platform rather than from our code.
+
+### The design system
+
+The reference is scholarly publishing rather than software: a book set on good
+paper. Three rules follow from that and are enforced throughout, so breaking one
+should feel deliberate:
+
+1. **No shadows.** There is not one `box-shadow` in the stylesheets. Hierarchy
+   comes from type size, weight, ink colour, and hairline rules.
+2. **No corner radius.** `--radius: 0`, including buttons and inputs.
+3. **One accent, carrying information only.** Vermillion marks where you are in
+   the book, the way a ribbon does. It is never decoration.
+
+A section's state is three-valued, and colour is only one of its channels, so it
+survives greyscale and colour blindness:
+
+| State | Mark | Row |
+|---|---|---|
+| Not read | hairline square outline | plain |
+| Next up | vermillion outline | vermillion rule at the left edge |
+| Read | solid ink square | title recedes to grey |
+
+Every ink and accent value in [`tokens.css`](src/styles/tokens.css) carries its
+measured contrast ratio against the paper. `--ink-4` is documented non-text: it
+is for borders and `text-decoration-color`, and fails AA as a `color`.
+
+### Where the book page layout came from
+
+46 sections in a single scroll gives a reader no sense of position, and the
+earlier accordions hid the contents behind seven clicks and broke ctrl-F. The
+page is now a sticky contents rail beside an always-open index. The rail carries
+progress, the part list, and a resume control pointed at the next unread
+section, so "where am I and what is next" is answerable at any scroll position.
+
+Below 1024px the rail is not narrowed but re-thought: progress and resume become
+a horizontal sticky strip, and the part index becomes a native select, which is
+the right control for jumping on a phone.
 
 ### Where progress lives
 

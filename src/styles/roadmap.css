@@ -1,0 +1,812 @@
+/* ==========================================================================
+   Book roadmap
+   ==========================================================================
+
+   The problem this layout solves: 46 sections in one scroll gives the reader
+   no sense of position. A sticky contents rail carries progress, the part
+   index, and the resume control, so "where am I and what is next" is
+   answerable at every scroll position without leaving the page.
+
+   Below 1024px the rail becomes a compact sticky strip under the masthead,
+   because a 15rem column would leave nothing for the content it describes.
+   ========================================================================== */
+
+.book {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  gap: var(--s-8);
+  align-items: start;
+  padding-bottom: var(--s-9);
+}
+
+/* --------------------------------------------------------------------------
+   Book masthead
+   -------------------------------------------------------------------------- */
+
+.bookhead {
+  padding-block: var(--s-8) var(--s-6);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.bookhead__crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: var(--s-5);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.bookhead__crumb a {
+  color: var(--ink-3);
+  text-decoration: none;
+  transition: color var(--fast) var(--ease);
+}
+.bookhead__crumb a:hover {
+  color: var(--accent);
+}
+.bookhead__crumb span[aria-hidden] {
+  color: var(--ink-3);
+}
+
+.bookhead__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: var(--s-7);
+  align-items: end;
+}
+
+.bookhead__title {
+  font-size: clamp(2rem, 1.2rem + 3vw, 3rem);
+  line-height: 1.06;
+  letter-spacing: var(--track-display);
+  font-weight: 400;
+  max-width: 18ch;
+}
+
+.bookhead__byline {
+  margin-top: var(--s-4);
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  color: var(--ink-3);
+}
+.bookhead__byline strong {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.bookhead__blurb {
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+  font-family: var(--face-sans);
+  max-width: 46ch;
+  padding-bottom: 0.35rem;
+}
+
+@media (max-width: 900px) {
+  .bookhead__grid {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    align-items: start;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Contents rail
+   -------------------------------------------------------------------------- */
+
+.rail {
+  position: sticky;
+  top: 5.5rem;
+  padding-top: var(--s-7);
+  font-family: var(--face-sans);
+}
+
+.rail__section + .rail__section {
+  margin-top: var(--s-6);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule);
+}
+
+/* Progress: one figure, set large in tabular mono, with a hairline gauge.
+   No card, no KPI grid. */
+.gauge__figure {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.gauge__done {
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1;
+}
+.gauge__total {
+  font-size: var(--t-ui);
+  color: var(--ink-3);
+}
+
+.gauge__track {
+  position: relative;
+  height: 2px;
+  margin-top: var(--s-4);
+  background: var(--rule);
+}
+.gauge__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--accent);
+  transition: width var(--slow) var(--ease);
+}
+
+.gauge__caption {
+  margin-top: var(--s-3);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+
+/* Streak is shown only once it exists; an empty streak is discouraging and
+   tells the reader nothing. The tracker sets [hidden]. */
+.gauge__streak {
+  margin-top: var(--s-2);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+}
+.gauge__streak b {
+  color: var(--ink);
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Resume. The single most-used control for a returning reader, so it gets
+   the accent rule and sits above the part index. */
+.resume {
+  display: block;
+  padding: var(--s-4) 0 var(--s-4) var(--s-4);
+  border-left: 2px solid var(--accent);
+  text-decoration: none;
+  transition: background var(--fast) var(--ease);
+}
+.resume:hover {
+  background: var(--accent-wash);
+}
+.resume__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+.resume__arrow {
+  display: inline-block;
+  transition: transform var(--mid) var(--ease);
+}
+.resume:hover .resume__arrow {
+  transform: translateX(3px);
+}
+.resume__target {
+  display: block;
+  margin-top: var(--s-2);
+  font-family: var(--face-serif);
+  font-size: var(--t-ui);
+  line-height: var(--lh-snug);
+  color: var(--ink);
+}
+.resume__code {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-3);
+  margin-right: 0.4rem;
+}
+
+/* Part index */
+.railnav {
+  display: flex;
+  flex-direction: column;
+}
+.railnav a {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+  font-size: var(--t-sm);
+  line-height: 1.35;
+  color: var(--ink-2);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  transition: color var(--fast) var(--ease);
+}
+.railnav a:last-child {
+  border-bottom: 0;
+}
+.railnav a:hover {
+  color: var(--accent);
+}
+.railnav__roman {
+  font-family: var(--face-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  transition: color var(--fast) var(--ease);
+}
+.railnav a:hover .railnav__roman {
+  color: var(--accent);
+}
+.railnav__count {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+/* A completed part is stated in ink, not with a badge. */
+.railnav a[data-complete] .railnav__count {
+  color: var(--ink);
+}
+
+/* Tools live in a disclosure: needed occasionally, never worth the space. */
+.tools > summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  transition: color var(--fast) var(--ease);
+}
+.tools > summary::-webkit-details-marker {
+  display: none;
+}
+.tools > summary:hover {
+  color: var(--ink);
+}
+.tools > summary::after {
+  content: ' +';
+  font-family: var(--face-mono);
+}
+.tools[open] > summary::after {
+  content: ' \2212';
+}
+.tools__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+}
+.tools__note {
+  margin-top: var(--s-3);
+  font-size: var(--t-micro);
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Parts and sections
+   -------------------------------------------------------------------------- */
+
+.main {
+  padding-top: var(--s-7);
+  min-width: 0;
+}
+
+.part {
+  scroll-margin-top: 6rem;
+}
+.part + .part {
+  margin-top: var(--s-8);
+}
+
+.part__head {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding-bottom: var(--s-4);
+  border-bottom: 2px solid var(--ink);
+}
+
+/* Ink, not accent. Seven permanently red part numerals would compete with
+   the single red mark that means "you are here", which is the one job the
+   accent has on this page. */
+.part__roman {
+  font-family: var(--face-mono);
+  font-size: var(--t-sm);
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.part__title {
+  font-size: var(--t-h3);
+  font-weight: 500;
+  letter-spacing: var(--track-heading);
+}
+.part__summary {
+  margin-top: var(--s-2);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+  max-width: 58ch;
+}
+
+.part__count {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* --- Section row ---------------------------------------------------------
+   Grid: mark | number | title and sources | guide
+   The row is the product. Everything else on the page serves it. */
+
+.row {
+  display: grid;
+  grid-template-columns: 1.5rem 3.25rem minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--s-4);
+  padding-block: var(--s-4);
+  border-bottom: 1px solid var(--rule);
+  transition: border-color var(--mid) var(--ease);
+}
+
+/* The next unread section, marked by the tracker. This is the only place
+   the accent appears in the list, which is what makes it findable. */
+.row[data-next] {
+  border-bottom-color: var(--rule);
+  box-shadow: inset 2px 0 0 var(--accent);
+  padding-left: var(--s-4);
+  margin-left: calc(var(--s-4) * -1);
+}
+
+.row__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  margin: 0;
+}
+
+/* The mark. Outline square when unread, solid ink when read. No tick glyph,
+   no gradient: a filled square reads instantly at 14px and needs no icon. */
+.row__mark {
+  position: relative;
+  width: 0.875rem;
+  height: 0.875rem;
+  margin-top: 0.4rem;
+  border: 1.5px solid var(--ink-4);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--fast) var(--ease),
+    border-color var(--fast) var(--ease),
+    transform var(--fast) var(--ease);
+}
+/* The mark stays 14px because that is the right weight beside 17px text,
+   but a 14px tap target is not usable on touch. This expands the hit area to
+   roughly 35px without moving anything on screen. */
+.row__mark::after {
+  content: '';
+  position: absolute;
+  inset: -0.65rem;
+}
+.row__mark:hover {
+  border-color: var(--ink);
+}
+.row__input:checked + .row__mark {
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.row__input:focus-visible + .row__mark {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.row[data-next] .row__mark {
+  border-color: var(--accent);
+}
+.row__mark:active {
+  transform: scale(0.88);
+}
+
+.row__code {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--ink-3);
+  transition: color var(--fast) var(--ease);
+}
+.row:has(.row__input:checked) .row__code {
+  color: var(--ink-3);
+}
+.row[data-next] .row__code {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.row__body {
+  min-width: 0;
+}
+
+.row__title {
+  font-size: var(--t-body);
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--ink);
+  transition: color var(--fast) var(--ease);
+}
+/* Read sections recede rather than being struck through: a line through 46
+   titles is noise, and greying is enough alongside the filled mark. */
+.row:has(.row__input:checked) .row__title {
+  color: var(--ink-3);
+}
+.row__title a {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size var(--mid) var(--ease);
+}
+.row__title a:hover {
+  background-size: 100% 1px;
+}
+
+/* Sources: a quiet inline list separated by hairline pipes, not pills.
+   154 pills on one page was the single noisiest thing about the old design. */
+.row__sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  margin-top: var(--s-2);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+}
+.row__sources a {
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition:
+    color var(--fast) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+.row__sources a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+/* The one freely readable copy of a section is worth distinguishing. */
+.row__sources a[data-free] {
+  color: var(--ink-2);
+  font-weight: 500;
+}
+
+.row__note {
+  margin-top: var(--s-3);
+}
+.row__note textarea {
+  width: 100%;
+  min-height: 5rem;
+  padding: var(--s-3);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  line-height: var(--lh-normal);
+  color: var(--ink);
+  resize: vertical;
+  transition: border-color var(--fast) var(--ease);
+}
+.row__note textarea::placeholder {
+  color: var(--ink-3);
+}
+.row__note textarea:focus {
+  border-color: var(--ink);
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Guide link and note toggle, right-aligned. The note toggle only earns its
+   place once hovered or once a note exists. */
+.row__aside {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  white-space: nowrap;
+}
+
+.row__guide {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-strong);
+  transition: border-color var(--fast) var(--ease);
+}
+.row__guide:hover {
+  border-bottom-color: var(--accent);
+}
+
+.row__notebtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity var(--fast) var(--ease),
+    color var(--fast) var(--ease);
+}
+.row:hover .row__notebtn,
+.row__notebtn:focus-visible,
+.row__notebtn[data-has-note] {
+  opacity: 1;
+}
+.row__notebtn:hover {
+  color: var(--ink);
+}
+.row__notebtn[data-has-note] {
+  color: var(--accent-deep);
+}
+
+/* --- Part checklist ------------------------------------------------------ */
+
+.checklist {
+  margin-top: var(--s-5);
+  padding: var(--s-5) 0 0;
+  border-top: 1px solid var(--rule);
+}
+/* Sentence case, not a small-caps eyebrow. This label repeats once per part,
+   and seven uppercase micro-labels down the page read as a template rather
+   than as seven headings. */
+.checklist__title {
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+.checklist__items {
+  margin-top: var(--s-3);
+  display: grid;
+  gap: var(--s-2);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+}
+.checklist__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+}
+.checklist__item input {
+  flex: none;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+  transform: translateY(0.1rem);
+}
+.checklist__item label {
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  line-height: var(--lh-normal);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: color var(--fast) var(--ease);
+}
+.checklist__item:has(input:checked) label {
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------------------
+   Book-wide sources
+   -------------------------------------------------------------------------- */
+
+.sources {
+  margin-top: var(--s-7);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule-strong);
+}
+.sources__grid {
+  margin-top: var(--s-4);
+  display: grid;
+  gap: 0 var(--s-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+.sources__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding-block: 0.55rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+}
+.sources__item a {
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color var(--fast) var(--ease);
+}
+.sources__item a:hover {
+  color: var(--accent);
+}
+.sources__kind {
+  font-family: var(--face-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* --------------------------------------------------------------------------
+   Attribution
+   -------------------------------------------------------------------------- */
+
+.attrib {
+  margin-top: var(--s-8);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule-strong);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+  max-width: 70ch;
+}
+.attrib > * + * {
+  margin-top: var(--s-3);
+}
+.attrib a {
+  color: var(--ink-2);
+  text-decoration: underline;
+  text-decoration-color: var(--ink-4);
+  text-underline-offset: 0.16em;
+  transition: text-decoration-color var(--fast) var(--ease);
+}
+.attrib a:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* ==========================================================================
+   Responsive
+
+   Below 1024px the rail is not narrowed, it is re-thought: progress and
+   resume become a horizontal sticky strip, and the part index moves to a
+   native select, which is the right control for jumping on a phone.
+   ========================================================================== */
+
+@media (max-width: 1023px) {
+  .book {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .rail {
+    position: sticky;
+    top: 4.25rem;
+    z-index: 15;
+    padding-top: 0;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: saturate(180%) blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .rail__strip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s-4);
+    padding-block: var(--s-3);
+  }
+
+  .rail__section + .rail__section {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .gauge__figure {
+    align-items: baseline;
+  }
+  .gauge__done {
+    font-size: 1.25rem;
+  }
+  .gauge__track {
+    margin-top: var(--s-2);
+  }
+  .gauge__caption,
+  .gauge__streak {
+    display: none;
+  }
+
+  /* Resume collapses to a single line beside the gauge. */
+  .resume {
+    padding: var(--s-2) 0 var(--s-2) var(--s-3);
+    min-width: 0;
+  }
+  .resume__target {
+    margin-top: 0.15rem;
+    font-size: var(--t-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .railnav,
+  .tools {
+    display: none;
+  }
+
+  .main {
+    padding-top: var(--s-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .rail__jump {
+    display: none;
+  }
+}
+
+/* Jump control for narrow viewports */
+.rail__jump {
+  padding-bottom: var(--s-3);
+}
+.rail__jump select {
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  color: var(--ink);
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: var(--s-3);
+    row-gap: var(--s-2);
+  }
+  /* Number joins the title line rather than holding its own column. */
+  .row__code {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: var(--t-micro);
+    line-height: 1.2;
+    margin-bottom: 0.15rem;
+  }
+  .row__body {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .row__aside {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: var(--s-2);
+  }
+  .row__notebtn {
+    opacity: 1; /* no hover on touch */
+  }
+  .part__head {
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+  }
+  .part__count {
+    grid-column: 2;
+    margin-top: var(--s-2);
+  }
+}

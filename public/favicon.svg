@@ -1,11 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#5b8cff"/>
-      <stop offset="1" stop-color="#7ad3b2"/>
-    </linearGradient>
-  </defs>
-  <rect width="64" height="64" rx="14" fill="#0f1115"/>
-  <path d="M14 16h15a7 7 0 0 1 7 7v25a5 5 0 0 0-5-5H14z" fill="url(#g)"/>
-  <path d="M50 16H35a7 7 0 0 0-7 7v25a5 5 0 0 1 5-5h17z" fill="url(#g)" opacity=".55"/>
+  <rect width="64" height="64" fill="#fcfcfa"/>
+  <!-- The wordmark rule, at favicon scale: a ruled line over a text block. -->
+  <rect x="14" y="15" width="24" height="4" fill="#cc3311"/>
+  <rect x="14" y="28" width="36" height="2" fill="#16150f"/>
+  <rect x="14" y="36" width="36" height="2" fill="#16150f"/>
+  <rect x="14" y="44" width="22" height="2" fill="#16150f"/>
 </svg>

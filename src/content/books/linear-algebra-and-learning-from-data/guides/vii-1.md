@@ -3,7 +3,7 @@ title: The Construction of Deep Neural Networks
 section: VII.1
 summary: >-
   Where the whole book has been heading. A deep network is an alternating stack
-  of linear maps and one simple nonlinearity — and its expressive power comes
+  of linear maps and one simple nonlinearity, and its expressive power comes
   from counting the flat pieces that stack creates.
 readingMinutes: 8
 ---
@@ -24,7 +24,7 @@ Layer `k` computes `Aₖ x + bₖ` and then applies **ReLU**, the function
 Two observations do most of the work in this section:
 
 **Without the nonlinearity, depth buys nothing.** Compose affine maps and you
-get an affine map — `A₂(A₁x + b₁) + b₂` is just `Ax + b`. A hundred layers with
+get an affine map: `A₂(A₁x + b₁) + b₂` is just `Ax + b`. A hundred layers with
 no ReLU has exactly the expressive power of one layer. The nonlinearity is not
 a detail; it is the entire reason depth exists.
 
@@ -46,7 +46,7 @@ between passing and zeroing. `N` hyperplanes cut `R^m` into
 r(N, m) = C(N,0) + C(N,1) + ⋯ + C(N,m)
 ```
 
-regions — not `2^N`, because the hyperplanes are not independent, and this
+regions, not `2^N`, because the hyperplanes are not independent, and this
 matters. Compose layers and the counts multiply, which is where depth earns its
 keep: **adding a layer multiplies the number of pieces, adding width only adds
 to it.** That is a concrete, countable reason to prefer depth, and it needs no
@@ -59,19 +59,19 @@ more detail and is worth reading alongside this section.
 
 This is the section where the earlier parts cash out:
 
-- **Part I** — each layer *is* a matrix. Its rank determines how much
+- **Part I**: each layer *is* a matrix. Its rank determines how much
   information can survive the layer; its singular values determine whether
   signals are amplified or crushed as they propagate. A layer whose `σ₁` is
   large and `σᵣ` tiny is where exploding and vanishing gradients come from.
-- **Part III** — low-rank structure explains why networks compress so well and
+- **Part III**: low-rank structure explains why networks compress so well and
   why a giant weight matrix can often be factored with negligible loss.
-- **Part VI** — the actual training is gradient descent (VI.4) and SGD/ADAM
+- **Part VI**: the actual training is gradient descent (VI.4) and SGD/ADAM
   (VI.5) on this `F`. VII.3's backpropagation is the chain rule organised to
   compute those gradients efficiently.
-- **Part V** — the loss is an expectation, and SGD's convergence is a
+- **Part V**: the loss is an expectation, and SGD's convergence is a
   probabilistic statement.
 
-If a section in Parts I–VI felt unmotivated, this is the place it pays off.
+If a section in Parts I-VI felt unmotivated, this is the place it pays off.
 
 ## What to actually do
 
@@ -81,7 +81,7 @@ If a section in Parts I–VI felt unmotivated, this is the place it pays off.
    each hidden unit is active. You should see the plane cut by 3 lines. Count
    the regions and check against `r(3, 2) = 1 + 3 + 3 = 7`.
 3. Verify that one of your regions really does produce a plain affine function
-   of `x` — pick two points inside it and confirm the output is linear along
+   of `x`: pick two points inside it and confirm the output is linear along
    the segment between them.
 4. In numpy, implement the forward pass as an explicit loop of
    `x = np.maximum(0, A @ x + b)`. Seeing that there is nothing else to it is
@@ -102,10 +102,10 @@ produces exactly the piecewise-linear structure this section analyses.
 
 **Confusing the two arguments of `F(x, v)`.** During training, `x` is fixed by
 your data and you differentiate with respect to `v`. At inference, `v` is
-frozen and `x` varies. Same function, opposite variable held still — and
-mixing them up makes backpropagation impossible to follow in VII.3.
+frozen and `x` varies. Same function, opposite variable held still. Mixing
+them up makes backpropagation impossible to follow in VII.3.
 
 ---
 
 This is the third and last section MIT publishes in full. Read Strang's own
-text here — it is the summary of the whole book, and it is free.
+text here. It is the summary of the whole book, and it is free.

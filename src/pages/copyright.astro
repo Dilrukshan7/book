@@ -4,132 +4,145 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
 
 const entries = await getCollection('books');
-const books = entries
-  .map((e) => e.data)
-  .sort((a, b) => a.order - b.order);
+const books = entries.map((e) => e.data).sort((a, b) => a.order - b.order);
 ---
 
 <BaseLayout
   title="Copyright and attribution"
   description={`How ${SITE.name} handles copyright: we host no copyrighted material and link only to rights holders' own servers.`}
 >
-  <div class="wrap book-header">
-    <h1>Copyright and attribution</h1>
-    <p class="book-header__lede">
-      This site exists to make legally free study material easier to follow. It
-      works only if it stays scrupulous about what it does and does not host.
-    </p>
-  </div>
+  <div class="u-page">
+    <header class="page-head">
+      <h1 class="u-h1">Copyright and attribution</h1>
+      <p class="page-head__lead">
+        This site exists to make legally free study material easier to follow.
+        It works only if it stays scrupulous about what it does and does not
+        host.
+      </p>
+    </header>
 
-  <div class="wrap prose" style="margin-top: var(--space-5)">
-    <h2>What we host</h2>
-    <p>
-      <strong>No copyrighted books, chapters, or PDFs.</strong> Not mirrored,
-      not cached, not proxied, not embedded. This site is a set of ordered
-      links and our own written commentary. If you inspect the repository you
-      will find no book files in it, and none are served from our domain.
-    </p>
+    <div class="page-body">
+      <div class="prose">
+        <h2>What we host</h2>
+        <p>
+          <strong>No copyrighted books, chapters, or PDFs.</strong> Not
+          mirrored, not cached, not proxied, not embedded. This site is a set
+          of ordered links and our own written commentary. If you inspect the
+          repository you will find no book files in it, and none are served
+          from our domain.
+        </p>
 
-    <h2>What we link to</h2>
-    <p>
-      Every reading link points at the server of the author, the publisher, or
-      the university that chose to publish that material freely — typically{' '}
-      <code>math.mit.edu</code> or <code>ocw.mit.edu</code>. Following a link
-      takes you to them, not to a copy of ours. Linking to a publicly published
-      page requires no licence, but we label every link with its source so you
-      always know whose material you are opening.
-    </p>
-    <p>
-      We link only to material the rights holder published for free access. We
-      do not link to unauthorised copies, file lockers, or shadow libraries,
-      and we will not accept contributions that do.
-    </p>
+        <h2>What we link to</h2>
+        <p>
+          Every reading link points at the server of the author, the
+          publisher, or the university that chose to publish that material
+          freely, typically <code>math.mit.edu</code> or{' '}
+          <code>ocw.mit.edu</code>. Following a link takes you to them, not to
+          a copy of ours. Linking to a publicly published page requires no
+          licence, but we label every link with its source so you always know
+          whose material you are opening.
+        </p>
+        <p>
+          We link only to material the rights holder published for free
+          access. We do not link to unauthorised copies, file lockers, or
+          shadow libraries, and we will not accept contributions that do.
+        </p>
 
-    <h2>Book attribution</h2>
-    <p>Each book covered here, and the free course it maps onto:</p>
-    <ul>
-      {
-        books.map((book) => (
-          <li>
-            <strong>{book.title}</strong> © {book.year} {book.author}
-            {book.publisher ? `, ${book.publisher}` : ''}. Official page:{' '}
-            <a href={book.officialPage} target="_blank" rel="noopener">
-              {book.officialPage.replace(/^https?:\/\//, '')}
-            </a>
-            .
-            {book.course && (
-              <>
-                {' '}Lecture and problem links go to {book.course.name}
-                {book.course.license && (
+        <h2>Book attribution</h2>
+      </div>
+
+      <div class="attriblist">
+        {
+          books.map((book) => (
+            <div class="attriblist__item">
+              <p class="attriblist__title">
+                <em>{book.title}</em>, copyright {book.year} {book.author}
+                {book.publisher ? `, ${book.publisher}` : ''}
+              </p>
+              <p class="attriblist__body">
+                Official page:{' '}
+                <a href={book.officialPage} target="_blank" rel="noopener">
+                  {book.officialPage.replace(/^https?:\/\//, '')}
+                </a>
+                {book.course && (
                   <>
-                    , used under{' '}
-                    {book.course.licenseUrl ? (
-                      <a
-                        href={book.course.licenseUrl}
-                        target="_blank"
-                        rel="noopener"
-                      >
-                        {book.course.license}
-                      </a>
-                    ) : (
-                      book.course.license
+                    . Lecture and problem links go to {book.course.name}
+                    {book.course.license && (
+                      <>
+                        , used under{' '}
+                        {book.course.licenseUrl ? (
+                          <a
+                            href={book.course.licenseUrl}
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            {book.course.license}
+                          </a>
+                        ) : (
+                          book.course.license
+                        )}
+                      </>
                     )}
                   </>
                 )}
                 .
-              </>
-            )}
-          </li>
-        ))
-      }
-    </ul>
-    <p>
-      Course material from MIT OpenCourseWare is used under its Creative
-      Commons licence, which permits non-commercial reuse with attribution.
-      This site is non-commercial: it carries no advertising, sells nothing,
-      and accepts no payment.
-    </p>
+              </p>
+            </div>
+          ))
+        }
+      </div>
 
-    <h2>Book cover art</h2>
-    <p>
-      We do not reproduce publishers' cover designs. The covers you see on this
-      site are plain typographic placeholders we generate ourselves from the
-      book's title.
-    </p>
+      <div class="prose" style="margin-top: var(--s-7)">
+        <p>
+          Course material from MIT OpenCourseWare is used under its Creative
+          Commons licence, which permits non-commercial reuse with
+          attribution. This site is non-commercial: it carries no advertising,
+          sells nothing, and accepts no payment.
+        </p>
 
-    <h2>Our own writing</h2>
-    <p>
-      The study guides, section commentary, and roadmap structure are original
-      work written for this site. They are released under{' '}
-      <a
-        href="https://creativecommons.org/licenses/by-sa/4.0/"
-        target="_blank"
-        rel="noopener">CC BY-SA 4.0</a
-      >, so you may reuse them with attribution. They summarise and comment on
-      the books in our own words — they do not reproduce the text of any book.
-    </p>
-    <p>
-      The site's source code is released under the MIT licence and is available
-      at <a href={SITE.repo}>{SITE.repo.replace(/^https?:\/\//, '')}</a>.
-    </p>
+        <h2>Book cover art</h2>
+        <p>
+          We do not reproduce publishers' cover designs. The covers on this
+          site are plain typographic objects we set ourselves from the book's
+          title and author.
+        </p>
 
-    <h2>Please buy the books</h2>
-    <p>
-      A roadmap through free lecture material is a supplement to a book, not a
-      substitute for one. Where a book is sold, we link to buy it. If a book
-      here is useful to you and you can afford a copy, buying it is what keeps
-      authors writing them.
-    </p>
+        <h2>Our own writing</h2>
+        <p>
+          The study guides, section commentary, and roadmap structure are
+          original work written for this site. They are released under{' '}
+          <a
+            href="https://creativecommons.org/licenses/by-sa/4.0/"
+            target="_blank"
+            rel="noopener">CC BY-SA 4.0</a
+          >, so you may reuse them with attribution. They summarise and
+          comment on the books in our own words; they do not reproduce the
+          text of any book.
+        </p>
+        <p>
+          The site's source code is released under the MIT licence and is
+          available at <a href={SITE.repo}>{SITE.repo.replace(/^https?:\/\//, '')}</a>.
+        </p>
 
-    <h2>If you are a rights holder</h2>
-    <p>
-      If you believe anything on this site links to material that should not be
-      publicly available, or you would like a link to your work removed for any
-      reason, email{' '}
-      <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>. We will
-      act on it promptly — a good-faith request is enough, and we will not ask
-      you to justify it. You can also open an issue on{' '}
-      <a href={SITE.repo}>the repository</a> if you prefer a public record.
-    </p>
+        <h2>Please buy the books</h2>
+        <p>
+          A roadmap through free lecture material is a supplement to a book,
+          not a substitute for one. Where a book is sold, we link to buy it.
+          If a book here is useful to you and you can afford a copy, buying it
+          is what keeps authors writing them.
+        </p>
+
+        <h2>If you are a rights holder</h2>
+        <p>
+          If you believe anything on this site links to material that should
+          not be publicly available, or you would like a link to your work
+          removed for any reason, email{' '}
+          <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>. We
+          will act on it promptly. A good-faith request is enough and we will
+          not ask you to justify it. You can also open an issue on{' '}
+          <a href={SITE.repo}>the repository</a> if you prefer a public record.
+        </p>
+      </div>
+    </div>
   </div>
 </BaseLayout>

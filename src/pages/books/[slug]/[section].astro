@@ -9,6 +9,7 @@ import {
   sectionHref,
   sectionSlug,
 } from '../../../lib/books';
+import '../../../styles/guide.css';
 
 export async function getStaticPaths() {
   const books = await getCollection('books');
@@ -63,7 +64,7 @@ const { bookEntry, guide, prev, next } = Astro.props as Props;
 const book = bookEntry.data;
 
 const found = findSection(book, guide.data.section)!;
-const { section } = found;
+const { section, part } = found;
 const links = resolveSectionLinks(book, section);
 const { Content } = await render(guide);
 ---
@@ -72,91 +73,92 @@ const { Content } = await render(guide);
   title={`${section.code} ${section.title}`}
   description={guide.data.summary}
 >
-  <div class="wrap book-header">
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="/">Books</a> <span aria-hidden="true">›</span>
-      <a href={`/books/${book.slug}`}>{book.title}</a>
-      <span aria-hidden="true">›</span>
-      <span>{section.code}</span>
-    </nav>
+  <article class="u-page guide">
+    <header class="guide__head">
+      <nav class="bookhead__crumb" aria-label="Breadcrumb">
+        <a href="/">Books</a>
+        <span aria-hidden="true">/</span>
+        <a href={`/books/${book.slug}`}>{book.title}</a>
+        <span aria-hidden="true">/</span>
+        <span>{section.code}</span>
+      </nav>
 
-    <h1>
-      <span class="section__code">{section.code}</span>
-      {section.title}
-    </h1>
-    <p class="book-header__lede">{guide.data.summary}</p>
+      <p class="guide__part">
+        Part {part.id}. {part.title}
+      </p>
+      <h1 class="guide__title">
+        <span class="guide__code" aria-hidden="true">{section.code}</span>
+        {section.title}
+      </h1>
+      <p class="guide__summary">{guide.data.summary}</p>
+    </header>
 
-    <ul class="chips" style="margin-top: var(--space-4)">
-      {
-        links.map((link) => (
-          <li>
-            <a
-              class={`chip${link.variant === 'free' ? ' chip--free' : ''}`}
-              href={link.href}
-              target="_blank"
-              rel="noopener"
-            >
-              <span aria-hidden="true">{link.icon}</span>
-              {link.label}
-              <span class="sr-only">(opens in a new tab)</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+    <div class="guide__body">
+      <div class="prose">
+        <Content />
+      </div>
 
-  <article class="wrap" style="margin-top: var(--space-5)">
-    <div class="prose">
-      <Content />
-    </div>
-  </article>
-
-  <nav
-    class="wrap"
-    style="margin-top: var(--space-7)"
-    aria-label="Section navigation"
-  >
-    <div class="panel">
-      <div
-        style="display:flex; gap:var(--space-4); flex-wrap:wrap; justify-content:space-between; align-items:center;"
-      >
-        {
-          prev ? (
-            <a
-              class="pill"
-              style="text-decoration:none"
-              href={sectionHref(book.slug, prev.data.section)}
-            >
-              ← {prev.data.section}
-            </a>
-          ) : (
-            <span />
-          )
-        }
-
+      {/* The sources sit beside the guide on wide viewports and above it on
+          narrow ones, so the reader can open the lecture while reading. */}
+      <aside class="guide__aside" aria-labelledby="sources-heading">
+        <h2 class="u-label" id="sources-heading">Read and watch</h2>
+        <ul class="guide__sources">
+          {
+            links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener"
+                  data-free={link.variant === 'free' ? '' : undefined}
+                >
+                  {link.label}
+                  <span class="u-sr">, opens in a new tab</span>
+                </a>
+                {link.detail && <span>{link.detail}</span>}
+              </li>
+            ))
+          }
+        </ul>
         <a
-          class="pill"
-          style="text-decoration:none"
+          class="guide__back"
           href={`/books/${book.slug}#${sectionAnchor(section.code)}`}
         >
           Back to the roadmap
         </a>
-
-        {
-          next ? (
-            <a
-              class="pill"
-              style="text-decoration:none"
-              href={sectionHref(book.slug, next.data.section)}
-            >
-              {next.data.section} →
-            </a>
-          ) : (
-            <span />
-          )
-        }
-      </div>
+      </aside>
     </div>
-  </nav>
+
+    <nav class="guide__pager" aria-label="Study guides">
+      {
+        prev ? (
+          <a class="guide__pagerlink" href={sectionHref(book.slug, prev.data.section)}>
+            <span class="guide__pagerdir">Previous guide</span>
+            <span class="guide__pagername">
+              <span class="guide__pagercode">{prev.data.section}</span>
+              {prev.data.title}
+            </span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+      {
+        next ? (
+          <a
+            class="guide__pagerlink guide__pagerlink--next"
+            href={sectionHref(book.slug, next.data.section)}
+          >
+            <span class="guide__pagerdir">Next guide</span>
+            <span class="guide__pagername">
+              <span class="guide__pagercode">{next.data.section}</span>
+              {next.data.title}
+            </span>
+          </a>
+        ) : (
+          <span />
+        )
+      }
+    </nav>
+  </article>
 </BaseLayout>

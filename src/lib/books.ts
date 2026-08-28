@@ -8,8 +8,14 @@ export type Section = Part['sections'][number];
 /** A link ready to render: every field resolved, nothing left to compute. */
 export interface ResolvedLink {
   href: string;
+  /** Short enough to sit inline in a 46-row index. */
   label: string;
-  icon: string;
+  /**
+   * Appended for screen readers only. Lets the visible label stay compact
+   * ("Lecture 6") while the accessible name stays specific
+   * ("Lecture 6, Singular Value Decomposition").
+   */
+  detail?: string;
   /** `free` marks a full, freely readable copy of the section itself. */
   variant: 'free' | 'default';
 }
@@ -56,47 +62,29 @@ export function resolveSectionLinks(
   for (const link of section.links) {
     switch (link.kind) {
       case 'section-pdf':
-        links.push({
-          href: link.url,
-          label: link.label,
-          icon: '📄',
-          variant: 'free',
-        });
+        links.push({ href: link.url, label: link.label, variant: 'free' });
         break;
 
       case 'lecture': {
         const href = lectureUrl(book, link.ref);
         if (!href) break; // Unreachable: schema validates every ref.
-        const title = lectureTitle(book, link.ref);
         links.push({
           href,
-          label: title
-            ? `Lecture ${link.ref}: ${title}`
-            : `Lecture ${link.ref}`,
-          icon: '🎥',
+          label: `Lecture ${link.ref}`,
+          detail: lectureTitle(book, link.ref) ?? undefined,
           variant: 'default',
         });
         break;
       }
 
-      case 'problems':
-        if (link.url ?? book.defaults.problemsUrl) {
-          links.push({
-            href: (link.url ?? book.defaults.problemsUrl)!,
-            label: link.label,
-            icon: '✏️',
-            variant: 'default',
-          });
-        }
+      case 'problems': {
+        const href = link.url ?? book.defaults.problemsUrl;
+        if (href) links.push({ href, label: link.label, variant: 'default' });
         break;
+      }
 
       case 'link':
-        links.push({
-          href: link.url,
-          label: link.label,
-          icon: link.icon,
-          variant: 'default',
-        });
+        links.push({ href: link.url, label: link.label, variant: 'default' });
         break;
     }
   }
@@ -105,8 +93,7 @@ export function resolveSectionLinks(
   if (!hasProblems && book.defaults.problemsUrl) {
     links.push({
       href: book.defaults.problemsUrl,
-      label: 'Problems',
-      icon: '✏️',
+      label: 'Problem set',
       variant: 'default',
     });
   }
@@ -118,7 +105,6 @@ export function resolveSectionLinks(
     links.push({
       href: book.defaults.fallbackUrl,
       label: book.defaults.fallbackLabel,
-      icon: '📑',
       variant: 'default',
     });
   }

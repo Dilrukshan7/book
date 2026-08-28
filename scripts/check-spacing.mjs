@@ -37,14 +37,35 @@ const INLINE = '(?:a|span|code|strong|em|b|i|abbr)';
 
 /**
  * Spans that are deliberately adjacent because CSS provides the separation.
- * Add a class here only when the spacing genuinely comes from CSS:
- *   - aria-hidden icon spans inside `.chip` / `.linklist a` (inline-flex + gap)
- *   - `.sr-only` text, which is not rendered visually at all
- *   - `.section__code`, which carries its own margin-right
- *   - `.jumpnav__roman`, a flex item in `.jumpnav a` (inline-flex + gap)
+ * Add a class here ONLY when the spacing genuinely comes from CSS, and say
+ * which mechanism, so the list cannot quietly become a way of silencing
+ * real bugs.
+ *
+ *   u-sr ............... visually hidden, never rendered
+ *   notice__title ...... display: block
+ *   guide__code ........ margin-right
+ *   guide__pagercode ... margin-right
+ *   resume__code ....... margin-right
+ *   row__code .......... its own grid column
+ *   specimen__code ..... its own grid column
+ *   railnav__roman ..... its own grid column
+ *   part__roman ........ its own grid column
  */
-const SAFE_TAG =
-  /class="(?:sr-only|section__code|jumpnav__roman)"|aria-hidden="true"/;
+const SAFE_TAG = new RegExp(
+  'class="(?:' +
+    [
+      'u-sr',
+      'notice__title',
+      'guide__code',
+      'guide__pagercode',
+      'resume__code',
+      'row__code',
+      'specimen__code',
+      'railnav__roman',
+      'part__roman',
+    ].join('|') +
+    ')"|aria-hidden="true"',
+);
 
 const openRe = new RegExp(`([^\\s>]{1,2})<(${INLINE})((?:\\s[^>]*)?)>`, 'g');
 const closeRe = new RegExp(`</(${INLINE})>([A-Za-z\\u00C0-\\u024F]{2,})`, 'g');

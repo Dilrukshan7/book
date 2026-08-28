@@ -1,4 +1,5 @@
 ---
+import { Font } from 'astro:assets';
 import { SITE, NAV } from '../site.config';
 import '../styles/global.css';
 
@@ -18,7 +19,7 @@ const {
   jsonLd,
 } = Astro.props;
 
-const pageTitle = suffix ? `${title} — ${SITE.name}` : title;
+const pageTitle = suffix ? `${title} · ${SITE.name}` : title;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 ---
@@ -32,9 +33,15 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
+    {/* Self-hosted, with metric-matched fallbacks so swapping in the real
+        face causes no layout shift. */}
+    <Font cssVariable="--font-serif" preload />
+    <Font cssVariable="--font-sans" preload />
+    <Font cssVariable="--font-mono" />
+
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0f1115" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#fcfcfa" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -59,18 +66,19 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
   </head>
 
   <body>
-    <a class="skip-link" href="#main">Skip to content</a>
+    <a class="u-skip" href="#main">Skip to content</a>
 
-    <header class="site-header">
-      <div class="wrap site-header__inner">
-        <a class="brand" href="/">
-          <span class="brand__mark" aria-hidden="true">RB</span>
+    <header class="masthead">
+      <div class="u-page masthead__inner">
+        <a class="wordmark" href="/">
+          <span class="wordmark__rule" aria-hidden="true"></span>
           <span>{SITE.name}</span>
         </a>
-        <nav class="site-nav" aria-label="Primary">
+        <nav class="masthead__nav" aria-label="Primary">
           {
             NAV.map((item) => (
               <a
+                class="u-navlink"
                 href={item.href}
                 aria-current={currentPath === item.href ? 'page' : undefined}
               >
@@ -86,17 +94,48 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap site-footer__inner">
-        <p>
+    <footer class="colophon">
+      <div class="u-page colophon__grid">
+        <p class="colophon__note">
           {SITE.name} hosts no copyrighted material. Every reading link points
-          to the author's or university's own servers. Read the{' '}
-          <a href="/copyright">copyright and attribution notice</a>.
+          to the author's or the university's own servers, and where a book is
+          sold we link to buy it.
         </p>
-        <p>
-          <a href="/about">About</a> · <a href={SITE.repo}>Source</a>
-        </p>
+        <div class="colophon__links">
+          <a href="/about">About</a>
+          <a href="/copyright">Copyright and attribution</a>
+          <a href={SITE.repo}>Source code</a>
+        </div>
       </div>
     </footer>
+
+    {/* Scroll reveal. IntersectionObserver, never a scroll listener, and it
+        does nothing at all under reduced motion. */}
+    <script>
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const targets =
+        document.querySelectorAll<HTMLElement>('[data-reveal]');
+
+      if (reduce.matches || !('IntersectionObserver' in window)) {
+        targets.forEach((el) => el.classList.add('is-revealed'));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target as HTMLElement;
+              const delay = Number(el.dataset.revealDelay ?? 0);
+              window.setTimeout(
+                () => el.classList.add('is-revealed'),
+                delay,
+              );
+              io.unobserve(el);
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px', threshold: 0.1 },
+        );
+        targets.forEach((el) => io.observe(el));
+      }
+    </script>
   </body>
 </html>

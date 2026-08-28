@@ -1,0 +1,202 @@
+/* ==========================================================================
+   Study guide
+
+   A reading page, so the composition is a book page: a measured text column
+   with the sources set in the margin, where a reader can reach them without
+   losing their place in the prose.
+   ========================================================================== */
+
+.guide {
+  padding-bottom: var(--s-9);
+}
+
+.guide__head {
+  padding-block: var(--s-7) var(--s-6);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.guide__part {
+  font-family: var(--face-sans);
+  font-size: var(--t-sm);
+  letter-spacing: 0.01em;
+  color: var(--ink-3);
+}
+
+.guide__title {
+  margin-top: var(--s-3);
+  font-size: clamp(1.75rem, 1.2rem + 2.4vw, 2.5rem);
+  line-height: 1.1;
+  letter-spacing: var(--track-display);
+  font-weight: 400;
+  max-width: 22ch;
+}
+
+/* The section number sits in the margin on wide viewports, the way a
+   reference number sits beside a heading in print. */
+.guide__code {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.55em;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0;
+  margin-right: 0.6rem;
+}
+
+.guide__summary {
+  margin-top: var(--s-5);
+  max-width: 56ch;
+  font-size: var(--t-lead);
+  line-height: var(--lh-normal);
+  color: var(--ink-3);
+}
+
+/* --- Body and margin ----------------------------------------------------- */
+
+.guide__body {
+  display: grid;
+  grid-template-columns: minmax(0, var(--w-text)) minmax(0, 15rem);
+  gap: var(--s-9);
+  align-items: start;
+  padding-top: var(--s-7);
+}
+
+.guide__aside {
+  position: sticky;
+  top: 6rem;
+  font-family: var(--face-sans);
+}
+
+.guide__sources {
+  margin-top: var(--s-4);
+}
+.guide__sources li {
+  padding-block: var(--s-3);
+  border-bottom: 1px solid var(--rule);
+}
+.guide__sources a {
+  display: block;
+  font-size: var(--t-ui);
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  width: fit-content;
+  transition: border-color var(--fast) var(--ease);
+}
+.guide__sources a:hover {
+  border-bottom-color: var(--accent);
+}
+.guide__sources a[data-free] {
+  font-weight: 500;
+}
+.guide__sources span {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--t-sm);
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+.guide__back {
+  display: inline-block;
+  margin-top: var(--s-5);
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-strong);
+  transition:
+    color var(--fast) var(--ease),
+    border-color var(--fast) var(--ease);
+}
+.guide__back:hover {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+/* --- Pager --------------------------------------------------------------- */
+
+.guide__pager {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-5);
+  margin-top: var(--s-9);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--rule-strong);
+}
+
+.guide__pagerlink {
+  text-decoration: none;
+  max-width: 30ch;
+}
+.guide__pagerlink--next {
+  justify-self: end;
+  text-align: right;
+}
+
+.guide__pagerdir {
+  display: block;
+  font-family: var(--face-sans);
+  font-size: var(--t-micro);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  transition: color var(--fast) var(--ease);
+}
+.guide__pagerlink:hover .guide__pagerdir {
+  color: var(--accent);
+}
+
+.guide__pagername {
+  display: block;
+  margin-top: var(--s-2);
+  font-size: var(--t-ui);
+  line-height: 1.35;
+  color: var(--ink);
+}
+.guide__pagercode {
+  font-family: var(--face-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--t-sm);
+  color: var(--ink-3);
+  margin-right: 0.4rem;
+}
+
+/* --- Responsive ---------------------------------------------------------- */
+
+@media (max-width: 1080px) {
+  .guide__body {
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+  }
+  /* Sources move above the prose: on a narrow screen the margin is gone, and
+     the links are the thing a reader wants before starting to read. */
+  .guide__aside {
+    position: static;
+    order: -1;
+    padding-bottom: var(--s-5);
+    border-bottom: 1px solid var(--rule);
+  }
+  .guide__sources {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0 var(--s-5);
+  }
+}
+
+@media (max-width: 600px) {
+  .guide__pager {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+  }
+  .guide__pagerlink--next {
+    justify-self: start;
+    text-align: left;
+  }
+  .guide__title {
+    max-width: none;
+  }
+  .guide__code {
+    display: block;
+    margin-bottom: var(--s-2);
+  }
+}

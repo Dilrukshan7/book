@@ -3,7 +3,6 @@ import {
   type ActivityState,
   type BookProgress,
   buildExport,
-  completedToday,
   countSections,
   dateKey,
   displayStreak,
@@ -19,9 +18,9 @@ import { STORAGE_NAMESPACE } from '../site.config';
  * Progressive-enhancement controller for the book roadmap.
  *
  * The page is fully rendered server-side; this attaches saved state to it.
- * Every element is addressed through `data-*` hooks so markup and behaviour
- * stay decoupled, and the visual checked state is pure CSS (`:checked`), so
- * toggling a section never depends on JavaScript re-rendering anything.
+ * Elements are addressed through `data-*` hooks so markup and behaviour stay
+ * decoupled, and the read state is pure CSS (`:checked`), so ticking a
+ * section never depends on JavaScript re-rendering anything.
  */
 
 const SAVE_DEBOUNCE_MS = 250;
@@ -35,15 +34,17 @@ export function initTracker(root: HTMLElement): void {
   const progressKey = keys.progress(bookSlug);
   const activityKey = keys.activity();
 
-  let progress = readJSON<BookProgress>(storage, progressKey, emptyProgress());
-  let activity = readJSON<ActivityState>(storage, activityKey, emptyActivity());
-
-  // Normalise shapes in case an older or partial object was stored.
-  progress = { ...emptyProgress(), ...progress };
-  activity = { ...emptyActivity(), ...activity };
+  let progress = {
+    ...emptyProgress(),
+    ...readJSON<BookProgress>(storage, progressKey, emptyProgress()),
+  };
+  let activity = {
+    ...emptyActivity(),
+    ...readJSON<ActivityState>(storage, activityKey, emptyActivity()),
+  };
 
   /* --------------------------------------------------------------- *
-   * Element lookup
+   * Elements
    * --------------------------------------------------------------- */
   const sectionInputs = Array.from(
     root.querySelectorAll<HTMLInputElement>('input[data-section]'),
@@ -54,12 +55,10 @@ export function initTracker(root: HTMLElement): void {
   const noteAreas = Array.from(
     root.querySelectorAll<HTMLTextAreaElement>('textarea[data-note]'),
   );
-  const partEls = Array.from(
-    root.querySelectorAll<HTMLElement>('[data-part]'),
-  );
+  const partEls = Array.from(root.querySelectorAll<HTMLElement>('[data-part]'));
 
-  // Reading order comes from the DOM, so it can never drift out of sync
-  // with what is actually on the page.
+  // Reading order comes from the DOM, so it can never drift out of sync with
+  // what is actually on the page.
   const orderedCodes = sectionInputs.map((el) => el.dataset.code ?? '');
 
   const toast = createToast(root);
@@ -74,18 +73,17 @@ export function initTracker(root: HTMLElement): void {
   }
 
   /* --------------------------------------------------------------- *
-   * Rendering derived state
+   * Derived UI
    * --------------------------------------------------------------- */
-  function refreshStats(): void {
+
+  function refreshGauge(): void {
     const { done, total, percent } = countSections(progress, orderedCodes);
 
-    setText(root, '[data-stat-done]', `${done} / ${total}`);
-    setText(root, '[data-stat-percent]', `${percent}%`);
-    setText(root, '[data-stat-streak]', String(displayStreak(activity)));
-    setText(root, '[data-stat-today]', String(completedToday(activity)));
-    setText(root, '[data-progress-text]', `${percent}%`);
+    setText(root, '[data-gauge-done]', String(done));
+    setText(root, '[data-gauge-total]', `/ ${total}`);
+    setText(root, '[data-gauge-caption]', `${percent}% of the book`);
 
-    const fill = root.querySelector<HTMLElement>('[data-progress-fill]');
+    const fill = root.querySelector<HTMLElement>('[data-gauge-fill]');
     if (fill) fill.style.width = `${percent}%`;
 
     const bar = root.querySelector<HTMLElement>('[data-progressbar]');
@@ -95,6 +93,17 @@ export function initTracker(root: HTMLElement): void {
         'aria-valuetext',
         `${done} of ${total} sections read, ${percent} percent`,
       );
+    }
+
+    // A zero streak is discouraging and says nothing, so it stays hidden
+    // until there is one to report.
+    const streak = displayStreak(activity);
+    const streakEl = root.querySelector<HTMLElement>('[data-gauge-streak]');
+    if (streakEl) {
+      streakEl.hidden = streak < 1;
+      setText(streakEl, '[data-gauge-streak-value]', String(streak));
+      const unit = streakEl.querySelector<HTMLElement>('[data-gauge-streak-unit]');
+      if (unit) unit.textContent = streak === 1 ? 'day' : 'days';
     }
   }
 
@@ -107,30 +116,75 @@ export function initTracker(root: HTMLElement): void {
     const complete = total > 0 && done === total;
 
     setText(partEl, '[data-part-count]', `${done}/${total}`);
-
-    const fill = partEl.querySelector<HTMLElement>('[data-part-fill]');
-    if (fill) fill.style.width = total ? `${(done / total) * 100}%` : '0%';
-
     partEl.toggleAttribute('data-part-complete', complete);
 
-    const badge = partEl.querySelector<HTMLElement>('[data-part-badge]');
-    if (badge) {
-      const label = badge.dataset.partBadge ?? '';
-      badge.textContent = complete ? '✓' : label;
+    // Mirror into the contents rail.
+    const id = partEl.dataset.partId;
+    if (id) {
+      const link = root.querySelector<HTMLElement>(
+        `[data-railnav-part="${cssEscape(id)}"]`,
+      );
+      if (link) {
+        setText(link, '[data-railnav-count]', `${done}/${total}`);
+        link.toggleAttribute('data-complete', complete);
+      }
     }
   }
 
-  function refreshAllParts(): void {
-    partEls.forEach(refreshPart);
+  /**
+   * Marks the next unread section and points the resume control at it.
+   *
+   * This is the answer to the returning reader's only real question, so it
+   * is recomputed on every change rather than only at load.
+   */
+  function refreshNext(): void {
+    for (const row of root.querySelectorAll('[data-section-row][data-next]')) {
+      row.removeAttribute('data-next');
+    }
+
+    const index = nextUnreadIndex(progress, orderedCodes);
+    const resume = root.querySelector<HTMLAnchorElement>('[data-resume]');
+    const { done } = countSections(progress, orderedCodes);
+
+    if (index === -1) {
+      if (resume) {
+        resume.hidden = true;
+      }
+      return;
+    }
+
+    const input = sectionInputs[index];
+    const row = input?.closest<HTMLElement>('[data-section-row]');
+    if (row) row.setAttribute('data-next', '');
+
+    if (resume && input && row) {
+      const verb = done === 0 ? 'Start' : 'Continue';
+      const code = input.dataset.code ?? '';
+      const title = input.dataset.title ?? '';
+
+      resume.hidden = false;
+      resume.href = `#${row.id}`;
+      setText(resume, '[data-resume-label]', verb);
+      setText(resume, '[data-resume-code]', code);
+      setText(resume, '[data-resume-title]', title);
+      // The visual is a composed layout whose fragments would otherwise run
+      // together when announced, so the name is written out in full.
+      setText(
+        resume,
+        '[data-resume-sr]',
+        `${verb} reading at section ${code}, ${title}`,
+      );
+    }
   }
 
   function refreshAll(): void {
-    refreshAllParts();
-    refreshStats();
+    partEls.forEach(refreshPart);
+    refreshGauge();
+    refreshNext();
   }
 
   /* --------------------------------------------------------------- *
-   * Hydrate from storage
+   * Hydrate
    * --------------------------------------------------------------- */
   for (const input of sectionInputs) {
     const code = input.dataset.code;
@@ -152,7 +206,7 @@ export function initTracker(root: HTMLElement): void {
 
   if (!storage.persistent) {
     toast(
-      'Your browser is blocking site storage, so progress will only last for this visit.',
+      'This browser is blocking site storage, so progress will last only for this visit.',
       6000,
     );
   }
@@ -161,7 +215,14 @@ export function initTracker(root: HTMLElement): void {
    * Interaction
    * --------------------------------------------------------------- */
   root.addEventListener('change', (event) => {
-    const target = event.target as HTMLElement | null;
+    const target = event.target;
+
+    if (target instanceof HTMLSelectElement && target.matches('[data-jump]')) {
+      const id = target.value;
+      if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' });
+      return;
+    }
+
     if (!(target instanceof HTMLInputElement)) return;
 
     if (target.matches('input[data-section]')) {
@@ -172,7 +233,8 @@ export function initTracker(root: HTMLElement): void {
 
       const partEl = target.closest<HTMLElement>('[data-part]');
       if (partEl) refreshPart(partEl);
-      refreshStats();
+      refreshGauge();
+      refreshNext();
       scheduleSave();
       return;
     }
@@ -182,13 +244,13 @@ export function initTracker(root: HTMLElement): void {
       if (!key) return;
       progress.checklist[key] = target.checked;
       if (target.checked) activity = recordActivity(activity);
-      refreshStats();
+      refreshGauge();
       scheduleSave();
     }
   });
 
   root.addEventListener('input', (event) => {
-    const target = event.target as HTMLElement | null;
+    const target = event.target;
     if (!(target instanceof HTMLTextAreaElement)) return;
     if (!target.matches('textarea[data-note]')) return;
 
@@ -219,33 +281,28 @@ export function initTracker(root: HTMLElement): void {
     if (!actionEl) return;
 
     switch (actionEl.dataset.action) {
-      case 'expand-all':
-        partEls.forEach((p) => p.setAttribute('open', ''));
-        break;
-
-      case 'collapse-all':
-        partEls.forEach((p) => p.removeAttribute('open'));
-        break;
-
-      case 'next-unread':
-        jumpToNextUnread();
-        break;
-
       case 'export':
         exportProgress();
         break;
-
       case 'import':
-        root
-          .querySelector<HTMLInputElement>('[data-import-input]')
-          ?.click();
+        root.querySelector<HTMLInputElement>('[data-import-input]')?.click();
         break;
-
       case 'reset':
         resetBook();
         break;
     }
   });
+
+  // Focus the target section after the browser finishes the hash jump, so a
+  // keyboard user lands on the control rather than merely near it.
+  root.querySelector<HTMLAnchorElement>('[data-resume]')?.addEventListener(
+    'click',
+    () => {
+      const index = nextUnreadIndex(progress, orderedCodes);
+      const input = sectionInputs[index];
+      if (input) window.setTimeout(() => input.focus({ preventScroll: true }), 260);
+    },
+  );
 
   root
     .querySelector<HTMLInputElement>('[data-import-input]')
@@ -253,47 +310,26 @@ export function initTracker(root: HTMLElement): void {
       const input = event.target as HTMLInputElement;
       const file = input.files?.[0];
       if (file) void importProgress(file);
-      // Clear so selecting the same file twice still fires a change event.
+      // Cleared so choosing the same file twice still fires a change event.
       input.value = '';
     });
 
   /* --------------------------------------------------------------- *
    * Actions
    * --------------------------------------------------------------- */
-  function jumpToNextUnread(): void {
-    const index = nextUnreadIndex(progress, orderedCodes);
-    if (index === -1) {
-      toast('You have read every section of this book. Nice.');
-      return;
-    }
-
-    const input = sectionInputs[index];
-    if (!input) return;
-
-    input.closest<HTMLElement>('[data-part]')?.setAttribute('open', '');
-    const row = input.closest<HTMLElement>('[data-section-row]') ?? input;
-    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    // Focus after the smooth scroll settles so keyboard users land on it.
-    window.setTimeout(() => input.focus({ preventScroll: true }), 400);
-
-    const code = orderedCodes[index];
-    const title = input.dataset.title ?? '';
-    toast(`Next up: ${code}${title ? ` — ${title}` : ''}`);
-  }
-
   function exportProgress(): void {
     const books: Record<string, BookProgress> = {};
     const prefix = `${STORAGE_NAMESPACE}:progress:`;
     for (const key of storage.keys(prefix)) {
-      const slug = key.slice(prefix.length);
-      books[slug] = readJSON<BookProgress>(storage, key, emptyProgress());
+      books[key.slice(prefix.length)] = readJSON<BookProgress>(
+        storage,
+        key,
+        emptyProgress(),
+      );
     }
-    // Include unsaved in-memory edits for the book being viewed.
     books[bookSlug!] = progress;
 
-    const payload = buildExport(books, activity);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    const blob = new Blob([JSON.stringify(buildExport(books, activity), null, 2)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
@@ -323,22 +359,22 @@ export function initTracker(root: HTMLElement): void {
     }
 
     const payload = result.payload;
-    const bookCount = Object.keys(payload.books).length;
+    const count = Object.keys(payload.books).length;
     const confirmed = window.confirm(
-      `Import progress for ${bookCount} book${bookCount === 1 ? '' : 's'}?\n\n` +
+      `Import progress for ${count} book${count === 1 ? '' : 's'}?\n\n` +
         'This replaces your current progress on this device.',
     );
     if (!confirmed) return;
 
     for (const [slug, bookProgress] of Object.entries(payload.books)) {
-      // A legacy prototype export has no book slug of its own; it can only
-      // have come from this book, so adopt it here.
+      // A legacy export carries no book slug of its own; it can only have
+      // come from this book, so adopt it here.
       const targetSlug = slug === '__legacy__' ? bookSlug! : slug;
       writeJSON(storage, keys.progress(targetSlug), bookProgress);
     }
     writeJSON(storage, activityKey, payload.activity);
 
-    toast('Progress imported. Reloading…');
+    toast('Progress imported. Reloading.');
     window.setTimeout(() => window.location.reload(), 900);
   }
 
@@ -365,7 +401,7 @@ export function initTracker(root: HTMLElement): void {
 }
 
 /* ------------------------------------------------------------------ *
- * Small DOM helpers
+ * DOM helpers
  * ------------------------------------------------------------------ */
 
 function setText(scope: ParentNode, selector: string, value: string): void {
@@ -373,19 +409,12 @@ function setText(scope: ParentNode, selector: string, value: string): void {
   if (el) el.textContent = value;
 }
 
-function syncNoteButton(
-  root: ParentNode,
-  code: string,
-  value: string,
-): void {
+function syncNoteButton(root: ParentNode, code: string, value: string): void {
   const button = root.querySelector<HTMLElement>(
     `[data-note-toggle][data-code="${cssEscape(code)}"]`,
   );
   if (!button) return;
-  const hasNote = value.trim() !== '';
-  button.toggleAttribute('data-has-note', hasNote);
-  const label = button.querySelector<HTMLElement>('[data-note-label]');
-  if (label) label.textContent = hasNote ? 'Note' : 'Add note';
+  button.toggleAttribute('data-has-note', value.trim() !== '');
 }
 
 function toggleNote(root: ParentNode, button: HTMLElement): void {
@@ -408,7 +437,7 @@ function cssEscape(value: string): string {
     : value.replace(/["\\]/g, '\\$&');
 }
 
-/** Returns a function that shows a transient, screen-reader-announced message. */
+/** A transient, screen-reader-announced message. */
 function createToast(root: ParentNode): (msg: string, ms?: number) => void {
   const el = root.querySelector<HTMLElement>('[data-toast]');
   let timer: number | undefined;

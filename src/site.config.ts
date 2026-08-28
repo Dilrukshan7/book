@@ -1,7 +1,7 @@
 /**
  * Single source of truth for site-wide branding and metadata.
  *
- * Renaming the product is a one-line change here — nothing else in the
+ * Renaming the product is a one-line change here, nothing else in the
  * codebase hardcodes the name, tagline, or URL.
  */
 export const SITE = {
@@ -9,12 +9,12 @@ export const SITE = {
   name: 'ReadBooks',
 
   /** Short tagline for the landing hero and meta description fallback. */
-  tagline: 'Read hard books for free, in the right order.',
+  tagline: 'the free material for hard books, in order',
 
   description:
-    'Free, step-by-step reading roadmaps for great technical books. ' +
-    'Every step links straight to the material the authors and universities ' +
-    'publish for free — no paywalls, no accounts, no tracking.',
+    'Ordered reading roadmaps for hard technical books. Every section links ' +
+    'to the lectures, chapters, and problem sets the authors and ' +
+    'universities publish free. No paywalls, no accounts, no tracking.',
 
   /**
    * Canonical origin. Used for sitemap, canonical tags, and Open Graph URLs.

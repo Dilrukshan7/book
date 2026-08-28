@@ -5,87 +5,90 @@ import { SITE } from '../site.config';
 
 <BaseLayout
   title="About"
-  description={`Why ${SITE.name} exists, how it stays free, and how your reading progress is stored.`}
+  description={`Why ${SITE.name} exists, how it stays free, and where your reading progress is kept.`}
 >
-  <div class="wrap book-header">
-    <h1>About {SITE.name}</h1>
-    <p class="book-header__lede">
-      A free, ordered path through technical books whose supporting material is
-      already public — just scattered.
-    </p>
-  </div>
+  <div class="u-page">
+    <header class="page-head">
+      <h1 class="u-h1">About</h1>
+      <p class="page-head__lead">
+        An ordered path through technical books whose supporting material is
+        already public, and already scattered.
+      </p>
+    </header>
 
-  <div class="wrap prose" style="margin-top: var(--space-5)">
-    <h2>The problem</h2>
-    <p>
-      A serious textbook often has a surprising amount of free material behind
-      it: the author posts sample chapters, the university publishes the whole
-      course as video, the problem sets and solutions go online. It is genuinely
-      free and genuinely legal.
-    </p>
-    <p>
-      It is also nearly unusable. The lectures are numbered by the course, not
-      the book. Some sections have a sample PDF and most do not. The problem
-      sets arrive as one combined file. Working out what to read after section
-      I.7 means hunting across three sites every time, and most people give up
-      before chapter two.
-    </p>
+    <div class="page-body">
+      <div class="prose">
+        <h2>The problem</h2>
+        <p>
+          A serious textbook often has a surprising amount of free material
+          behind it. The author posts sample chapters. The university
+          publishes the whole course as video. The problem sets and solutions
+          go online. It is genuinely free and genuinely legal.
+        </p>
+        <p>
+          It is also close to unusable. The lectures are numbered by the
+          course, not the book. Three sections have a sample chapter and the
+          rest do not. The problem sets arrive as one combined file. Working
+          out what to read after section I.7 means searching three sites every
+          time, and most people give up before chapter two.
+        </p>
 
-    <h2>What this site does</h2>
-    <p>
-      It puts that material back in the book's own order. Every section gets a
-      row with direct links to whatever exists for it — the lecture that covers
-      it, the problem set, the sample chapter where there is one — plus, for a
-      growing number of sections, a study guide we write ourselves: what the
-      section is really about, what it sets up later, and where people get
-      stuck.
-    </p>
-    <p>
-      Tick sections off as you go. The site tracks how far through the book you
-      are and how many days in a row you have studied.
-    </p>
+        <h2>What this site does</h2>
+        <p>
+          It puts that material back into the book's own order. Every section
+          gets a row with direct links to whatever exists for it, plus, for a
+          growing number of sections, a study guide we write ourselves: what
+          the section is really about, what it sets up later, and where people
+          reliably get stuck.
+        </p>
+        <p>
+          Tick sections off as you read. The next unread section stays marked,
+          so coming back after a fortnight away takes one glance rather than
+          five minutes of hunting.
+        </p>
 
-    <h2>How it stays free</h2>
-    <p>
-      There is nothing to fund. The site is static files on a free hosting
-      tier, with no server, no database, and no accounts to run. There is no
-      advertising, no analytics, no tracking, and nothing for sale. That is not
-      a temporary launch offer — it is the architecture.
-    </p>
+        <h2>How it stays free</h2>
+        <p>
+          There is nothing to fund. The site is static files on a free hosting
+          tier, with no server, no database, and no accounts to run. No
+          advertising, no analytics, no tracking, and nothing for sale. That
+          is not an introductory offer, it is the architecture.
+        </p>
 
-    <h2>Where your progress lives</h2>
-    <p>
-      In your browser, in <code>localStorage</code>, on the device you are
-      using. It is never transmitted anywhere, because there is nowhere to
-      transmit it to. We cannot see what you have read.
-    </p>
-    <p>
-      The trade-off is that progress does not follow you between devices on its
-      own. Every book page has <strong>Export progress</strong> and{' '}
-      <strong>Import progress</strong> buttons that move a small JSON file
-      between devices. That file is also a real backup — worth keeping if you
-      are a long way into a book, since clearing your browser data will
-      otherwise wipe it.
-    </p>
+        <h2>Where your progress lives</h2>
+        <p>
+          In your browser, in <code>localStorage</code>, on the device you are
+          using. It is never transmitted anywhere, because there is nowhere to
+          transmit it to. We cannot see what you have read.
+        </p>
+        <p>
+          The trade is that progress does not follow you between devices on
+          its own. Every book page has export and import controls that move a
+          small JSON file between devices. That file is also a real backup,
+          worth keeping if you are a long way into a book, since clearing your
+          browser data will otherwise wipe it.
+        </p>
 
-    <h2>Copyright</h2>
-    <p>
-      We host no copyrighted material and link only to rights holders' own
-      servers. The full position, per-book attribution, and takedown contact are
-      on the <a href="/copyright">copyright page</a>.
-    </p>
+        <h2>Copyright</h2>
+        <p>
+          We host no copyrighted material and link only to rights holders' own
+          servers. The full position, per-book attribution, and the takedown
+          contact are on the <a href="/copyright">copyright page</a>.
+        </p>
 
-    <h2>Adding a book</h2>
-    <p>
-      Books are data files, not code. Adding one means writing a single YAML
-      file describing its parts, sections, and free resources — the site builds
-      the pages from it. Contribution instructions are in{' '}
-      <a href={SITE.repo}>the repository</a>.
-    </p>
-    <p>
-      Suggestions are welcome, with one firm rule: a book qualifies only if its
-      supporting material is published free by the author, publisher, or
-      university. We will not link to unauthorised copies.
-    </p>
+        <h2>Adding a book</h2>
+        <p>
+          Books are data files, not code. Adding one means writing a single
+          YAML file describing its parts, sections, and free resources; the
+          site builds the pages from it. Contribution instructions are in{' '}
+          <a href={SITE.repo}>the repository</a>.
+        </p>
+        <p>
+          Suggestions are welcome, with one firm rule: a book qualifies only
+          if its supporting material is published free by the author,
+          publisher, or university. We will not link to unauthorised copies.
+        </p>
+      </div>
+    </div>
   </div>
 </BaseLayout>

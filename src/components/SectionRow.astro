@@ -14,101 +14,89 @@ const { book, bookSlug, section, hasGuide } = Astro.props;
 
 const links = resolveSectionLinks(book, section);
 const anchor = sectionAnchor(section.code);
-const inputId = `chk-${anchor}`;
+const inputId = `mk-${anchor}`;
 const noteId = `note-${anchor}`;
 ---
 
-<li class="section" id={anchor} data-section-row>
+<li class="row" id={anchor} data-section-row>
+  {/* A real checkbox: keyboard support, screen reader semantics, and the
+      read state all come from the platform rather than from script. */}
   <input
-    class="section__input"
+    class="row__input"
     type="checkbox"
     id={inputId}
     data-section
     data-code={section.code}
     data-title={section.title}
   />
-  <label class="section__check" for={inputId}>
-    <span class="sr-only">
+  <label class="row__mark" for={inputId}>
+    <span class="u-sr">
       Mark section {section.code}, {section.title}, as read
     </span>
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M5 13l4 4L19 7"
-        stroke="var(--on-accent)"
-        stroke-width="3"
-        stroke-linecap="round"
-        stroke-linejoin="round"></path>
-    </svg>
   </label>
 
-  <div class="section__body">
-    <div class="section__head">
-      <h3 class="section__title">
-        <span class="section__code">{section.code}</span>
-        {
-          hasGuide ? (
-            <a href={sectionHref(bookSlug, section.code)}>{section.title}</a>
-          ) : (
-            section.title
-          )
-        }
-      </h3>
+  <span class="row__code" aria-hidden="true">{section.code}</span>
 
-      <button
-        type="button"
-        class="notebtn"
-        data-note-toggle
-        data-code={section.code}
-        aria-expanded="false"
-        aria-controls={noteId}
-      >
-        <span aria-hidden="true">✎</span>
-        <span data-note-label>Add note</span>
-        <span class="sr-only">for section {section.code}</span>
-      </button>
-    </div>
-
-    <ul class="chips">
+  <div class="row__body">
+    <h3 class="row__title">
       {
-        hasGuide && (
-          <li>
-            <a
-              class="chip chip--guide"
-              href={sectionHref(bookSlug, section.code)}
-            >
-              <span aria-hidden="true">🧭</span> Study guide
-            </a>
-          </li>
+        hasGuide ? (
+          <a href={sectionHref(bookSlug, section.code)}>{section.title}</a>
+        ) : (
+          section.title
         )
       }
-      {
-        links.map((link) => (
-          <li>
+    </h3>
+
+    {
+      links.length > 0 && (
+        <div class="row__sources">
+          {links.map((link) => (
             <a
-              class={`chip${link.variant === 'free' ? ' chip--free' : ''}`}
               href={link.href}
               target="_blank"
               rel="noopener"
+              data-free={link.variant === 'free' ? '' : undefined}
             >
-              <span aria-hidden="true">{link.icon}</span>
               {link.label}
-              <span class="sr-only">(opens in a new tab)</span>
+              {link.detail && <span class="u-sr">, {link.detail}</span>}
+              <span class="u-sr">, opens in a new tab</span>
             </a>
-          </li>
-        ))
-      }
-    </ul>
+          ))}
+        </div>
+      )
+    }
 
-    <div class="note-panel" id={noteId} data-note-panel data-code={section.code} hidden>
-      <label class="sr-only" for={`ta-${anchor}`}>
+    <div class="row__note" id={noteId} data-note-panel data-code={section.code} hidden>
+      <label class="u-sr" for={`ta-${anchor}`}>
         Your notes on section {section.code}
       </label>
       <textarea
         id={`ta-${anchor}`}
         data-note
         data-code={section.code}
-        placeholder={`Key definitions, questions, or what confused you in ${section.code}…`}
-      ></textarea>
+        placeholder="Definitions, questions, what to come back to."></textarea>
     </div>
+  </div>
+
+  <div class="row__aside">
+    {
+      hasGuide && (
+        <a class="row__guide" href={sectionHref(bookSlug, section.code)}>
+          Guide
+        </a>
+      )
+    }
+    <button
+      type="button"
+      class="row__notebtn"
+      data-note-toggle
+      data-code={section.code}
+      aria-expanded="false"
+      aria-controls={noteId}
+    >
+      <span aria-hidden="true">Note</span>
+      <span class="u-sr">Notes for section {section.code}</span>
+    </button>
   </div>
 </li>

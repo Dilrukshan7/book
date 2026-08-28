@@ -11,7 +11,7 @@ tagline: The linear algebra that deep learning is actually built on.
 
 description: >-
   Gilbert Strang's graduate text connects the linear algebra you half-remember
-  to the mathematics running underneath modern machine learning — the SVD,
+  to the mathematics running underneath modern machine learning: the SVD,
   low-rank approximation, optimization, and the structure of neural networks.
   This roadmap walks all 46 sections in order and points each one at the
   material MIT publishes for free.
@@ -19,24 +19,20 @@ description: >-
 officialPage: https://math.mit.edu/~gs/learningfromdata/
 buyUrl: https://www.wellesleycambridge.com/
 
-cover:
-  initials: LA
-  accent: "#5b8cff"
-  accent2: "#7ad3b2"
 
 accessNotice: >-
   MIT does not host the full book. What is published free is the Table of
   Contents, the Preface, the Deep Learning essay, three complete sample
   sections (I.1, I.2 and VII.1), the errata, and three sets of solutions.
-  What *is* fully free is MIT 18.065 — the course Strang taught directly from
+  What *is* fully free is MIT 18.065, the course Strang taught directly from
   this book: 36 video lectures plus problem sets, mapped section by section
   below. So for most sections the video and problems are your free route; a
   full section PDF exists only for the three samples. Everything here links to
-  MIT's own servers. If you can afford the book, buy it — it supports the
+  MIT's own servers. If you can afford the book, buy it, it supports the
   author.
 
 course:
-  name: MIT 18.065 — Matrix Methods in Data Analysis, Signal Processing, and Machine Learning (Spring 2018)
+  name: MIT 18.065, Matrix Methods in Data Analysis, Signal Processing, and Machine Learning (Spring 2018)
   url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/
   license: CC BY-NC-SA 4.0
   licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
@@ -45,92 +41,76 @@ course:
 defaults:
   problemsUrl: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/cd4c57b7e61b8ca9fdd3511a30aca052_MIT18_065S18PSets.pdf
   fallbackUrl: https://math.mit.edu/~gs/learningfromdata/dsla_toc.pdf
-  fallbackLabel: Find this section in the contents
+  fallbackLabel: Locate in the contents
 
 # ------------------------------------------------------------------ #
-# Book-wide resources. All hosted by MIT / the author — we mirror none.
+# Book-wide resources. All hosted by MIT / the author, we mirror none.
 # ------------------------------------------------------------------ #
 resources:
   - label: Table of Contents
     url: https://math.mit.edu/~gs/learningfromdata/dsla_toc.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "📑"
   - label: Preface
     url: https://math.mit.edu/~gs/learningfromdata/dsla_preface.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "📄"
   - label: Deep Learning and Neural Nets
     url: https://math.mit.edu/~gs/learningfromdata/dsla_dlnn.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "🧠"
   - label: Functions of Deep Learning (SIAM)
     url: https://math.mit.edu/~gs/learningfromdata/siam.pdf
     kind: pdf
     source: Gilbert Strang / SIAM News
-    icon: "📰"
   - label: Solutions by Strang
     url: https://math.mit.edu/~gs/learningfromdata/lfdsols.pdf
     kind: solutions
     source: Gilbert Strang / MIT
-    icon: "✅"
   - label: Solutions (Chang & Davidson)
     url: https://math.mit.edu/~gs/learningfromdata/ecd.pdf
     kind: solutions
     source: Chang & Davidson / MIT
-    icon: "✅"
   - label: Solutions (Tohme)
     url: https://math.mit.edu/~gs/learningfromdata/tt.pdf
     kind: solutions
     source: Tohme / MIT
-    icon: "✅"
   - label: All problem sets (one PDF)
     url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/cd4c57b7e61b8ca9fdd3511a30aca052_MIT18_065S18PSets.pdf
     kind: pdf
     source: MIT OpenCourseWare
-    icon: "✏️"
   - label: All 36 video lectures
     url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/video_galleries/video-lectures/
     kind: video
     source: MIT OpenCourseWare
-    icon: "🎥"
   - label: YouTube playlist
     url: https://www.youtube.com/playlist?list=PLUl4u3cNGP63oMNUHXqIUcrkS2PivhN3k
     kind: playlist
     source: MIT OpenCourseWare
-    icon: "▶️"
   - label: OCW reading map
     url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/pages/readings/
     kind: page
     source: MIT OpenCourseWare
-    icon: "🗺️"
   - label: Counting Parameters
     url: https://math.mit.edu/~gs/learningfromdata/counting.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "🔢"
   - label: Central Limit Theorem (p.288)
     url: https://math.mit.edu/~gs/learningfromdata/CentralLimitTheorem03.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "📊"
   - label: Convolution as a Moving Window
     url: https://math.mit.edu/~gs/learningfromdata/cmv01.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "🪟"
   - label: Errata
     url: https://math.mit.edu/~gs/learningfromdata/errata14.pdf
     kind: pdf
     source: Gilbert Strang / MIT
-    icon: "⚠️"
   - label: Original MIT book page
     url: https://math.mit.edu/~gs/learningfromdata/
     kind: page
     source: Gilbert Strang / MIT
-    icon: "🏠"
 
 # ------------------------------------------------------------------ #
 # Lecture registry. Sections reference these by number, so each URL is
@@ -225,7 +205,7 @@ lectures:
     title: "Eigenvectors of Circulant Matrices: Fourier Matrix"
     slug: lecture-31-eigenvectors-of-circulant-matrices-fourier-matrix
   - n: 32
-    title: ImageNet is a CNN — The Convolution Rule
+    title: ImageNet is a CNN, The Convolution Rule
     slug: lecture-32-imagenet-is-a-cnn-the-convolution-rule
   - n: 33
     title: Neural Nets and the Learning Function
@@ -246,7 +226,7 @@ lectures:
 parts:
   - id: I
     title: Highlights of Linear Algebra
-    summary: Column spaces, factorizations, eigenvalues, SVD — the foundation.
+    summary: Column spaces, factorizations, eigenvalues, SVD, the foundation.
     sections:
       - code: I.1
         title: Multiplication Ax Using Columns of A
@@ -308,7 +288,7 @@ parts:
       - Redo at least one worked example by hand, not just reading it
       - Write the 4 fundamental subspaces from memory, with their dimensions
       - "State the SVD in your own words: what U, Σ, and V each represent"
-      - Do 2–3 problems from the problem set PDF before checking solutions
+      - Do 2-3 problems from the problem set PDF before checking solutions
 
   - id: II
     title: Computations with Large Matrices
@@ -430,7 +410,7 @@ parts:
 
   - id: V
     title: Probability and Statistics
-    summary: Mean, variance, covariance — the statistical toolkit behind learning.
+    summary: Mean, variance, covariance, the statistical toolkit behind learning.
     sections:
       - code: V.1
         title: Mean, Variance, and Probability

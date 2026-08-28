@@ -20,18 +20,17 @@ const sectionLinkSchema = z.discriminatedUnion('kind', [
   z.object({
     kind: z.literal('section-pdf'),
     url: z.url(),
-    label: z.string().default('Read full section (free PDF)'),
+    label: z.string().default('Read the section'),
   }),
   z.object({
     kind: z.literal('problems'),
     url: z.url().optional(),
-    label: z.string().default('Problems'),
+    label: z.string().default('Problem set'),
   }),
   z.object({
     kind: z.literal('link'),
     url: z.url(),
     label: z.string(),
-    icon: z.string().default('\u{1F517}'),
   }),
 ]);
 
@@ -73,7 +72,6 @@ const resourceSchema = z.object({
   kind: z.enum(['pdf', 'video', 'playlist', 'page', 'solutions']),
   /** Rights holder / publisher of this resource, shown for attribution. */
   source: z.string().min(1),
-  icon: z.string().default('\u{1F517}'),
 });
 
 const bookSchema = z
@@ -102,13 +100,6 @@ const bookSchema = z
     /** Honest, per-book explanation of exactly what is and isn't free. */
     accessNotice: z.string().min(1),
 
-    /** Typographic cover; we never reproduce publisher cover art. */
-    cover: z.object({
-      initials: z.string().min(1).max(4),
-      accent: z.string().default('#5b8cff'),
-      accent2: z.string().default('#7ad3b2'),
-    }),
-
     /** Optional free course the book maps onto. */
     course: z
       .object({
@@ -127,9 +118,9 @@ const bookSchema = z
         problemsUrl: z.url().optional(),
         /** Used when a section has no links of its own. */
         fallbackUrl: z.url().optional(),
-        fallbackLabel: z.string().default('Find this section in the contents'),
+        fallbackLabel: z.string().default('Locate in the contents'),
       })
-      .default({ fallbackLabel: 'Find this section in the contents' }),
+      .default({ fallbackLabel: 'Locate in the contents' }),
 
     resources: z.array(resourceSchema).default([]),
     lectures: z.array(lectureSchema).default([]),

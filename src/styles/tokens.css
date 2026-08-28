@@ -1,74 +1,122 @@
-/*
- * Design tokens.
- *
- * Palette is carried over from the original prototype so the rebuild looks
- * like the thing it replaces. A light theme can be added later by
- * redefining these under a `[data-theme="light"]` selector — no component
- * stylesheet needs to change.
- */
+/* ==========================================================================
+   Design tokens
+   ==========================================================================
+
+   The reference is scholarly publishing, not software: a book set on good
+   paper. Three decisions follow from that and are enforced everywhere.
+
+   1. NO SHADOWS. Print has no elevation. Hierarchy comes from type size,
+      weight, ink colour, and hairline rules. There is not one box-shadow in
+      this stylesheet.
+   2. NO CORNER RADIUS. Everything is square, including buttons and inputs.
+      A page of rounded cards is the look this design is explicitly avoiding.
+   3. ONE ACCENT, used as information only. Vermillion marks your position in
+      the book, the way a ribbon does. It never decorates.
+
+   The state system for a section is three-valued and colour is only one of
+   its channels, so it survives greyscale and colour blindness:
+      not read    hairline square outline
+      next up     vermillion outline + vermillion rule on the row
+      read        solid ink square
+   ========================================================================== */
+
 :root {
-  /* Surfaces */
-  --bg: #0f1115;
-  --panel: #171a21;
-  --panel-2: #1e222b;
-  --border: #2a2f3a;
+  /* --- Surfaces -----------------------------------------------------------
+     Warm off-white rather than #fff. Pure white on a large text page glares;
+     a trace of warmth reads as paper. */
+  --paper: #fcfcfa;
+  --paper-raised: #ffffff;
+  --paper-sunken: #f4f4f1;
 
-  /* Ink
-   *
-   * Every value here clears WCAG AA (4.5:1) against all three surfaces
-   * above. `--faint` was #666f80 in the prototype, which measured 3.15:1 on
-   * --panel-2 and failed. Check any change with a contrast calculator before
-   * committing it; these are the smallest text on the site. */
-  --text: #e9ecf1;   /* 14.6:1 on --panel */
-  --muted: #9aa3b2;  /*  6.3:1 on --panel-2 */
-  --faint: #8790a1;  /*  4.9:1 on --panel-2 */
+  /* There is deliberately no inverted surface token. The page is one theme
+     from header to footer; no section flips to dark. */
 
-  /* Accents */
-  --accent: #5b8cff;
-  --accent-2: #7ad3b2;
-  --warn: #f2b84b;
-  --danger: #ef6a6a;
+  /* --- Ink ----------------------------------------------------------------
+     Measured against --paper. Ratios verified, not estimated. */
+  --ink: #16150f;    /* 17.80:1  headings, primary text */
+  --ink-2: #45443c;  /*  9.53:1  body */
+  --ink-3: #6b6a60;  /*  5.30:1  metadata, captions */
+  --ink-4: #8e8d83;  /*  3.25:1  NON-TEXT ONLY. Legitimate uses are borders,
+                                 mark outlines, and text-decoration-color.
+                                 It fails AA as a `color`, so if you are
+                                 setting `color: var(--ink-4)` you want
+                                 --ink-3. Never on --accent-wash either,
+                                 where it drops below 3:1. */
 
-  /* Contrast ink for use on top of accent fills */
-  --on-accent: #0d1017;
+  /* --- Rules --------------------------------------------------------------
+     The primary structural device. Three weights of the same idea. */
+  --rule: #e4e3dc;        /* default hairline */
+  --rule-strong: #cbcac1; /* section boundaries */
+  --rule-ink: #16150f;    /* emphatic, under headings */
 
-  /* Shape */
-  --radius-sm: 7px;
-  --radius: 10px;
-  --radius-lg: 14px;
-  --radius-pill: 999px;
+  /* --- Accent -------------------------------------------------------------
+     Vermillion. One colour, one job: where you are in the book.
+     5.05:1 on --paper. Never decorative, never given a second meaning. */
+  --accent: #cc3311;
+  --accent-deep: #a72a0d; /* 6.86:1, for accent text on tinted grounds */
+  --accent-wash: #fbeeea; /* the only tinted fill in the system */
 
-  /* Spacing scale */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 26px;
-  --space-7: 34px;
-  --space-8: 48px;
+  /* --- Type ---------------------------------------------------------------
+     Families come from Astro's font pipeline (see astro.config.mjs). */
+  --face-serif: var(--font-serif), Georgia, Cambria, serif;
+  --face-sans: var(--font-sans), 'Helvetica Neue', Arial, sans-serif;
+  --face-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
 
-  /* Type scale */
-  --text-xs: 0.72rem;
-  --text-sm: 0.8rem;
-  --text-base: 0.88rem;
-  --text-md: 0.93rem;
-  --text-lg: 1.05rem;
-  --text-xl: 1.35rem;
-  --text-2xl: 1.75rem;
-  --text-3xl: 2.2rem;
+  /* Editorial scale. Deliberately capped: hierarchy is carried by weight,
+     colour, and space, not by a 96px headline. */
+  --t-micro: 0.6875rem;  /* 11px  mono labels */
+  --t-sm: 0.8125rem;     /* 13px  metadata */
+  --t-ui: 0.9375rem;     /* 15px  interface */
+  --t-body: 1.0625rem;   /* 17px  reading size */
+  --t-lead: 1.1875rem;   /* 19px  standfirst */
+  --t-h4: 1.25rem;       /* 20px */
+  --t-h3: 1.5rem;        /* 24px */
+  --t-h2: 2rem;          /* 32px */
+  --t-h1: 2.75rem;       /* 44px */
+  --t-display: 3.375rem; /* 54px  landing only */
 
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
-    Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
-    'Liberation Mono', monospace;
+  --lh-tight: 1.12;
+  --lh-snug: 1.28;
+  --lh-normal: 1.5;
+  --lh-prose: 1.68;
 
-  /* Layout */
-  --measure: 1000px;
-  --measure-wide: 1140px;
-  --measure-prose: 68ch;
+  /* Tracking. Serif display needs negative tracking; mono labels need a lot
+     of positive to read as small caps. */
+  --track-display: -0.021em;
+  --track-heading: -0.012em;
+  --track-label: 0.11em;
 
-  /* Motion */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration: 200ms;
+  /* --- Space --------------------------------------------------------------
+     4px base. Named by rank rather than by pixel so the rhythm survives a
+     scale change. */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4rem;
+  --s-9: 6rem;
+  --s-10: 8rem;
+
+  /* --- Measure ------------------------------------------------------------ */
+  --w-page: 1240px;   /* outer bound */
+  --w-text: 68ch;     /* long-form reading column */
+  --w-narrow: 54ch;   /* standfirst, intro copy */
+  --rail: 15.5rem;    /* book page contents rail */
+  --gutter: 1.5rem;
+
+  /* --- Shape --------------------------------------------------------------
+     Square. The value exists so the rule is explicit and greppable rather
+     than scattered as literal zeros. */
+  --radius: 0;
+
+  /* --- Motion -------------------------------------------------------------
+     One curve, three durations. Everything eases the same way, which is what
+     makes restrained motion feel deliberate rather than absent. */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --fast: 120ms;
+  --mid: 240ms;
+  --slow: 420ms;
 }
