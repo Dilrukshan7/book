@@ -1,0 +1,528 @@
+slug: linear-algebra-and-learning-from-data
+title: Linear Algebra and Learning from Data
+author: Gilbert Strang
+year: 2019
+publisher: Wellesley-Cambridge Press
+isbn: "978-0-692-19638-0"
+order: 1
+status: available
+
+tagline: The linear algebra that deep learning is actually built on.
+
+description: >-
+  Gilbert Strang's graduate text connects the linear algebra you half-remember
+  to the mathematics running underneath modern machine learning — the SVD,
+  low-rank approximation, optimization, and the structure of neural networks.
+  This roadmap walks all 46 sections in order and points each one at the
+  material MIT publishes for free.
+
+officialPage: https://math.mit.edu/~gs/learningfromdata/
+buyUrl: https://www.wellesleycambridge.com/
+
+cover:
+  initials: LA
+  accent: "#5b8cff"
+  accent2: "#7ad3b2"
+
+accessNotice: >-
+  MIT does not host the full book. What is published free is the Table of
+  Contents, the Preface, the Deep Learning essay, three complete sample
+  sections (I.1, I.2 and VII.1), the errata, and three sets of solutions.
+  What *is* fully free is MIT 18.065 — the course Strang taught directly from
+  this book: 36 video lectures plus problem sets, mapped section by section
+  below. So for most sections the video and problems are your free route; a
+  full section PDF exists only for the three samples. Everything here links to
+  MIT's own servers. If you can afford the book, buy it — it supports the
+  author.
+
+course:
+  name: MIT 18.065 — Matrix Methods in Data Analysis, Signal Processing, and Machine Learning (Spring 2018)
+  url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/
+  license: CC BY-NC-SA 4.0
+  licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  lectureBase: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/resources/
+
+defaults:
+  problemsUrl: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/cd4c57b7e61b8ca9fdd3511a30aca052_MIT18_065S18PSets.pdf
+  fallbackUrl: https://math.mit.edu/~gs/learningfromdata/dsla_toc.pdf
+  fallbackLabel: Find this section in the contents
+
+# ------------------------------------------------------------------ #
+# Book-wide resources. All hosted by MIT / the author — we mirror none.
+# ------------------------------------------------------------------ #
+resources:
+  - label: Table of Contents
+    url: https://math.mit.edu/~gs/learningfromdata/dsla_toc.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "📑"
+  - label: Preface
+    url: https://math.mit.edu/~gs/learningfromdata/dsla_preface.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "📄"
+  - label: Deep Learning and Neural Nets
+    url: https://math.mit.edu/~gs/learningfromdata/dsla_dlnn.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "🧠"
+  - label: Functions of Deep Learning (SIAM)
+    url: https://math.mit.edu/~gs/learningfromdata/siam.pdf
+    kind: pdf
+    source: Gilbert Strang / SIAM News
+    icon: "📰"
+  - label: Solutions by Strang
+    url: https://math.mit.edu/~gs/learningfromdata/lfdsols.pdf
+    kind: solutions
+    source: Gilbert Strang / MIT
+    icon: "✅"
+  - label: Solutions (Chang & Davidson)
+    url: https://math.mit.edu/~gs/learningfromdata/ecd.pdf
+    kind: solutions
+    source: Chang & Davidson / MIT
+    icon: "✅"
+  - label: Solutions (Tohme)
+    url: https://math.mit.edu/~gs/learningfromdata/tt.pdf
+    kind: solutions
+    source: Tohme / MIT
+    icon: "✅"
+  - label: All problem sets (one PDF)
+    url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/cd4c57b7e61b8ca9fdd3511a30aca052_MIT18_065S18PSets.pdf
+    kind: pdf
+    source: MIT OpenCourseWare
+    icon: "✏️"
+  - label: All 36 video lectures
+    url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/video_galleries/video-lectures/
+    kind: video
+    source: MIT OpenCourseWare
+    icon: "🎥"
+  - label: YouTube playlist
+    url: https://www.youtube.com/playlist?list=PLUl4u3cNGP63oMNUHXqIUcrkS2PivhN3k
+    kind: playlist
+    source: MIT OpenCourseWare
+    icon: "▶️"
+  - label: OCW reading map
+    url: https://ocw.mit.edu/courses/18-065-matrix-methods-in-data-analysis-signal-processing-and-machine-learning-spring-2018/pages/readings/
+    kind: page
+    source: MIT OpenCourseWare
+    icon: "🗺️"
+  - label: Counting Parameters
+    url: https://math.mit.edu/~gs/learningfromdata/counting.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "🔢"
+  - label: Central Limit Theorem (p.288)
+    url: https://math.mit.edu/~gs/learningfromdata/CentralLimitTheorem03.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "📊"
+  - label: Convolution as a Moving Window
+    url: https://math.mit.edu/~gs/learningfromdata/cmv01.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "🪟"
+  - label: Errata
+    url: https://math.mit.edu/~gs/learningfromdata/errata14.pdf
+    kind: pdf
+    source: Gilbert Strang / MIT
+    icon: "⚠️"
+  - label: Original MIT book page
+    url: https://math.mit.edu/~gs/learningfromdata/
+    kind: page
+    source: Gilbert Strang / MIT
+    icon: "🏠"
+
+# ------------------------------------------------------------------ #
+# Lecture registry. Sections reference these by number, so each URL is
+# written exactly once.
+# ------------------------------------------------------------------ #
+lectures:
+  - n: 1
+    title: The Column Space of A Contains All Vectors Ax
+    slug: lecture-1-the-column-space-of-a-contains-all-vectors-ax
+  - n: 2
+    title: Multiplying and Factoring Matrices
+    slug: lecture-2-multiplying-and-factoring-matrices
+  - n: 3
+    title: Orthonormal Columns in Q Give Q'Q = I
+    slug: lecture-3-orthonormal-columns-in-q-give-q-q-i
+  - n: 4
+    title: Eigenvalues and Eigenvectors
+    slug: lecture-4-eigenvalues-and-eigenvectors
+  - n: 5
+    title: Positive Definite and Semidefinite Matrices
+    slug: lecture-5-positive-definite-and-semidefinite-matrices
+  - n: 6
+    title: Singular Value Decomposition (SVD)
+    slug: lecture-6-singular-value-decomposition-svd
+  - n: 7
+    title: "Eckart-Young: The Closest Rank k Matrix to A"
+    slug: lecture-7-eckart-young-the-closest-rank-k-matrix-to-a
+  - n: 8
+    title: Norms of Vectors and Matrices
+    slug: lecture-8-norms-of-vectors-and-matrices
+  - n: 9
+    title: Four Ways to Solve Least Squares Problems
+    slug: lecture-9-four-ways-to-solve-least-squares-problems
+  - n: 10
+    title: Survey of Difficulties with Ax = b
+    slug: lecture-10-survey-of-difficulties-with-ax-b
+  - n: 11
+    title: Minimizing the Norm of x Subject to Ax = b
+    slug: lecture-11-minimizing-x-subject-to-ax-b
+  - n: 12
+    title: Computing Eigenvalues and Singular Values
+    slug: lecture-12-computing-eigenvalues-and-singular-values
+  - n: 13
+    title: Randomized Matrix Multiplication
+    slug: lecture-13-randomized-matrix-multiplication
+  - n: 14
+    title: Low Rank Changes in A and Its Inverse
+    slug: lecture-14-low-rank-changes-in-a-and-its-inverse
+  - n: 15
+    title: "Matrices A(t) Depending on t, Derivative = dA/dt"
+    slug: lecture-15-matrices-a-t-depending-on-t-derivative-da-dt
+  - n: 16
+    title: Derivatives of Inverse and Singular Values
+    slug: lecture-16-derivatives-of-inverse-and-singular-values
+  - n: 17
+    title: Rapidly Decreasing Singular Values
+    slug: lecture-17-rapidly-decreasing-singular-values
+  - n: 18
+    title: Counting Parameters in SVD, LU, QR, Saddle Points
+    slug: lecture-18-counting-parameters-in-svd-lu-qr-saddle-points
+  - n: 19
+    title: Saddle Points Continued, Maxmin Principle
+    slug: lecture-19-saddle-points-continued-maxmin-principle
+  - n: 20
+    title: Definitions and Inequalities
+    slug: lecture-20-definitions-and-inequalities
+  - n: 21
+    title: Minimizing a Function Step by Step
+    slug: lecture-21-minimizing-a-function-step-by-step
+  - n: 22
+    title: "Gradient Descent: Downhill to a Minimum"
+    slug: lecture-22-gradient-descent-downhill-to-a-minimum
+  - n: 23
+    title: Accelerating Gradient Descent (Use Momentum)
+    slug: lecture-23-accelerating-gradient-descent-use-momentum
+  - n: 24
+    title: Linear Programming and Two-Person Games
+    slug: lecture-24-linear-programming-and-two-person-games
+  - n: 25
+    title: Stochastic Gradient Descent
+    slug: lecture-25-stochastic-gradient-descent
+  - n: 26
+    title: Structure of Neural Nets for Deep Learning
+    slug: lecture-26-structure-of-neural-nets-for-deep-learning
+  - n: 27
+    title: "Backpropagation: Find Partial Derivatives"
+    slug: lecture-27-backpropagation-find-partial-derivatives
+  - n: 30
+    title: Completing a Rank-One Matrix, Circulants
+    slug: lecture-30-completing-a-rank-one-matrix-circulants
+  - n: 31
+    title: "Eigenvectors of Circulant Matrices: Fourier Matrix"
+    slug: lecture-31-eigenvectors-of-circulant-matrices-fourier-matrix
+  - n: 32
+    title: ImageNet is a CNN — The Convolution Rule
+    slug: lecture-32-imagenet-is-a-convolutional-neural-network-cnn-the-convolution-rule
+  - n: 33
+    title: Neural Nets and the Learning Function
+    slug: lecture-33-neural-nets-and-the-learning-function
+  - n: 34
+    title: Distance Matrices, Procrustes Problem
+    slug: lecture-34-distance-matrices-procrustes-problem
+  - n: 35
+    title: Finding Clusters in Graphs
+    slug: lecture-35-finding-clusters-in-graphs
+  - n: 36
+    title: Alan Edelman and Julia Language
+    slug: lecture-36-alan-edelman-and-julia-language
+
+# ------------------------------------------------------------------ #
+# The roadmap.
+# ------------------------------------------------------------------ #
+parts:
+  - id: I
+    title: Highlights of Linear Algebra
+    summary: Column spaces, factorizations, eigenvalues, SVD — the foundation.
+    sections:
+      - code: I.1
+        title: Multiplication Ax Using Columns of A
+        links:
+          - kind: section-pdf
+            url: https://math.mit.edu/~gs/learningfromdata/dsla1-1.pdf
+          - kind: lecture
+            ref: 1
+      - code: I.2
+        title: Matrix-Matrix Multiplication AB
+        links:
+          - kind: section-pdf
+            url: https://math.mit.edu/~gs/learningfromdata/dsla1-2.pdf
+          - kind: lecture
+            ref: 2
+      - code: I.3
+        title: The Four Fundamental Subspaces
+      - code: I.4
+        title: Elimination and A = LU
+      - code: I.5
+        title: Orthogonal Matrices and Subspaces
+        links:
+          - kind: lecture
+            ref: 3
+      - code: I.6
+        title: Eigenvalues and Eigenvectors
+        links:
+          - kind: lecture
+            ref: 4
+      - code: I.7
+        title: Symmetric Positive Definite Matrices
+        links:
+          - kind: lecture
+            ref: 5
+      - code: I.8
+        title: Singular Values and Singular Vectors in the SVD
+        links:
+          - kind: lecture
+            ref: 6
+      - code: I.9
+        title: Principal Components and the Best Low Rank Matrix
+        links:
+          - kind: lecture
+            ref: 7
+      - code: I.10
+        title: Rayleigh Quotients and Generalized Eigenvalues
+      - code: I.11
+        title: Norms of Vectors and Functions and Matrices
+        links:
+          - kind: lecture
+            ref: 8
+          - kind: lecture
+            ref: 11
+    checklist:
+      - Redo at least one worked example by hand, not just reading it
+      - Write the 4 fundamental subspaces from memory, with their dimensions
+      - "State the SVD in your own words: what U, Σ, and V each represent"
+      - Do 2–3 problems from the problem set PDF before checking solutions
+
+  - id: II
+    title: Computations with Large Matrices
+    summary: Numerical linear algebra, least squares, randomized methods.
+    sections:
+      - code: II.1
+        title: Numerical Linear Algebra
+        links:
+          - kind: lecture
+            ref: 12
+      - code: II.2
+        title: "Least Squares: Four Ways"
+        links:
+          - kind: lecture
+            ref: 9
+      - code: II.3
+        title: Three Bases for the Column Space
+        links:
+          - kind: lecture
+            ref: 10
+      - code: II.4
+        title: Randomized Linear Algebra
+        links:
+          - kind: lecture
+            ref: 13
+    checklist:
+      - List the 4 ways to solve least squares and when each one is preferred
+      - Explain why randomized methods scale to matrices too big to store
+      - Code a least-squares solve in numpy and compare it to the normal equations
+      - Note the stability problems that motivate each method
+
+  - id: III
+    title: Low Rank and Compressed Sensing
+    summary: How matrices change, interlacing eigenvalues, decaying singular values.
+    sections:
+      - code: III.1
+        title: Changes in A⁻¹ from Changes in A
+        links:
+          - kind: lecture
+            ref: 14
+          - kind: lecture
+            ref: 15
+      - code: III.2
+        title: Interlacing Eigenvalues and Low Rank Signals
+        links:
+          - kind: lecture
+            ref: 16
+          - kind: lecture
+            ref: 18
+      - code: III.3
+        title: Rapidly Decaying Singular Values
+        links:
+          - kind: lecture
+            ref: 17
+      - code: III.4
+        title: Split Algorithms for ℓ² + ℓ¹
+      - code: III.5
+        title: Compressed Sensing and Matrix Completion
+    checklist:
+      - Say in one sentence why low-rank updates matter computationally
+      - Connect rapidly decaying singular values to real data compression
+      - Sketch why interlacing bounds eigenvalues after a rank-one update
+      - Skim Part VII to see where all of this reappears in deep learning
+
+  - id: IV
+    title: Special Matrices
+    summary: Circulants, Fourier, graphs, clustering, distance matrices.
+    sections:
+      - code: IV.1
+        title: "Fourier Transforms: Discrete and Continuous"
+      - code: IV.2
+        title: Shift Matrices and Circulant Matrices
+        links:
+          - kind: lecture
+            ref: 31
+          - kind: lecture
+            ref: 30
+      - code: IV.3
+        title: The Kronecker Product A ⊗ B
+      - code: IV.4
+        title: Sine and Cosine Transforms from Kronecker Sums
+      - code: IV.5
+        title: Toeplitz Matrices and Shift Invariant Filters
+        links:
+          - kind: lecture
+            ref: 32
+      - code: IV.6
+        title: Graphs and Laplacians and Kirchhoff's Laws
+        links:
+          - kind: lecture
+            ref: 35
+      - code: IV.7
+        title: Clustering by Spectral Methods and k-means
+        links:
+          - kind: lecture
+            ref: 35
+      - code: IV.8
+        title: Completing Rank One Matrices
+        links:
+          - kind: lecture
+            ref: 30
+      - code: IV.9
+        title: The Orthogonal Procrustes Problem
+        links:
+          - kind: lecture
+            ref: 34
+      - code: IV.10
+        title: Distance Matrices
+        links:
+          - kind: lecture
+            ref: 33
+          - kind: lecture
+            ref: 34
+    checklist:
+      - Draw a small graph and build its Laplacian matrix by hand
+      - Explain how spectral clustering uses eigenvectors of the Laplacian
+      - Verify on a tiny circulant that its eigenvectors are Fourier modes
+      - Name one real application per matrix type (image, audio, network)
+
+  - id: V
+    title: Probability and Statistics
+    summary: Mean, variance, covariance — the statistical toolkit behind learning.
+    sections:
+      - code: V.1
+        title: Mean, Variance, and Probability
+        links:
+          - kind: lecture
+            ref: 19
+      - code: V.2
+        title: Probability Distributions
+        links:
+          - kind: lecture
+            ref: 20
+      - code: V.3
+        title: Moments, Cumulants, and Inequalities of Statistics
+        links:
+          - kind: lecture
+            ref: 20
+      - code: V.4
+        title: Covariance Matrices and Joint Probabilities
+      - code: V.5
+        title: Multivariate Gaussian and Weighted Least Squares
+      - code: V.6
+        title: Markov Chains
+    checklist:
+      - Write mean, variance, and covariance definitions side by side
+      - Connect the covariance matrix back to PCA from section I.9
+      - Work one Markov chain example all the way to steady state
+      - Relate weighted least squares back to Part II's four methods
+
+  - id: VI
+    title: Optimization
+    summary: Convexity, Lagrange multipliers, gradient descent, duality.
+    sections:
+      - code: VI.1
+        title: "Minimum Problems: Convexity and Newton's Method"
+        links:
+          - kind: lecture
+            ref: 21
+      - code: VI.2
+        title: Lagrange Multipliers = Derivatives of the Cost
+        links:
+          - kind: lecture
+            ref: 24
+      - code: VI.3
+        title: Linear Programming, Game Theory, and Duality
+        links:
+          - kind: lecture
+            ref: 24
+      - code: VI.4
+        title: Gradient Descent Toward the Minimum
+        links:
+          - kind: lecture
+            ref: 22
+          - kind: lecture
+            ref: 23
+      - code: VI.5
+        title: Stochastic Gradient Descent and ADAM
+        links:
+          - kind: lecture
+            ref: 25
+    checklist:
+      - Derive the gradient descent update from a Taylor expansion sketch
+      - Explain momentum in one or two sentences, in your own words
+      - Compare batch gradient descent against the stochastic version
+      - Code a basic gradient descent loop on a toy quadratic function
+
+  - id: VII
+    title: Learning from Data
+    summary: Neural network architecture, convolutions, backpropagation.
+    sections:
+      - code: VII.1
+        title: The Construction of Deep Neural Networks
+        links:
+          - kind: section-pdf
+            url: https://math.mit.edu/~gs/learningfromdata/dsla7-1.pdf
+          - kind: lecture
+            ref: 26
+          - kind: lecture
+            ref: 33
+      - code: VII.2
+        title: Convolutional Neural Nets
+        links:
+          - kind: lecture
+            ref: 32
+          - kind: lecture
+            ref: 36
+      - code: VII.3
+        title: Backpropagation and the Chain Rule
+        links:
+          - kind: lecture
+            ref: 27
+      - code: VII.4
+        title: "Hyperparameters: The Fateful Decisions"
+      - code: VII.5
+        title: The World of Machine Learning
+    checklist:
+      - Sketch a small net and label every weight, bias, and activation
+      - Trace one forward pass and one backward pass by hand on a tiny net
+      - Explain why convolution is a structured, low-parameter linear map
+      - Write down how Parts I, III, and VI each feed into this chapter
