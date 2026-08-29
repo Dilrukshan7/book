@@ -1,5 +1,24 @@
 ---
+import { getCollection } from 'astro:content';
+import type { Book } from '../lib/books';
 import '../styles/generator.css';
+
+interface Props {
+  books?: Book[];
+}
+
+const { books: propBooks } = Astro.props;
+const entries = propBooks ? [] : await getCollection('books');
+const availableBooks = propBooks || entries.map((e) => e.data);
+
+const existingCatalog = availableBooks.map((b) => ({
+  slug: b.slug,
+  title: b.title,
+  author: b.author,
+  isbn: b.isbn ? b.isbn.replace(/[^0-9X]/gi, '') : '',
+  isbnRaw: b.isbn || '',
+  year: b.year,
+}));
 ---
 
 {/* Launcher Button */}
@@ -19,6 +38,7 @@ import '../styles/generator.css';
   class="generator-modal"
   id="ai-generator-modal"
   data-generator-modal
+  data-catalog={JSON.stringify(existingCatalog)}
   role="dialog"
   aria-modal="true"
   aria-labelledby="generator-modal-title"
@@ -30,7 +50,7 @@ import '../styles/generator.css';
       <div class="generator-header__title-group">
         <span class="badge badge--accent">Studio</span>
         <h2 class="generator-header__title" id="generator-modal-title">
-          AI Technical Roadmap Generator
+          Technical Roadmap Generator
         </h2>
       </div>
       <button
@@ -46,7 +66,7 @@ import '../styles/generator.css';
     {/* Body */}
     <div class="generator-body">
       <p class="u-text-sm" style="color: var(--ink-3); margin: 0;">
-        Enter any technical textbook title, ISBN, or course name. Our AI engine generates a structured section-by-section roadmap, prerequisite checklist, and links formatted for ReadBooks.
+        Enter any technical textbook title, ISBN, or course name. We will first check our curated library, and if not available, our AI engine will generate a structured section-by-section roadmap for you to study on the site.
       </p>
 
       {/* Form */}
@@ -55,20 +75,34 @@ import '../styles/generator.css';
           <input
             type="text"
             class="generator-input"
-            placeholder="e.g. ISBN 978-0262033848, or 'Introduction to Algorithms'..."
+            placeholder="e.g. ISBN 978-0-393-97950-3, or 'Introduction to Algorithms'..."
             maxlength="250"
             required
             data-generator-input
           />
           <button type="submit" class="generator-submit" data-generator-submit>
-            <span>Generate Roadmap</span>
+            <span>Find or Generate</span>
             <span aria-hidden="true">&#8594;</span>
           </button>
         </div>
 
         {/* Quick Example Suggestions */}
         <div class="generator-suggestions">
-          <span class="generator-suggestions__label">Examples:</span>
+          <span class="generator-suggestions__label">Try:</span>
+          <button
+            type="button"
+            class="generator-chip"
+            data-suggest="Introduction to Linear Algebra"
+          >
+            Introduction to Linear Algebra (Existing)
+          </button>
+          <button
+            type="button"
+            class="generator-chip"
+            data-suggest="C Programming: A Modern Approach by K. N. King"
+          >
+            C Programming (K. N. King)
+          </button>
           <button
             type="button"
             class="generator-chip"
@@ -76,27 +110,25 @@ import '../styles/generator.css';
           >
             CLRS Algorithms
           </button>
-          <button
-            type="button"
-            class="generator-chip"
-            data-suggest="Quantum Computation and Quantum Information by Nielsen & Chuang"
-          >
-            Nielsen &amp; Chuang
-          </button>
-          <button
-            type="button"
-            class="generator-chip"
-            data-suggest="Convex Optimization by Stephen Boyd and Lieven Vandenberghe"
-          >
-            Boyd Convex Optimization
-          </button>
         </div>
       </form>
 
       {/* Status Bar */}
       <div class="generator-status" data-generator-status hidden>
         <div class="generator-pulse" aria-hidden="true"></div>
-        <span data-generator-status-text>Synthesizing textbook curriculum and chapters...</span>
+        <span data-generator-status-text>Checking library...</span>
+      </div>
+
+      {/* Found in Curated Library Notice */}
+      <div class="notice" data-generator-found hidden>
+        <span class="notice__title">Curated Roadmap Available</span>
+        <p data-generator-found-text></p>
+        <div style="margin-top: var(--s-3);">
+          <a href="#" class="btn" data-generator-found-link>
+            <span>Open Curated Roadmap</span>
+            <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+          </a>
+        </div>
       </div>
 
       {/* Error Notice */}
@@ -104,51 +136,18 @@ import '../styles/generator.css';
         <p data-generator-error-text></p>
       </div>
 
-      {/* Result Workspace */}
+      {/* Generated Result Workspace */}
       <div class="generator-result" data-generator-result hidden>
-        <div class="generator-tabs" role="tablist" aria-label="Roadmap display formats">
-          <button
-            type="button"
-            class="generator-tab-btn"
-            role="tab"
-            aria-selected="true"
-            data-tab="visual"
-          >
-            Visual Roadmap Preview
-          </button>
-          <button
-            type="button"
-            class="generator-tab-btn"
-            role="tab"
-            aria-selected="false"
-            data-tab="yaml"
-          >
-            Raw book.yaml
-          </button>
+        <div class="generator-preview-card" data-preview-card>
+          {/* Populated dynamically */}
         </div>
 
-        {/* Visual Tab */}
-        <div class="generator-panel" data-panel="visual">
-          <div class="generator-preview-card" data-preview-card>
-            {/* Populated dynamically */}
-          </div>
-        </div>
-
-        {/* YAML Tab */}
-        <div class="generator-panel" data-panel="yaml" hidden>
-          <div class="generator-code-wrap">
-            <pre class="generator-code-block"><code data-generator-yaml></code></pre>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
+        {/* Action Button: Open Roadmap directly on the site */}
         <div class="generator-actions">
-          <button type="button" class="btn btn--secondary" data-copy-yaml>
-            <span>Copy book.yaml</span>
-          </button>
-          <button type="button" class="btn" data-download-yaml>
-            <span>Download .yaml</span>
-          </button>
+          <a href="#" class="btn" data-open-roadmap-btn>
+            <span>Explore This Roadmap on Website</span>
+            <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+          </a>
         </div>
       </div>
     </div>
@@ -156,6 +155,8 @@ import '../styles/generator.css';
 </div>
 
 <script>
+  import { createStorage, readJSON, writeJSON } from '../lib/storage';
+
   function initAiGenerator() {
     const trigger = document.querySelector<HTMLButtonElement>('[data-generator-trigger]');
     const modal = document.querySelector<HTMLElement>('[data-generator-modal]');
@@ -166,20 +167,29 @@ import '../styles/generator.css';
     const suggestChips = document.querySelectorAll<HTMLButtonElement>('[data-suggest]');
     const statusBox = document.querySelector<HTMLElement>('[data-generator-status]');
     const statusText = document.querySelector<HTMLElement>('[data-generator-status-text]');
+    const foundBox = document.querySelector<HTMLElement>('[data-generator-found]');
+    const foundText = document.querySelector<HTMLElement>('[data-generator-found-text]');
+    const foundLink = document.querySelector<HTMLAnchorElement>('[data-generator-found-link]');
     const errorBox = document.querySelector<HTMLElement>('[data-generator-error]');
     const errorText = document.querySelector<HTMLElement>('[data-generator-error-text]');
     const resultBox = document.querySelector<HTMLElement>('[data-generator-result]');
     const previewCard = document.querySelector<HTMLElement>('[data-preview-card]');
-    const yamlCode = document.querySelector<HTMLElement>('[data-generator-yaml]');
-    const tabBtns = document.querySelectorAll<HTMLButtonElement>('[data-tab]');
-    const panels = document.querySelectorAll<HTMLElement>('[data-panel]');
-    const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-yaml]');
-    const downloadBtn = document.querySelector<HTMLButtonElement>('[data-download-yaml]');
+    const openRoadmapBtn = document.querySelector<HTMLAnchorElement>('[data-open-roadmap-btn]');
 
     if (!trigger || !modal) return;
 
-    let currentBookData: any = null;
-    let currentYamlString = '';
+    const storage = createStorage();
+
+    // Parse existing curated books catalog
+    interface CatalogItem {
+      slug: string;
+      title: string;
+      author: string;
+      isbn: string;
+      isbnRaw: string;
+      year: number;
+    }
+    const existingCatalog: CatalogItem[] = JSON.parse(modal.dataset.catalog || '[]');
 
     function openModal() {
       modal?.removeAttribute('hidden');
@@ -216,77 +226,6 @@ import '../styles/generator.css';
       });
     });
 
-    // Tab Switching
-    tabBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const tab = btn.dataset.tab;
-        tabBtns.forEach((b) => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
-        panels.forEach((p) => {
-          p.hidden = p.dataset.panel !== tab;
-        });
-      });
-    });
-
-    // Convert structured JSON to ReadBooks formatted YAML string
-    function jsonToYaml(data: any): string {
-      const lines: string[] = [];
-      lines.push(`title: "${data.title || 'Untitled'}"`);
-      lines.push(`author: "${data.author || 'Unknown'}"`);
-      lines.push(`year: ${data.year || new Date().getFullYear()}`);
-      if (data.publisher) lines.push(`publisher: "${data.publisher}"`);
-      if (data.isbn) lines.push(`isbn: "${data.isbn}"`);
-      if (data.edition) lines.push(`edition: "${data.edition}"`);
-      lines.push(`level: ${data.level || 'intermediate'}`);
-      if (data.subjects && data.subjects.length > 0) {
-        lines.push('subjects:');
-        data.subjects.forEach((s: string) => lines.push(`  - "${s}"`));
-      }
-      lines.push(`tagline: "${data.tagline || ''}"`);
-      lines.push(`description: >-\n  ${(data.description || '').replace(/\n/g, '\n  ')}`);
-      lines.push(`coverMotif: ${data.coverMotif || 'grid'}`);
-      lines.push(`officialPage: "${data.officialPage || 'https://math.mit.edu'}"`);
-      lines.push(
-        'accessNotice: >-\n  Free supporting materials sequenced from legitimate academic open-access sources.',
-      );
-
-      if (data.course) {
-        lines.push('course:');
-        lines.push(`  name: "${data.course.name || ''}"`);
-        lines.push(`  url: "${data.course.url || ''}"`);
-        if (data.course.license) lines.push(`  license: "${data.course.license}"`);
-      }
-
-      if (data.parts && data.parts.length > 0) {
-        lines.push('\nparts:');
-        data.parts.forEach((p: any) => {
-          lines.push(`  - id: "${p.id}"`);
-          lines.push(`    title: "${p.title}"`);
-          if (p.checklist && p.checklist.length > 0) {
-            lines.push('    checklist:');
-            p.checklist.forEach((c: string) => lines.push(`      - "${c}"`));
-          }
-          if (p.sections && p.sections.length > 0) {
-            lines.push('    sections:');
-            p.sections.forEach((s: any) => {
-              lines.push(`      - code: "${s.code}"`);
-              lines.push(`        title: "${s.title}"`);
-              if (s.summary) lines.push(`        summary: "${s.summary}"`);
-              if (s.links && s.links.length > 0) {
-                lines.push('        links:');
-                s.links.forEach((l: any) => {
-                  lines.push(`          - label: "${l.label}"`);
-                  lines.push(`            url: "${l.url}"`);
-                  lines.push(`            kind: "${l.kind || 'reading'}"`);
-                });
-              }
-            });
-          }
-        });
-      }
-
-      return lines.join('\n');
-    }
-
     function renderVisualPreview(data: any) {
       if (!previewCard) return;
       const partsHtml = (data.parts || [])
@@ -316,6 +255,7 @@ import '../styles/generator.css';
           <div style="display: flex; gap: 0.5rem; margin-bottom: 0.25rem;">
             <span class="badge badge--accent">${data.level || 'Academic'}</span>
             ${data.edition ? `<span class="record__meta-pill">${data.edition}</span>` : ''}
+            <span class="record__meta-pill">${(data.parts || []).length} Parts</span>
           </div>
           <h3 class="generator-preview-title">${data.title}</h3>
           <p class="generator-preview-meta">
@@ -329,7 +269,7 @@ import '../styles/generator.css';
       `;
     }
 
-    // Handle Form Submit & Streaming
+    // Handle Form Submit
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const query = input?.value.trim();
@@ -338,9 +278,56 @@ import '../styles/generator.css';
       // Reset state
       errorBox?.setAttribute('hidden', '');
       resultBox?.setAttribute('hidden', '');
+      foundBox?.setAttribute('hidden', '');
       statusBox?.removeAttribute('hidden');
-      if (statusText) statusText.textContent = 'Contacting OpenRouter AI model...';
+      if (statusText) statusText.textContent = 'Checking ReadBooks catalog...';
       if (submitBtn) submitBtn.disabled = true;
+
+      // 1. Check if book already exists in curated catalog
+      const cleanDigits = query.replace(/[^0-9X]/gi, '');
+      const lowerQuery = query.toLowerCase();
+
+      const matchedCurated = existingCatalog.find((b) => {
+        if (cleanDigits.length >= 9 && b.isbn && b.isbn.includes(cleanDigits)) return true;
+        if (b.title.toLowerCase().includes(lowerQuery) || lowerQuery.includes(b.title.toLowerCase())) return true;
+        return false;
+      });
+
+      if (matchedCurated) {
+        statusBox?.setAttribute('hidden', '');
+        if (foundText) {
+          foundText.textContent = `This book already has an official, verified study roadmap on ReadBooks: "${matchedCurated.title}" by ${matchedCurated.author} (${matchedCurated.year}).`;
+        }
+        if (foundLink) {
+          foundLink.href = `/books/${matchedCurated.slug}`;
+        }
+        foundBox?.removeAttribute('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+
+      // 2. Check if already generated in custom books
+      const customBooks = readJSON<any[]>(storage, 'readbooks:v1:custom_books', []);
+      const matchedCustom = customBooks.find((b) => {
+        const bIsbn = (b.isbn || '').replace(/[^0-9X]/gi, '');
+        if (cleanDigits.length >= 9 && bIsbn && bIsbn.includes(cleanDigits)) return true;
+        if (b.title.toLowerCase().includes(lowerQuery) || lowerQuery.includes(b.title.toLowerCase())) return true;
+        return false;
+      });
+
+      if (matchedCustom) {
+        statusBox?.setAttribute('hidden', '');
+        renderVisualPreview(matchedCustom);
+        if (openRoadmapBtn) {
+          openRoadmapBtn.href = `/roadmap/viewer?slug=${matchedCustom.slug}`;
+        }
+        resultBox?.removeAttribute('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+        return;
+      }
+
+      // 3. Generate with AI
+      if (statusText) statusText.textContent = 'Contacting AI curriculum architect...';
 
       try {
         const res = await fetch('/api/generate-guide', {
@@ -354,7 +341,7 @@ import '../styles/generator.css';
           throw new Error(errData.error || `Server responded with status ${res.status}`);
         }
 
-        if (statusText) statusText.textContent = 'Generating structured study roadmap...';
+        if (statusText) statusText.textContent = 'Synthesizing chapters and curriculum...';
 
         const reader = res.body?.getReader();
         if (!reader) throw new Error('Response stream not readable.');
@@ -369,7 +356,6 @@ import '../styles/generator.css';
 
           lineBuffer += decoder.decode(value, { stream: true });
           const lines = lineBuffer.split('\n');
-          // Keep the last incomplete slice in the lineBuffer
           lineBuffer = lines.pop() || '';
 
           for (const line of lines) {
@@ -385,7 +371,7 @@ import '../styles/generator.css';
                 '';
               rawBuffer += token;
               if (statusText && rawBuffer.length > 0) {
-                statusText.textContent = `Streaming roadmap structure (${Math.round(rawBuffer.length / 4)} tokens received)...`;
+                statusText.textContent = `Synthesizing roadmap (${Math.round(rawBuffer.length / 4)} tokens received)...`;
               }
             } catch {
               /* chunk fragment */
@@ -395,35 +381,29 @@ import '../styles/generator.css';
 
         // Parse final JSON with robust cleaning
         let cleaned = rawBuffer
-          // Strip reasoning tags from models like DeepSeek / Nemotron
           .replace(/<think>[\s\S]*?<\/think>/gi, '')
-          // Strip markdown code fences if present
           .replace(/```(?:json)?/gi, '')
           .replace(/```/g, '')
           .trim();
 
-        // Extract content between first { and last }
         const firstBrace = cleaned.indexOf('{');
         const lastBrace = cleaned.lastIndexOf('}');
         if (firstBrace === -1 || lastBrace === -1) {
-          throw new Error('AI response did not contain a structured JSON object. Please try with another model or title.');
+          throw new Error('AI response did not contain a valid roadmap object. Please try again.');
         }
 
         let cleanJson = cleaned.slice(firstBrace, lastBrace + 1);
-
-        // Remove trailing commas before closing braces/brackets
         cleanJson = cleanJson.replace(/,\s*([\]}])/g, '$1');
 
         let bookData: any;
         try {
           bookData = JSON.parse(cleanJson);
         } catch (jsonErr: any) {
-          // If JSON parse fails, try escaping unescaped newlines in string literals
           try {
             const sanitizedString = cleanJson.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, '\\n');
             bookData = JSON.parse(sanitizedString);
           } catch {
-            throw new Error(`Failed to parse AI roadmap JSON: ${jsonErr.message}.`);
+            throw new Error(`Failed to parse AI roadmap: ${jsonErr.message}.`);
           }
         }
 
@@ -431,11 +411,28 @@ import '../styles/generator.css';
           throw new Error(bookData.error);
         }
 
-        currentBookData = bookData;
-        currentYamlString = jsonToYaml(bookData);
+        // Generate slug
+        const slug = (bookData.title || 'book')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/(^-|-$)/g, '');
+        bookData.slug = slug;
 
+        // Save generated book into custom_books localStorage
+        const storedCustom = readJSON<any[]>(storage, 'readbooks:v1:custom_books', []);
+        const existIdx = storedCustom.findIndex((b) => b.slug === slug);
+        if (existIdx >= 0) {
+          storedCustom[existIdx] = bookData;
+        } else {
+          storedCustom.unshift(bookData);
+        }
+        writeJSON(storage, 'readbooks:v1:custom_books', storedCustom);
+
+        // Render preview & set roadmap view link
         renderVisualPreview(bookData);
-        if (yamlCode) yamlCode.textContent = currentYamlString;
+        if (openRoadmapBtn) {
+          openRoadmapBtn.href = `/roadmap/viewer?slug=${slug}`;
+        }
 
         statusBox?.setAttribute('hidden', '');
         resultBox?.removeAttribute('hidden');
@@ -446,39 +443,6 @@ import '../styles/generator.css';
       } finally {
         if (submitBtn) submitBtn.disabled = false;
       }
-    });
-
-    // Copy YAML
-    copyBtn?.addEventListener('click', async () => {
-      if (!currentYamlString) return;
-      try {
-        await navigator.clipboard.writeText(currentYamlString);
-        const origText = copyBtn.textContent;
-        copyBtn.textContent = 'Copied to Clipboard!';
-        window.setTimeout(() => {
-          copyBtn.textContent = origText;
-        }, 2000);
-      } catch {
-        /* fallback */
-      }
-    });
-
-    // Download YAML
-    downloadBtn?.addEventListener('click', () => {
-      if (!currentYamlString) return;
-      const slug = (currentBookData?.title || 'book')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '');
-      const blob = new Blob([currentYamlString], { type: 'text/yaml;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${slug || 'book'}.yaml`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
     });
   }
 

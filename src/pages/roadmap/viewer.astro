@@ -1,0 +1,350 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/roadmap.css';
+import '../../styles/charts.css';
+---
+
+<BaseLayout
+  title="Technical Book Roadmap — ReadBooks"
+  description="Interactive section-by-section study roadmap."
+  suffix={false}
+>
+  <div class="u-page" data-viewer-container>
+    {/* Loading State */}
+    <div data-viewer-loading style="padding: var(--s-8) 0; text-align: center;">
+      <p class="u-text-ui" style="color: var(--ink-3);">Loading roadmap...</p>
+    </div>
+
+    {/* Not Found State */}
+    <div data-viewer-notfound hidden style="padding: var(--s-8) 0; text-align: center;">
+      <h1 class="u-h2">Roadmap Not Found</h1>
+      <p class="u-text-ui" style="color: var(--ink-3); margin-top: var(--s-3);">
+        This generated roadmap could not be loaded from your local storage.
+      </p>
+      <div style="margin-top: var(--s-6);">
+        <a href="/books" class="btn"><span>Back to Books Library</span></a>
+      </div>
+    </div>
+
+    {/* Dynamic Roadmap Content */}
+    <div data-viewer-content hidden>
+      <div class="bookhead">
+        <nav class="bookhead__crumb" aria-label="Breadcrumb">
+          <a href="/books">Books</a>
+          <span aria-hidden="true">/</span>
+          <span data-book-title-crumb>Roadmap</span>
+        </nav>
+
+        <div class="bookhead__grid">
+          <h1 class="bookhead__title" data-book-title></h1>
+          <div>
+            <p class="bookhead__blurb" data-book-tagline></p>
+            <p class="bookhead__byline">
+              <strong data-book-author></strong>, <span data-book-year></span>
+              <span data-book-publisher-wrap hidden> &middot; <span data-book-publisher></span></span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="book" data-tracker data-book-slug="">
+        <aside class="rail" aria-label="Contents and progress">
+          <div class="rail__strip">
+            <div class="rail__section">
+              <p
+                class="gauge__figure"
+                data-progressbar
+                role="progressbar"
+                aria-label="Reading progress"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+              >
+                <span class="gauge__done" data-gauge-done>0</span>
+                <span class="gauge__total" data-gauge-total>/ 0</span>
+              </p>
+              <div class="gauge__track" aria-hidden="true">
+                <span class="gauge__fill" data-gauge-fill></span>
+              </div>
+              <p class="gauge__caption" data-gauge-caption>0% of the book</p>
+              <p class="gauge__streak" data-gauge-streak hidden>
+                <b data-gauge-streak-value>0</b>
+                <span data-gauge-streak-unit>days</span> in a row
+              </p>
+            </div>
+
+            <div class="rail__section">
+              <a class="resume" href="#part-1" data-resume>
+                <span class="resume__label" aria-hidden="true">
+                  <span data-resume-label>Start</span>
+                  <span class="resume__arrow">&#8594;</span>
+                </span>
+                <span class="resume__target" aria-hidden="true">
+                  <span class="resume__code" data-resume-code>1.1</span>
+                  <span data-resume-title>First section</span>
+                </span>
+                <span class="u-sr" data-resume-sr>Start reading</span>
+              </a>
+            </div>
+          </div>
+
+          <nav class="rail__section railnav" aria-label="Parts" data-railnav>
+            {/* Populated dynamically */}
+          </nav>
+
+          <details class="rail__section tools">
+            <summary>Progress tools</summary>
+            <div class="tools__body">
+              <button type="button" class="btn--quiet" data-action="export">
+                Export progress
+              </button>
+              <button type="button" class="btn--quiet" data-action="import">
+                Import progress
+              </button>
+              <button type="button" class="btn--quiet" data-action="reset">
+                Reset this book
+              </button>
+              <input
+                type="file"
+                accept="application/json,.json"
+                data-import-input
+                class="u-sr"
+                tabindex="-1"
+                aria-hidden="true"
+              />
+            </div>
+            <p class="tools__note">
+              Progress is kept in your browser.
+            </p>
+          </details>
+        </aside>
+
+        <div class="main">
+          <p class="notice" data-access-notice>
+            <span class="notice__title">Free Supporting Materials</span>
+            <span data-access-notice-text>Structured section-by-section roadmap.</span>
+          </p>
+
+          <div class="parts" data-parts-container>
+            {/* Populated dynamically */}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initTracker } from '../../lib/tracker';
+  import { createStorage, readJSON } from '../../lib/storage';
+
+  function loadRoadmapViewer() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+
+    const loadingEl = document.querySelector<HTMLElement>('[data-viewer-loading]');
+    const notFoundEl = document.querySelector<HTMLElement>('[data-viewer-notfound]');
+    const contentEl = document.querySelector<HTMLElement>('[data-viewer-content]');
+
+    if (!slug) {
+      if (loadingEl) loadingEl.hidden = true;
+      if (notFoundEl) notFoundEl.hidden = false;
+      return;
+    }
+
+    const storage = createStorage();
+    const customBooks = readJSON<any[]>(storage, 'readbooks:v1:custom_books', []);
+    const book = customBooks.find((b) => b.slug === slug);
+
+    if (!book) {
+      if (loadingEl) loadingEl.hidden = true;
+      if (notFoundEl) notFoundEl.hidden = false;
+      return;
+    }
+
+    // Set page title
+    document.title = `${book.title} — ReadBooks`;
+
+    // Populate header
+    const titleEl = document.querySelector<HTMLElement>('[data-book-title]');
+    const titleCrumb = document.querySelector<HTMLElement>('[data-book-title-crumb]');
+    const authorEl = document.querySelector<HTMLElement>('[data-book-author]');
+    const yearEl = document.querySelector<HTMLElement>('[data-book-year]');
+    const taglineEl = document.querySelector<HTMLElement>('[data-book-tagline]');
+    const publisherWrap = document.querySelector<HTMLElement>('[data-book-publisher-wrap]');
+    const publisherEl = document.querySelector<HTMLElement>('[data-book-publisher]');
+    const trackerRoot = document.querySelector<HTMLElement>('[data-tracker]');
+    const railnav = document.querySelector<HTMLElement>('[data-railnav]');
+    const partsContainer = document.querySelector<HTMLElement>('[data-parts-container]');
+    const noticeText = document.querySelector<HTMLElement>('[data-access-notice-text]');
+
+    if (titleEl) titleEl.textContent = book.title;
+    if (titleCrumb) titleCrumb.textContent = book.title;
+    if (authorEl) authorEl.textContent = book.author;
+    if (yearEl) yearEl.textContent = String(book.year);
+    if (taglineEl) taglineEl.textContent = book.tagline || book.description || '';
+    if (noticeText && book.accessNotice) noticeText.textContent = book.accessNotice;
+
+    if (book.publisher && publisherWrap && publisherEl) {
+      publisherEl.textContent = book.publisher;
+      publisherWrap.hidden = false;
+    }
+
+    if (trackerRoot) {
+      trackerRoot.dataset.bookSlug = book.slug;
+    }
+
+    // Calculate total sections
+    let totalSecs = 0;
+    (book.parts || []).forEach((p: any) => {
+      totalSecs += (p.sections || []).length;
+    });
+
+    const gaugeTotal = document.querySelector<HTMLElement>('[data-gauge-total]');
+    if (gaugeTotal) gaugeTotal.textContent = `/ ${totalSecs}`;
+
+    // Render Rail Navigation
+    if (railnav) {
+      railnav.innerHTML = (book.parts || [])
+        .map(
+          (part: any) => `
+          <a href="#part-${part.id}" data-railnav-part="${part.id}">
+            <span class="railnav__roman" aria-hidden="true">${part.id}</span>
+            <span>${part.title}</span>
+            <span class="railnav__count" data-railnav-count>0/${(part.sections || []).length}</span>
+            <span class="barlist__track" aria-hidden="true">
+              <span class="barlist__fill" data-railnav-fill></span>
+            </span>
+          </a>
+        `,
+        )
+        .join('');
+    }
+
+    // Render Part Sections
+    if (partsContainer) {
+      partsContainer.innerHTML = (book.parts || [])
+        .map((part: any) => {
+          const sectionsHtml = (part.sections || [])
+            .map(
+              (section: any) => `
+              <div class="row" data-section="${section.code}">
+                <div class="row__mark">
+                  <label class="row__checkbox">
+                    <input
+                      type="checkbox"
+                      data-section="${section.code}"
+                      aria-label="Mark section ${section.code} as read"
+                    />
+                    <span class="row__check-visual" aria-hidden="true"></span>
+                  </label>
+                </div>
+
+                <div class="row__body">
+                  <div class="row__head">
+                    <span class="row__code">${section.code}</span>
+                    <h3 class="row__title" id="sec-${section.code.replace(/[^a-zA-Z0-9_-]/g, '_')}">
+                      ${section.title}
+                    </h3>
+                  </div>
+
+                  ${section.summary ? `<p class="row__summary">${section.summary}</p>` : ''}
+
+                  ${
+                    section.links && section.links.length > 0
+                      ? `
+                    <div class="row__chips">
+                      ${section.links
+                        .map(
+                          (link: any) => `
+                        <a class="chip" href="${link.url}" target="_blank" rel="noopener">
+                          <span>${link.label}</span>
+                          <span class="chip__kind" aria-hidden="true">${link.kind || 'link'}</span>
+                        </a>
+                      `,
+                        )
+                        .join('')}
+                    </div>
+                  `
+                      : ''
+                  }
+
+                  <details class="row__drawer">
+                    <summary class="row__drawer-toggle">Notes</summary>
+                    <div class="row__drawer-body">
+                      <textarea
+                        data-note="${section.code}"
+                        class="row__notes-input"
+                        placeholder="Personal notes for section ${section.code}..."
+                        rows="2"
+                      ></textarea>
+                    </div>
+                  </details>
+                </div>
+              </div>
+            `,
+            )
+            .join('');
+
+          const checklistHtml =
+            part.checklist && part.checklist.length > 0
+              ? `
+            <div class="part__checklist">
+              <h4 class="u-label">Part ${part.id} Pre-flight Checklist</h4>
+              <ul class="checklist">
+                ${part.checklist
+                  .map(
+                    (item: string, cIdx: number) => `
+                  <li class="checklist__item">
+                    <label class="checklist__label">
+                      <input
+                        type="checkbox"
+                        data-checklist="${part.id}-${cIdx}"
+                      />
+                      <span>${item}</span>
+                    </label>
+                  </li>
+                `,
+                  )
+                  .join('')}
+              </ul>
+            </div>
+          `
+              : '';
+
+          return `
+            <section class="part" id="part-${part.id}" data-part="${part.id}">
+              <header class="part__head">
+                <span class="part__roman" aria-hidden="true">${part.id}</span>
+                <div>
+                  <h2 class="part__title">Part ${part.id}: ${part.title}</h2>
+                  <p class="part__count">${(part.sections || []).length} sections</p>
+                </div>
+              </header>
+
+              <div class="part__rows">
+                ${sectionsHtml}
+              </div>
+
+              ${checklistHtml}
+            </section>
+          `;
+        })
+        .join('');
+    }
+
+    if (loadingEl) loadingEl.hidden = true;
+    if (contentEl) contentEl.hidden = false;
+
+    // Attach tracker
+    if (trackerRoot) {
+      initTracker(trackerRoot);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadRoadmapViewer);
+  } else {
+    loadRoadmapViewer();
+  }
+</script>
