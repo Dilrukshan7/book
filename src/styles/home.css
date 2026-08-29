@@ -280,8 +280,28 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. The Book: Featured Record
+   3. The Books: Roadmaps Catalog
    -------------------------------------------------------------------------- */
+
+.books-catalog__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-bottom: var(--s-7);
+}
+
+.books-catalog__sub {
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  color: var(--ink-3);
+  max-width: 54ch;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-7);
+}
 
 .record {
   display: grid;
@@ -511,6 +531,13 @@
   font-variant-numeric: tabular-nums;
   font-size: var(--t-micro);
   color: var(--ink-4);
+}
+
+.record__part--more {
+  font-style: italic;
+}
+.record__part--more .record__part-title {
+  color: var(--ink-3);
 }
 
 .record__actions {

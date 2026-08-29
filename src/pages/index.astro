@@ -144,55 +144,73 @@ const jsonLd = {
     </div>
   </section>
 
-  {/* 3. The book: featured record with cover and part index */}
-  {
-    featured && (
-      <section class="u-page u-band" aria-labelledby="book-heading" data-reveal>
-        <div class="record">
-          <div class="record__media">
-            <BookCover
-              title={featured.title}
-              author={featured.author}
-              motif={featured.coverMotif}
-            />
+  {/* 3. The books: all available roadmaps */}
+  <section class="u-page u-band books-catalog" aria-labelledby="books-heading" data-reveal>
+    <div class="books-catalog__head">
+      <span class="u-label">Roadmaps Catalog</span>
+      <h2 class="u-h2" id="books-heading">All Available Roadmaps</h2>
+      <p class="books-catalog__sub">
+        Structured step-by-step paths through technical books with free lectures and problem sets.
+      </p>
+    </div>
+
+    <div class="records-list">
+      {
+        available.map((book) => (
+          <div class="record" id={`book-${book.slug}`}>
+            <div class="record__media">
+              <BookCover
+                title={book.title}
+                author={book.author}
+                motif={book.coverMotif}
+              />
+            </div>
+
+            <div class="record__info">
+              <div class="record__eyebrow">
+                <span class="badge">Roadmap</span>
+                <span class="record__meta-pill">{book.parts.length} Parts</span>
+                <span class="record__meta-pill">{totalSections(book)} Sections</span>
+                {book.isbn && <span class="record__meta-pill">ISBN {book.isbn}</span>}
+              </div>
+
+              <h3 class="record__title">
+                <a href={`/books/${book.slug}`}>{book.title}</a>
+              </h3>
+              <p class="record__meta">
+                <strong>{book.author}</strong>, {book.year}{book.publisher ? ` \u00B7 ${book.publisher}` : ''}
+              </p>
+              <p class="record__blurb">{book.description}</p>
+
+              <div class="record__parts" aria-label="Book parts overview">
+                {book.parts.slice(0, 4).map((part) => (
+                  <div class="record__part">
+                    <span class="record__part-id" aria-hidden="true">{part.id}</span>
+                    <span class="record__part-title">{part.title}</span>
+                    <span class="record__part-count">{part.sections.length} sections</span>
+                  </div>
+                ))}
+                {book.parts.length > 4 && (
+                  <div class="record__part record__part--more">
+                    <span class="record__part-id" aria-hidden="true">+</span>
+                    <span class="record__part-title">and {book.parts.length - 4} more parts</span>
+                    <span class="record__part-count">{totalSections(book)} total</span>
+                  </div>
+                )}
+              </div>
+
+              <div class="record__actions">
+                <a class="btn" href={`/books/${book.slug}`}>
+                  <span>Open the roadmap</span>
+                  <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+                </a>
+              </div>
+            </div>
           </div>
-
-          <div class="record__info">
-            <div class="record__eyebrow">
-              <span class="badge">Featured Roadmap</span>
-              <span class="record__meta-pill">{featured.parts.length} Parts</span>
-              <span class="record__meta-pill">{totalSections(featured)} Sections</span>
-            </div>
-
-            <h2 class="record__title" id="book-heading">
-              <a href={`/books/${featured.slug}`}>{featured.title}</a>
-            </h2>
-            <p class="record__meta">
-              <strong>{featured.author}</strong>, {featured.year} &middot; {featured.publisher}
-            </p>
-            <p class="record__blurb">{featured.description}</p>
-
-            <div class="record__parts" aria-label="Book parts overview">
-              {featured.parts.map((part) => (
-                <div class="record__part">
-                  <span class="record__part-id" aria-hidden="true">{part.id}</span>
-                  <span class="record__part-title">{part.title}</span>
-                  <span class="record__part-count">{part.sections.length} sections</span>
-                </div>
-              ))}
-            </div>
-
-            <div class="record__actions">
-              <a class="btn" href={`/books/${featured.slug}`}>
-                <span>Explore this roadmap</span>
-                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-    )
-  }
+        ))
+      }
+    </div>
+  </section>
 
   {/* 4. What a roadmap carries: numbered sequence, no cards */}
   <section class="u-page u-band" aria-labelledby="seq-heading" data-reveal>
