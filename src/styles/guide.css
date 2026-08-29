@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Study guide
+   Study Guide Styles
    ========================================================================== */
 
 .guide {
@@ -17,6 +17,7 @@
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--ink-3);
+  margin-top: var(--s-2);
 }
 
 .guide__title {
@@ -25,33 +26,38 @@
   line-height: 1.1;
   letter-spacing: var(--track-display);
   font-weight: 400;
-  max-width: 24ch;
+  max-width: 26ch;
 }
 
 /* Section number tag */
 .guide__code {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 0.6em;
+  font-size: 0.65em;
   font-weight: 600;
   color: var(--accent);
   letter-spacing: 0;
   margin-right: 0.6rem;
+  padding: 0.15rem 0.45rem;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-xs);
+  vertical-align: middle;
 }
 
 .guide__summary {
   margin-top: var(--s-5);
-  max-width: 58ch;
+  max-width: 60ch;
   font-size: var(--t-lead);
   line-height: var(--lh-normal);
   color: var(--ink-3);
 }
 
-/* --- Body and margin ----------------------------------------------------- */
+/* --- Body and Margin ----------------------------------------------------- */
 
 .guide__body {
   display: grid;
-  grid-template-columns: minmax(0, var(--w-text)) minmax(0, 16rem);
+  grid-template-columns: minmax(0, var(--w-text)) minmax(0, 17.5rem);
   gap: var(--s-9);
   align-items: start;
   padding-top: var(--s-8);
@@ -63,6 +69,7 @@
   font-family: var(--face-sans);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
   padding: var(--s-5);
   box-shadow: var(--shadow-subtle);
 }
@@ -108,20 +115,26 @@
 .guide__back {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   margin-top: var(--s-5);
-  padding-top: var(--s-3);
-  border-top: 1px solid var(--rule-subtle);
+  padding: var(--s-3) var(--s-4);
+  background: var(--paper-subtle);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-xs);
   font-size: var(--t-sm);
   font-weight: 500;
-  color: var(--ink-3);
+  color: var(--ink-2);
   text-decoration: none;
   width: 100%;
   transition:
     color var(--fast) var(--ease),
+    background var(--fast) var(--ease),
     border-color var(--fast) var(--ease);
 }
 .guide__back:hover {
+  background: var(--paper-raised);
   color: var(--accent-deep);
+  border-color: var(--accent-border);
 }
 
 /* --- Pager --------------------------------------------------------------- */
@@ -141,17 +154,20 @@
   padding: var(--s-4) var(--s-5);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-subtle);
   text-decoration: none;
   transition:
     background var(--fast) var(--ease),
     border-color var(--fast) var(--ease),
-    transform var(--fast) var(--ease);
+    transform var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease);
 }
 .guide__pagerlink:hover {
   background: var(--accent-wash);
   border-color: var(--accent);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
 }
 .guide__pagerlink:active {
   transform: translateY(1px);
@@ -228,8 +244,9 @@
     max-width: none;
   }
   .guide__code {
-    display: block;
+    display: inline-block;
     margin-bottom: var(--s-2);
   }
 }
+
 

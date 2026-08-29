@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Book roadmap
+   Book Roadmap Styles
    ========================================================================== */
 
 .book {
@@ -11,7 +11,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Book masthead
+   Book Masthead
    -------------------------------------------------------------------------- */
 
 .bookhead {
@@ -52,7 +52,7 @@
   line-height: 1.06;
   letter-spacing: var(--track-display);
   font-weight: 400;
-  max-width: 20ch;
+  max-width: 22ch;
 }
 
 .bookhead__byline {
@@ -84,7 +84,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Contents rail
+   Contents Rail
    -------------------------------------------------------------------------- */
 
 .rail {
@@ -124,15 +124,18 @@
 
 .gauge__track {
   position: relative;
-  height: 3px;
+  height: 4px;
   margin-top: var(--s-4);
   background: var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
 }
 .gauge__fill {
   position: absolute;
   inset: 0 auto 0 0;
   width: 0;
   background: var(--accent);
+  border-radius: 2px;
   transition: width var(--slow) var(--ease);
 }
 
@@ -149,13 +152,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.55rem;
+  padding: 0.25rem 0.65rem;
   background: var(--accent-wash);
-  border: 1px solid var(--accent-subtle);
+  border: 1px solid var(--accent-border);
   font-size: var(--t-micro);
   font-weight: 500;
   color: var(--accent-deep);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
 }
 .gauge__streak b {
   color: var(--accent-deep);
@@ -167,21 +170,24 @@
 /* Resume quick action card */
 .resume {
   display: block;
-  padding: var(--s-4) var(--s-4) var(--s-4) var(--s-4);
+  padding: var(--s-4);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
   border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-subtle);
   text-decoration: none;
   transition:
     background var(--fast) var(--ease),
     border-color var(--fast) var(--ease),
-    transform var(--fast) var(--ease);
+    transform var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease);
 }
 .resume:hover {
   background: var(--accent-wash);
   border-color: var(--accent);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
 }
 .resume:active {
   transform: translateY(1px);
@@ -230,18 +236,23 @@
   align-items: baseline;
   gap: 0.5rem;
   padding-block: 0.55rem;
+  padding-inline: 0.35rem;
   font-size: var(--t-sm);
   line-height: 1.35;
   color: var(--ink-2);
   text-decoration: none;
   border-bottom: 1px solid var(--rule-subtle);
-  transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
+  border-radius: var(--radius-xs);
+  transition:
+    color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .railnav a:last-child {
   border-bottom: 0;
 }
 .railnav a:hover {
   color: var(--accent);
+  background: var(--paper-subtle);
 }
 .railnav__roman {
   font-family: var(--face-mono);
@@ -260,7 +271,7 @@
   color: var(--ink-3);
 }
 .railnav a[data-complete] .railnav__count {
-  color: var(--ink);
+  color: var(--status-complete);
   font-weight: 600;
 }
 
@@ -301,7 +312,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Parts and sections
+   Parts and Sections
    -------------------------------------------------------------------------- */
 
 .main {
@@ -356,7 +367,7 @@
   white-space: nowrap;
 }
 
-/* --- Section row --------------------------------------------------------- */
+/* --- Section Row --------------------------------------------------------- */
 
 .row {
   display: grid;
@@ -365,6 +376,7 @@
   gap: var(--s-4);
   padding: var(--s-4) var(--s-3);
   border-bottom: 1px solid var(--rule);
+  border-radius: var(--radius-xs);
   transition:
     background var(--fast) var(--ease),
     border-color var(--mid) var(--ease);
@@ -391,11 +403,12 @@
 /* Checkbox mark */
 .row__mark {
   position: relative;
-  width: 0.9375rem;
-  height: 0.9375rem;
+  width: 1rem;
+  height: 1rem;
   margin-top: 0.35rem;
   border: 1.5px solid var(--ink-4);
   background: transparent;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   transition:
     background var(--fast) var(--ease),
@@ -481,23 +494,25 @@
 .row__sources a {
   display: inline-flex;
   align-items: center;
-  padding: 0.15rem 0.45rem;
+  padding: 0.18rem 0.5rem;
   background: var(--chip-bg);
   border: 1px solid var(--chip-border);
   color: var(--chip-text);
   font-size: var(--t-micro);
   font-weight: 500;
   text-decoration: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   transition:
     color var(--fast) var(--ease),
     border-color var(--fast) var(--ease),
-    background var(--fast) var(--ease);
+    background var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease);
 }
 .row__sources a:hover {
   color: var(--ink);
-  border-color: var(--accent);
+  border-color: var(--ink-4);
   background: var(--paper-raised);
+  box-shadow: var(--shadow-subtle);
 }
 .row__sources a[data-free] {
   background: var(--chip-free-bg);
@@ -506,7 +521,7 @@
   font-weight: 600;
 }
 .row__sources a[data-free]:hover {
-  background: var(--accent-subtle);
+  background: var(--paper-raised);
   border-color: var(--accent);
 }
 
@@ -519,6 +534,7 @@
   padding: var(--s-3);
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
+  border-radius: var(--radius-sm);
   font-family: var(--face-sans);
   font-size: var(--t-ui);
   line-height: var(--lh-normal);
@@ -550,10 +566,10 @@
   color: var(--ink);
   font-weight: 500;
   text-decoration: none;
-  padding: 0.2rem 0.5rem;
+  padding: 0.2rem 0.55rem;
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-xs);
   transition:
     border-color var(--fast) var(--ease),
     color var(--fast) var(--ease),
@@ -566,17 +582,19 @@
 }
 
 .row__notebtn {
-  padding: 0.2rem 0.35rem;
+  padding: 0.2rem 0.4rem;
   border: 0;
   background: none;
   font-size: var(--t-sm);
   font-weight: 500;
   color: var(--ink-3);
+  border-radius: var(--radius-xs);
   cursor: pointer;
   opacity: 0;
   transition:
     opacity var(--fast) var(--ease),
-    color var(--fast) var(--ease);
+    color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .row:hover .row__notebtn,
 .row__notebtn:focus-visible,
@@ -585,18 +603,20 @@
 }
 .row__notebtn:hover {
   color: var(--ink);
+  background: var(--paper-subtle);
 }
 .row__notebtn[data-has-note] {
   color: var(--accent-deep);
 }
 
-/* --- Part checklist ------------------------------------------------------ */
+/* --- Part Checklist ------------------------------------------------------ */
 
 .checklist {
   margin-top: var(--s-6);
-  padding: var(--s-5) var(--s-5);
+  padding: var(--s-5);
   background: var(--paper-subtle);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
 }
 
 .checklist__title {
@@ -618,8 +638,8 @@
 }
 .checklist__item input {
   flex: none;
-  width: 0.8125rem;
-  height: 0.8125rem;
+  width: 0.875rem;
+  height: 0.875rem;
   margin: 0;
   accent-color: var(--ink);
   cursor: pointer;
@@ -638,7 +658,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Book-wide sources
+   Book-Wide Sources
    -------------------------------------------------------------------------- */
 
 .sources {
@@ -657,12 +677,20 @@
   justify-content: space-between;
   align-items: baseline;
   gap: var(--s-3);
-  padding: var(--s-3) var(--s-4);
+  padding: var(--s-4);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
+  transition:
+    border-color var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease);
+}
+.sources__item:hover {
+  border-color: var(--rule-strong);
+  box-shadow: var(--shadow-card);
 }
 .sources__item a {
   color: var(--ink);
@@ -729,7 +757,8 @@
     margin-inline: calc(var(--gutter) * -1);
     padding-inline: var(--gutter);
     background: color-mix(in srgb, var(--paper) 94%, transparent);
-    backdrop-filter: saturate(180%) blur(12px);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
     border-bottom: 1px solid var(--rule);
   }
 
@@ -797,6 +826,7 @@
   padding: var(--s-2) var(--s-3);
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
+  border-radius: var(--radius-sm);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   color: var(--ink);
