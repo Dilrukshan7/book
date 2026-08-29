@@ -1,0 +1,447 @@
+slug: introduction-to-linear-algebra
+title: Introduction to Linear Algebra
+author: Gilbert Strang
+year: 2023
+publisher: Wellesley-Cambridge Press
+isbn: "978-1-7331466-7-8"
+order: 2
+status: available
+
+tagline: The classic foundation of linear algebra, from geometry and elimination to SVD and data science.
+
+description: >-
+  Gilbert Strang's world-renowned introductory textbook connects the geometry of
+  vectors and elimination to the fundamental subspaces, eigenvalues, the SVD,
+  and modern optimization. This roadmap covers all 10 chapters and maps each
+  section to Professor Strang's famous MIT 18.06 video lectures and problem sets.
+
+coverMotif: grid
+
+officialPage: https://math.mit.edu/~gs/linearalgebra/
+buyUrl: https://www.wellesleycambridge.com/
+
+accessNotice: >-
+  MIT and the author publish the Table of Contents, selected sample sections,
+  typos/errata, and solution sets freely online on MIT Mathematics. Fully free
+  as well is MIT 18.06 (Linear Algebra), the complete course taught by Professor
+  Strang with 34 recorded video lectures, transcripts, and problem sets. Every
+  link here connects directly to MIT OpenCourseWare and official MIT servers.
+
+course:
+  name: MIT 18.06, Linear Algebra (Spring 2010)
+  url: https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/
+  license: CC BY-NC-SA 4.0
+  licenseUrl: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  lectureBase: https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/resources/
+
+defaults:
+  fallbackUrl: https://math.mit.edu/~gs/linearalgebra/
+  fallbackLabel: Locate on MIT Mathematics
+
+resources:
+  - label: Official Book Page
+    url: https://math.mit.edu/~gs/linearalgebra/
+    kind: page
+    source: Gilbert Strang / MIT
+  - label: MIT 18.06 Course on OCW
+    url: https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/
+    kind: page
+    source: MIT OpenCourseWare
+  - label: All 34 Video Lectures
+    url: https://www.youtube.com/playlist?list=PLE7DDD91010BC51F8
+    kind: playlist
+    source: MIT OpenCourseWare / YouTube
+  - label: Wellesley-Cambridge Press
+    url: https://www.wellesleycambridge.com/
+    kind: page
+    source: Wellesley-Cambridge Press
+
+lectures:
+  - n: 1
+    title: The geometry of linear equations
+    slug: lecture-1-the-geometry-of-linear-equations
+  - n: 2
+    title: Elimination with matrices
+    slug: lecture-2-elimination-with-matrices
+  - n: 3
+    title: Multiplication and inverse matrices
+    slug: lecture-3-multiplication-and-inverse-matrices
+  - n: 4
+    title: Factorization into A = LU
+    slug: lecture-4-factorization-into-a-lu
+  - n: 5
+    title: Transposes, permutations, spaces R^n
+    slug: lecture-5-transposes-permutations-spaces-r-n
+  - n: 6
+    title: Column space and nullspace
+    slug: lecture-6-column-space-and-nullspace
+  - n: 7
+    title: Solving Ax = 0; pivot variables, special solutions
+    slug: lecture-7-solving-ax-0-pivot-variables-special-solutions
+  - n: 8
+    title: Solving Ax = b; row reduced form R
+    slug: lecture-8-solving-ax-b-row-reduced-form-r
+  - n: 9
+    title: Independence, basis, and dimension
+    slug: lecture-9-independence-basis-and-dimension
+  - n: 10
+    title: The four fundamental subspaces
+    slug: lecture-10-the-four-fundamental-subspaces
+  - n: 11
+    title: Matrix spaces; rank 1; small world graphs
+    slug: lecture-11-matrix-spaces-rank-1-small-world-graphs
+  - n: 12
+    title: Graphs, networks, incidence matrices
+    slug: lecture-12-graphs-networks-incidence-matrices
+  - n: 13
+    title: Quiz 1 review
+    slug: lecture-13-quiz-1-review
+  - n: 14
+    title: Orthogonal vectors and subspaces
+    slug: lecture-14-orthogonal-vectors-and-subspaces
+  - n: 15
+    title: Projections onto subspaces
+    slug: lecture-15-projections-onto-subspaces
+  - n: 16
+    title: Projection matrices and least squares
+    slug: lecture-16-projection-matrices-and-least-squares
+  - n: 17
+    title: Orthogonal matrices and Gram-Schmidt
+    slug: lecture-17-orthogonal-matrices-and-gram-schmidt
+  - n: 18
+    title: Properties of determinants
+    slug: lecture-18-properties-of-determinants
+  - n: 19
+    title: Determinant formulas and cofactors
+    slug: lecture-19-determinant-formulas-and-cofactors
+  - n: 20
+    title: Cramer's rule, inverse matrix, and volume
+    slug: lecture-20-cramers-rule-inverse-matrix-and-volume
+  - n: 21
+    title: Eigenvalues and eigenvectors
+    slug: lecture-21-eigenvalues-and-eigenvectors
+  - n: 22
+    title: Diagonalization and powers of A
+    slug: lecture-22-diagonalization-and-powers-of-a
+  - n: 23
+    title: Differential equations and exp(At)
+    slug: lecture-23-differential-equations-and-exp-at
+  - n: 24
+    title: Markov matrices; Fourier series
+    slug: lecture-24-markov-matrices-fourier-series
+  - n: 25
+    title: Symmetric matrices and positive definiteness
+    slug: lecture-25-symmetric-matrices-and-positive-definiteness
+  - n: 26
+    title: Complex matrices; fast Fourier transform
+    slug: lecture-26-complex-matrices-fast-fourier-transform
+  - n: 27
+    title: Positive definite matrices and minima
+    slug: lecture-27-positive-definite-matrices-and-minima
+  - n: 28
+    title: Similar matrices and Jordan form
+    slug: lecture-28-similar-matrices-and-jordan-form
+  - n: 29
+    title: Singular value decomposition
+    slug: lecture-29-singular-value-decomposition
+  - n: 30
+    title: Linear transformations and their matrices
+    slug: lecture-30-linear-transformations-and-their-matrices
+  - n: 31
+    title: Change of basis; image compression
+    slug: lecture-31-change-of-basis-image-compression
+  - n: 32
+    title: Quiz 3 review
+    slug: lecture-32-quiz-3-review
+  - n: 33
+    title: Left and right inverses; pseudoinverse
+    slug: lecture-33-left-and-right-inverses-pseudoinverse
+  - n: 34
+    title: Final course review
+    slug: lecture-34-final-course-review
+
+parts:
+  - id: "1"
+    title: Vectors and Matrices
+    summary: Vectors, linear combinations, dot products, angles, and matrix-vector multiplication.
+    sections:
+      - code: "1.1"
+        title: Vectors and Linear Combinations
+        links:
+          - kind: lecture
+            ref: 1
+      - code: "1.2"
+        title: Lengths and Angles from Dot Products
+        links:
+          - kind: lecture
+            ref: 1
+      - code: "1.3"
+        title: Matrices and Their Column Spaces
+        links:
+          - kind: lecture
+            ref: 1
+      - code: "1.4"
+        title: Matrix Multiplication AB and CR
+        links:
+          - kind: lecture
+            ref: 3
+    checklist:
+      - "Can you compute linear combinations cv + dw in 2D and 3D?"
+      - "Can you use the dot product to compute lengths and angles between vectors?"
+      - "Do you see matrix multiplication both as column combinations and row combinations?"
+
+  - id: "2"
+    title: Solving Linear Equations Ax = b
+    summary: Gaussian elimination, elimination matrices, matrix inverses, and LU factorization.
+    sections:
+      - code: "2.1"
+        title: Elimination and Back Substitution
+        links:
+          - kind: lecture
+            ref: 2
+      - code: "2.2"
+        title: Elimination Matrices and Inverse Matrices
+        links:
+          - kind: lecture
+            ref: 3
+      - code: "2.3"
+        title: Matrix Computations and A = LU
+        links:
+          - kind: lecture
+            ref: 4
+      - code: "2.4"
+        title: Permutations and Transposes
+        links:
+          - kind: lecture
+            ref: 5
+      - code: "2.5"
+        title: Derivatives and Finite Difference Matrices
+        links:
+          - kind: lecture
+            ref: 5
+    checklist:
+      - "Can you carry out Gaussian elimination with row operations to solve Ax = b?"
+      - "Can you factor a matrix into A = LU (and PA = LU with row exchanges)?"
+      - "Can you compute matrix inverses by Gauss-Jordan elimination?"
+
+  - id: "3"
+    title: The Four Fundamental Subspaces
+    summary: Vector spaces, column space, nullspace, independence, basis, dimension, and the Fundamental Theorem.
+    sections:
+      - code: "3.1"
+        title: Vector Spaces and Subspaces
+        links:
+          - kind: lecture
+            ref: 6
+      - code: "3.2"
+        title: Computing the Nullspace (and more)
+        links:
+          - kind: lecture
+            ref: 7
+      - code: "3.3"
+        title: The Complete Solution to Ax = b
+        links:
+          - kind: lecture
+            ref: 8
+      - code: "3.4"
+        title: Independence, Basis and Dimension
+        links:
+          - kind: lecture
+            ref: 9
+      - code: "3.5"
+        title: Dimensions of the Four Subspaces
+        links:
+          - kind: lecture
+            ref: 10
+    checklist:
+      - "Can you find the nullspace of a matrix by finding special solutions?"
+      - "Can you find the complete solution x = x_p + x_n to Ax = b?"
+      - "Do you understand the dimensions and orthogonality of the four fundamental subspaces?"
+
+  - id: "4"
+    title: Orthogonality
+    summary: Orthogonal subspaces, projection matrices, least squares regression, and the Gram-Schmidt process.
+    sections:
+      - code: "4.1"
+        title: Orthogonality of the Four Subspaces
+        links:
+          - kind: lecture
+            ref: 14
+      - code: "4.2"
+        title: Projections
+        links:
+          - kind: lecture
+            ref: 15
+      - code: "4.3"
+        title: Least Squares Approximations
+        links:
+          - kind: lecture
+            ref: 16
+      - code: "4.4"
+        title: Orthonormal Bases and Gram-Schmidt
+        links:
+          - kind: lecture
+            ref: 17
+    checklist:
+      - "Can you compute the projection matrix P onto a subspace?"
+      - "Can you solve normal equations A^T A x_hat = A^T b for least squares fitting?"
+      - "Can you orthonormalize vectors using Gram-Schmidt to produce A = QR?"
+
+  - id: "5"
+    title: Determinants
+    summary: Pivot formulas, cofactor expansions, Cramer's rule, and geometric volumes.
+    sections:
+      - code: "5.1"
+        title: The Properties of Determinants
+        links:
+          - kind: lecture
+            ref: 18
+      - code: "5.2"
+        title: Permutations and Cofactors
+        links:
+          - kind: lecture
+            ref: 19
+      - code: "5.3"
+        title: Cramer's Rule, Inverses, and Volumes
+        links:
+          - kind: lecture
+            ref: 20
+    checklist:
+      - "Can you compute determinants using pivots, the big permutation formula, or cofactors?"
+      - "Can you apply Cramer's rule to solve small linear systems?"
+      - "Do you understand how determinant magnitude gives box volume?"
+
+  - id: "6"
+    title: Eigenvalues and Eigenvectors
+    summary: Diagonalization, system of differential equations, symmetric positive definite matrices, and complex matrices.
+    sections:
+      - code: "6.1"
+        title: Introduction to Eigenvalues
+        links:
+          - kind: lecture
+            ref: 21
+      - code: "6.2"
+        title: Diagonalizing a Matrix
+        links:
+          - kind: lecture
+            ref: 22
+      - code: "6.3"
+        title: Symmetric Positive Definite Matrices
+        links:
+          - kind: lecture
+            ref: 25
+      - code: "6.4"
+        title: Complex Numbers and Vectors and Matrices
+        links:
+          - kind: lecture
+            ref: 26
+      - code: "6.5"
+        title: Solving Linear Differential Equations
+        links:
+          - kind: lecture
+            ref: 23
+    checklist:
+      - "Can you find eigenvalues from det(A - lambda*I) = 0 and corresponding eigenvectors?"
+      - "Can you diagonalize A = X Lambda X^(-1) to compute matrix powers A^k?"
+      - "Can you test whether a symmetric matrix is positive definite using pivots, eigenvalues, and energy x^T A x > 0?"
+
+  - id: "7"
+    title: The Singular Value Decomposition (SVD)
+    summary: Singular values and singular vectors, low-rank matrix approximations, image compression, and PCA.
+    sections:
+      - code: "7.1"
+        title: Singular Values and Singular Vectors
+        links:
+          - kind: lecture
+            ref: 29
+      - code: "7.2"
+        title: Image Processing by Linear Algebra
+        links:
+          - kind: lecture
+            ref: 31
+      - code: "7.3"
+        title: Principal Component Analysis (PCA by the SVD)
+        links:
+          - kind: lecture
+            ref: 29
+    checklist:
+      - "Can you factor any matrix A into U Sigma V^T?"
+      - "Do you understand how the SVD provides optimal low-rank approximations A_k = sum sigma_i u_i v_i^T?"
+      - "Can you apply SVD to find principal components in data matrices?"
+
+  - id: "8"
+    title: Linear Transformations
+    summary: Linear mappings, the matrix of a transformation, and change of basis.
+    sections:
+      - code: "8.1"
+        title: The Idea of a Linear Transformation
+        links:
+          - kind: lecture
+            ref: 30
+      - code: "8.2"
+        title: The Matrix of a Linear Transformation
+        links:
+          - kind: lecture
+            ref: 30
+      - code: "8.3"
+        title: The Search for a Good Basis
+        links:
+          - kind: lecture
+            ref: 31
+    checklist:
+      - "Can you test whether a transformation T: V -> W is linear?"
+      - "Can you construct the matrix representing T with respect to given input and output bases?"
+      - "Can you perform change-of-basis transformations?"
+
+  - id: "9"
+    title: Linear Algebra in Optimization
+    summary: Multivariable minimization, gradient descent, backpropagation, and linear programming duality.
+    sections:
+      - code: "9.1"
+        title: Minimizing a Multivariable Function
+        links:
+          - kind: lecture
+            ref: 27
+      - code: "9.2"
+        title: Backpropagation and Stochastic Gradient Descent
+        links:
+          - kind: lecture
+            ref: 27
+      - code: "9.3"
+        title: Constraints, Lagrange Multipliers, Minimum Norms
+        links:
+          - kind: lecture
+            ref: 33
+      - code: "9.4"
+        title: Linear Programming, Game Theory, and Duality
+        links:
+          - kind: lecture
+            ref: 12
+    checklist:
+      - "Can you find stationary points and test the Hessian matrix for minimum conditions?"
+      - "Do you understand gradient descent updates and the chain rule / backpropagation?"
+      - "Can you set up Lagrange multiplier equations for constrained optimization?"
+
+  - id: "10"
+    title: Learning from Data
+    summary: Piecewise linear learning functions, deep neural network architecture, and covariance matrices.
+    sections:
+      - code: "10.1"
+        title: Piecewise Linear Learning Functions
+        links:
+          - kind: lecture
+            ref: 29
+      - code: "10.2"
+        title: Creating and Experimenting
+        links:
+          - kind: lecture
+            ref: 34
+      - code: "10.3"
+        title: Mean, Variance, and Covariance
+        links:
+          - kind: lecture
+            ref: 29
+    checklist:
+      - "Can you write the matrix form of multi-layer neural networks F(x) = sigma(W_2 sigma(W_1 x + b_1) + b_2)?"
+      - "Can you construct the sample mean, variance, and covariance matrix S = (1/(N-1)) X X^T?"
+
