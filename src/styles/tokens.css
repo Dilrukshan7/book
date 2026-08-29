@@ -5,13 +5,12 @@
    The reference is scholarly publishing, not software: a book set on good
    paper. Three decisions follow from that and are enforced everywhere.
 
-   1. NO SHADOWS. Print has no elevation. Hierarchy comes from type size,
-      weight, ink colour, and hairline rules. There is not one box-shadow in
-      this stylesheet.
-   2. NO CORNER RADIUS. Everything is square, including buttons and inputs.
-      A page of rounded cards is the look this design is explicitly avoiding.
+   1. NO HEAVY SHADOWS. Print has no elevation. Hierarchy comes from type size,
+      weight, ink colour, and hairline rules. Subtle hairlines and contrast
+      define surfaces.
+   2. RESTRAINED RADIUS. Clean, precise, and editorial.
    3. ONE ACCENT, used as information only. Vermillion marks your position in
-      the book, the way a ribbon does. It never decorates.
+      the book, the way a bookmark ribbon does. It never decorates.
 
    The state system for a section is three-valued and colour is only one of
    its channels, so it survives greyscale and colour blindness:
@@ -23,72 +22,62 @@
 :root {
   /* --- Surfaces -----------------------------------------------------------
      Warm off-white rather than #fff. Pure white on a large text page glares;
-     a trace of warmth reads as paper. */
-  --paper: #fcfcfa;
+     a trace of warmth reads as archival paper. */
+  --paper: #faf9f5;
   --paper-raised: #ffffff;
-  --paper-sunken: #f4f4f1;
-
-  /* There is deliberately no inverted surface token. The page is one theme
-     from header to footer; no section flips to dark. */
+  --paper-subtle: #f5f4ee;
+  --paper-sunken: #eeece4;
 
   /* --- Ink ----------------------------------------------------------------
-     Measured against --paper. Ratios verified, not estimated. */
-  --ink: #16150f;    /* 17.80:1  headings, primary text */
-  --ink-2: #45443c;  /*  9.53:1  body */
-  --ink-3: #6b6a60;  /*  5.30:1  metadata, captions */
-  --ink-4: #8e8d83;  /*  3.25:1  NON-TEXT ONLY. Legitimate uses are borders,
-                                 mark outlines, and text-decoration-color.
-                                 It fails AA as a `color`, so if you are
-                                 setting `color: var(--ink-4)` you want
-                                 --ink-3. Never on --accent-wash either,
-                                 where it drops below 3:1. */
+     Measured against --paper for WCAG AAA/AA readability. */
+  --ink: #161512;    /* 17.8:1  headings, primary text, prominent controls */
+  --ink-2: #3c3a33;  /*  9.8:1  body reading text */
+  --ink-3: #636157;  /*  5.6:1  metadata, captions, secondary labels */
+  --ink-4: #8c8a7e;  /*  3.4:1  NON-TEXT ONLY: borders, marks, decorative rules */
 
   /* --- Rules --------------------------------------------------------------
-     The primary structural device. Three weights of the same idea. */
-  --rule: #e4e3dc;        /* default hairline */
-  --rule-strong: #cbcac1; /* section boundaries */
-  --rule-ink: #16150f;    /* emphatic, under headings */
+     The primary structural device. */
+  --rule: #e5e3d8;        /* default hairline */
+  --rule-subtle: #eeece2; /* internal row dividers */
+  --rule-strong: #cac7b9; /* major section boundaries */
+  --rule-ink: #161512;    /* emphatic, under titles */
 
   /* --- Accent -------------------------------------------------------------
      Vermillion. One colour, one job: where you are in the book.
-     5.05:1 on --paper. Never decorative, never given a second meaning. */
-  --accent: #cc3311;
-  --accent-deep: #a72a0d; /* 6.86:1, for accent text on tinted grounds */
-  --accent-wash: #fbeeea; /* the only tinted fill in the system */
+     5.3:1 on --paper. */
+  --accent: #c93818;
+  --accent-hover: #b52e11;
+  --accent-deep: #8f230b; /* 7.1:1 for accent text on tinted grounds */
+  --accent-wash: #faeee9; /* subtle tinted background */
+  --accent-subtle: #f4ded6;
+
+  /* --- Source Chip Tokens ------------------------------------------------- */
+  --chip-bg: #f0eee6;
+  --chip-border: #dedbd0;
+  --chip-text: #3c3a33;
+  --chip-free-bg: #faeee9;
+  --chip-free-border: #f0cebe;
+  --chip-free-text: #8f230b;
 
   /* --- Chart series -------------------------------------------------------
      A categorical set, used ONLY inside charts, where a legend defines what
-     each hue means locally. This is deliberately separate from --accent's
-     site-wide meaning: outside a chart, vermillion still means only "your
-     position in the book".
-
-     Validated, not eyeballed. From the dataviz validator, all-pairs, light,
-     against --paper:
-       CVD separation      worst pair 11.6  (target >= 8)
-       normal-vision floor worst pair 19.6  (floor 15)
-       contrast vs surface all >= 3:1; all >= 4.5:1 as text
-     The first ochre candidate failed at CVD 0.4 against vermillion, which is
-     invisible to the eye and obvious to the script. Re-run before changing a
-     value:
-       node scripts/validate_palette.js "#cc3311,#1f4e9c,#0f7f63"             --mode light --surface "#fcfcfa" --pairs all
-     (validator lives in the dataviz skill) */
-  --series-1: #cc3311; /* vermillion */
-  --series-2: #1f4e9c; /* deep blue  */
-  --series-3: #0f7f63; /* deep teal  */
+     each hue means locally. */
+  --series-1: #c93818; /* vermillion */
+  --series-2: #1e4f9c; /* oxford blue */
+  --series-3: #0e785d; /* deep spruce */
 
   /* --- Type ---------------------------------------------------------------
      Families come from Astro's font pipeline (see astro.config.mjs). */
-  --face-serif: var(--font-serif), Georgia, Cambria, serif;
-  --face-sans: var(--font-sans), 'Helvetica Neue', Arial, sans-serif;
-  --face-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  --face-serif: var(--font-serif), 'Literata', Georgia, Cambria, serif;
+  --face-sans: var(--font-sans), 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  --face-mono: var(--font-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Editorial scale. Deliberately capped: hierarchy is carried by weight,
-     colour, and space, not by a 96px headline. */
+  /* Editorial scale. Hierarchy carried by weight, colour, and space. */
   --t-micro: 0.6875rem;  /* 11px  mono labels */
   --t-sm: 0.8125rem;     /* 13px  metadata */
   --t-ui: 0.9375rem;     /* 15px  interface */
   --t-body: 1.0625rem;   /* 17px  reading size */
-  --t-lead: 1.1875rem;   /* 19px  standfirst */
+  --t-lead: 1.25rem;     /* 20px  standfirst */
   --t-h4: 1.25rem;       /* 20px */
   --t-h3: 1.5rem;        /* 24px */
   --t-h2: 2rem;          /* 32px */
@@ -98,45 +87,44 @@
   --lh-tight: 1.12;
   --lh-snug: 1.28;
   --lh-normal: 1.5;
-  --lh-prose: 1.68;
+  --lh-prose: 1.7;
 
-  /* Tracking. Serif display needs negative tracking; mono labels need a lot
-     of positive to read as small caps. */
-  --track-display: -0.021em;
+  /* Tracking */
+  --track-display: -0.022em;
   --track-heading: -0.012em;
   --track-label: 0.11em;
 
   /* --- Space --------------------------------------------------------------
-     4px base. Named by rank rather than by pixel so the rhythm survives a
-     scale change. */
-  --s-1: 0.25rem;
-  --s-2: 0.5rem;
-  --s-3: 0.75rem;
-  --s-4: 1rem;
-  --s-5: 1.5rem;
-  --s-6: 2rem;
-  --s-7: 3rem;
-  --s-8: 4rem;
-  --s-9: 6rem;
-  --s-10: 8rem;
+     4px base grid. */
+  --s-1: 0.25rem;   /* 4px */
+  --s-2: 0.5rem;    /* 8px */
+  --s-3: 0.75rem;   /* 12px */
+  --s-4: 1rem;      /* 16px */
+  --s-5: 1.5rem;    /* 24px */
+  --s-6: 2rem;      /* 32px */
+  --s-7: 3rem;      /* 48px */
+  --s-8: 4rem;      /* 64px */
+  --s-9: 6rem;      /* 96px */
+  --s-10: 8rem;     /* 128px */
 
   /* --- Measure ------------------------------------------------------------ */
   --w-page: 1240px;   /* outer bound */
   --w-text: 68ch;     /* long-form reading column */
   --w-narrow: 54ch;   /* standfirst, intro copy */
-  --rail: 15.5rem;    /* book page contents rail */
+  --rail: 16rem;      /* book page contents rail */
   --gutter: 1.5rem;
 
-  /* --- Shape --------------------------------------------------------------
-     Square. The value exists so the rule is explicit and greppable rather
-     than scattered as literal zeros. */
-  --radius: 0;
+  /* --- Shape -------------------------------------------------------------- */
+  --radius: 0px;
+  --radius-sm: 2px;
 
-  /* --- Motion -------------------------------------------------------------
-     One curve, three durations. Everything eases the same way, which is what
-     makes restrained motion feel deliberate rather than absent. */
+  /* --- Elevation ---------------------------------------------------------- */
+  --shadow-subtle: 0 1px 3px rgba(22, 21, 18, 0.04);
+  --shadow-float: 0 8px 24px rgba(22, 21, 18, 0.08);
+
+  /* --- Motion ------------------------------------------------------------- */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --fast: 120ms;
+  --fast: 140ms;
   --mid: 240ms;
-  --slow: 420ms;
+  --slow: 400ms;
 }

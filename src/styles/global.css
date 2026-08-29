@@ -1,7 +1,7 @@
 @import './tokens.css';
 
 /* ==========================================================================
-   1. Reset
+   1. Reset & Base
    ========================================================================== */
 *,
 *::before,
@@ -29,6 +29,14 @@ body {
   font-synthesis-weight: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  selection-background-color: var(--accent-wash);
+  selection-color: var(--accent-deep);
+}
+
+::selection {
+  background-color: var(--accent-wash);
+  color: var(--accent-deep);
 }
 
 h1,
@@ -81,8 +89,7 @@ select {
    2. Accessibility
    ========================================================================== */
 
-/* A single focus treatment across the whole site, offset so it never
-   collides with the hairline rules. */
+/* Focused element outline with clear offset */
 :where(a, button, input, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
@@ -105,12 +112,15 @@ select {
   top: -6rem;
   left: var(--s-4);
   z-index: 100;
-  padding: var(--s-3) var(--s-4);
+  padding: var(--s-3) var(--s-5);
   background: var(--ink);
   color: var(--paper);
   font-family: var(--face-sans);
   font-size: var(--t-ui);
+  font-weight: 500;
   text-decoration: none;
+  border: 1px solid var(--ink-3);
+  box-shadow: var(--shadow-float);
   transition: top var(--mid) var(--ease);
 }
 .u-skip:focus {
@@ -153,13 +163,12 @@ main {
   flex: 1 0 auto;
 }
 
-/* Section rhythm. Sections are separated by space and, where a boundary
-   needs stating, by a single rule. Never by a box. */
+/* Section rhythm separated by space and clean hairline rules */
 .u-band {
   padding-block: var(--s-9);
 }
 .u-band--tight {
-  padding-block: var(--s-8);
+  padding-block: var(--s-7);
 }
 .u-band + .u-band {
   border-top: 1px solid var(--rule);
@@ -169,7 +178,6 @@ main {
    4. Type utilities
    ========================================================================== */
 
-/* Mono small-caps label. Rationed: at most one per three sections. */
 .u-label {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
@@ -180,21 +188,21 @@ main {
 }
 
 .u-display {
-  font-size: clamp(2.25rem, 1.2rem + 4.4vw, var(--t-display));
+  font-size: clamp(2.35rem, 1.4rem + 4.2vw, var(--t-display));
   line-height: var(--lh-tight);
   letter-spacing: var(--track-display);
   font-weight: 400;
 }
 
 .u-h1 {
-  font-size: clamp(1.875rem, 1.2rem + 2.6vw, var(--t-h1));
+  font-size: clamp(1.9rem, 1.3rem + 2.5vw, var(--t-h1));
   line-height: var(--lh-tight);
   letter-spacing: var(--track-display);
   font-weight: 400;
 }
 
 .u-h2 {
-  font-size: clamp(1.5rem, 1.1rem + 1.6vw, var(--t-h2));
+  font-size: clamp(1.5rem, 1.15rem + 1.5vw, var(--t-h2));
   font-weight: 400;
   letter-spacing: var(--track-display);
 }
@@ -222,8 +230,7 @@ main {
   font-size: var(--t-ui);
 }
 
-/* Tabular figures. Essential anywhere numbers stack vertically or update in
-   place, so nothing shifts as values change. */
+/* Tabular figures for number alignment */
 .u-num {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
@@ -234,26 +241,29 @@ main {
    5. Links
    ========================================================================== */
 
-/* Body links: underline present at rest (this is a reading site, links must
-   be visible without hover), thickening on hover rather than appearing. */
+/* Body links: underline visible at rest */
 .u-link {
   color: var(--ink);
   text-decoration: underline;
   text-decoration-color: var(--ink-4);
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
-  transition: text-decoration-color var(--fast) var(--ease);
+  transition:
+    text-decoration-color var(--fast) var(--ease),
+    color var(--fast) var(--ease);
 }
 .u-link:hover {
   text-decoration-color: var(--accent);
+  color: var(--accent-deep);
 }
 
-/* Navigation links: underline is drawn on hover from left to right. */
+/* Navigation links */
 .u-navlink {
   position: relative;
-  /* Padding, not height: gives a ~43px tap target while the link still
-     sits on the text baseline of the masthead. */
   padding-block: 0.65rem;
+  font-family: var(--face-sans);
+  font-size: var(--t-ui);
+  font-weight: 500;
   color: var(--ink-3);
   text-decoration: none;
   transition: color var(--fast) var(--ease);
@@ -264,8 +274,8 @@ main {
   left: 0;
   right: 0;
   bottom: 0.42rem;
-  height: 1px;
-  background: currentColor;
+  height: 2px;
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform var(--mid) var(--ease);
@@ -281,8 +291,6 @@ main {
 
 /* ==========================================================================
    6. Buttons
-
-   Square, ruled, no shadow, no radius. Three ranks only.
    ========================================================================== */
 
 .btn {
@@ -290,78 +298,98 @@ main {
   align-items: center;
   justify-content: center;
   gap: var(--s-2);
-  padding: 0.72rem 1.15rem;
+  padding: 0.75rem 1.35rem;
   border: 1px solid var(--ink);
   background: var(--ink);
   color: var(--paper);
   font-family: var(--face-sans);
   font-size: var(--t-ui);
   font-weight: 500;
-  line-height: 1;
+  line-height: 1.1;
   text-decoration: none;
-  white-space: nowrap; /* CTA labels never wrap */
+  white-space: nowrap;
   cursor: pointer;
+  box-shadow: var(--shadow-subtle);
   transition:
     background var(--fast) var(--ease),
     border-color var(--fast) var(--ease),
     color var(--fast) var(--ease),
-    transform var(--fast) var(--ease);
+    transform var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease);
 }
 .btn:hover {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fff;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-float);
 }
 .btn:active {
   transform: translateY(1px);
+  box-shadow: none;
 }
 
 .btn--secondary {
   background: transparent;
   border-color: var(--rule-strong);
   color: var(--ink);
+  box-shadow: none;
 }
 .btn--secondary:hover {
-  background: transparent;
+  background: var(--paper-raised);
   border-color: var(--ink);
   color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-subtle);
+}
+.btn--secondary:active {
+  transform: translateY(1px);
 }
 
 .btn--quiet {
-  padding: 0.4rem 0;
+  padding: 0.4rem 0.2rem;
   border: 0;
   background: none;
   color: var(--ink-3);
+  font-family: var(--face-sans);
   font-size: var(--t-sm);
+  font-weight: 500;
+  box-shadow: none;
+  cursor: pointer;
+  transition: color var(--fast) var(--ease);
 }
 .btn--quiet:hover {
   background: none;
   color: var(--accent);
+  transform: none;
+  box-shadow: none;
 }
 .btn--quiet:active {
   transform: none;
 }
 
-/* The arrow steps forward on hover. Sole ornament in the button system. */
+/* Button arrow animation */
 .btn__arrow {
   display: inline-block;
   transition: transform var(--mid) var(--ease);
 }
 .btn:hover .btn__arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 /* ==========================================================================
-   7. Masthead and colophon
+   7. Masthead and Colophon
    ========================================================================== */
 
 .masthead {
   position: sticky;
   top: 0;
-  z-index: 20;
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: saturate(180%) blur(8px);
+  z-index: 30;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid var(--rule);
+  transition: border-color var(--mid) var(--ease);
 }
 
 .masthead__inner {
@@ -369,21 +397,20 @@ main {
   align-items: center;
   justify-content: space-between;
   gap: var(--s-5);
-  height: 4.25rem; /* 68px, inside the 80px cap */
+  height: 4.25rem;
 }
 
 .wordmark {
   display: inline-flex;
   align-items: baseline;
-  gap: 0.45rem;
+  gap: 0.5rem;
   font-family: var(--face-serif);
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
   text-decoration: none;
 }
-/* The rule under the wordmark is the mark: a book's ruled line. */
 .wordmark__rule {
   display: inline-block;
   width: 1.125rem;
@@ -392,21 +419,20 @@ main {
   transition: width var(--mid) var(--ease);
 }
 .wordmark:hover .wordmark__rule {
-  width: 2rem;
+  width: 2.25rem;
 }
 
 .masthead__nav {
   display: flex;
   align-items: center;
   gap: var(--s-5);
-  font-family: var(--face-sans);
-  font-size: var(--t-ui);
 }
 
 .colophon {
   flex-shrink: 0;
   border-top: 1px solid var(--rule);
-  padding-block: var(--s-7) var(--s-6);
+  padding-block: var(--s-8) var(--s-7);
+  background: var(--paper-subtle);
   font-family: var(--face-sans);
 }
 
@@ -448,10 +474,7 @@ main {
 }
 
 /* ==========================================================================
-   8. Reveal on scroll
-
-   Opacity and transform only. Applied to section blocks, never to individual
-   list rows, so nothing important is ever withheld from the reader.
+   8. Reveal on Scroll
    ========================================================================== */
 
 @media (prefers-reduced-motion: no-preference) {
@@ -469,7 +492,7 @@ main {
 }
 
 /* ==========================================================================
-   9. Prose (study guides, about, copyright)
+   9. Prose Typography
    ========================================================================== */
 
 .prose {
@@ -489,6 +512,7 @@ main {
   border-top: 1px solid var(--rule);
   font-size: var(--t-h3);
   font-weight: 500;
+  color: var(--ink);
 }
 .prose h2:first-child {
   margin-top: 0;
@@ -500,6 +524,7 @@ main {
   margin-top: var(--s-6);
   font-size: var(--t-h4);
   font-weight: 600;
+  color: var(--ink);
 }
 
 .prose strong {
@@ -535,20 +560,20 @@ main {
 
 .prose code {
   font-family: var(--face-mono);
-  font-size: 0.86em;
+  font-size: 0.88em;
   background: var(--paper-sunken);
-  padding: 0.12em 0.34em;
+  padding: 0.15em 0.4em;
   color: var(--ink);
+  border: 1px solid var(--rule-subtle);
 }
 
-/* Display maths and code blocks: centred, ruled above and below, set apart
-   from the prose. These carry the equations in the study guides. */
+/* Display equations and code blocks */
 .prose pre {
   margin-block: var(--s-6);
   padding: var(--s-5) var(--s-4);
   border-top: 1px solid var(--rule);
   border-bottom: 1px solid var(--rule);
-  background: none;
+  background: var(--paper-subtle);
   overflow-x: auto;
   font-family: var(--face-mono);
   font-size: var(--t-ui);
@@ -559,13 +584,15 @@ main {
 .prose pre code {
   background: none;
   padding: 0;
+  border: 0;
   font-size: inherit;
 }
 
 .prose blockquote {
   margin-block: var(--s-6);
-  padding-left: var(--s-5);
-  border-left: 2px solid var(--accent);
+  padding: var(--s-3) 0 var(--s-3) var(--s-5);
+  border-left: 3px solid var(--accent);
+  background: var(--accent-wash);
   font-style: italic;
   color: var(--ink);
 }
@@ -581,14 +608,12 @@ main {
 }
 
 /* ==========================================================================
-   10. Notice
-
-   The honest "what is actually free" statement. Ruled, not boxed.
+   10. Notice Banner
    ========================================================================== */
 
 .notice {
   border-top: 2px solid var(--ink);
-  padding-top: var(--s-4);
+  padding: var(--s-4) 0 0;
   font-size: var(--t-ui);
   line-height: var(--lh-normal);
   color: var(--ink-2);
@@ -610,22 +635,26 @@ main {
 }
 
 /* ==========================================================================
-   11. Toast
+   11. Toast Notifications
    ========================================================================== */
 
 .toast {
   position: fixed;
   left: 50%;
   bottom: var(--s-6);
-  z-index: 60;
-  transform: translate(-50%, 12px);
-  max-width: min(92vw, 34rem);
+  z-index: 80;
+  transform: translate(-50%, 14px);
+  max-width: min(92vw, 36rem);
   padding: var(--s-3) var(--s-5);
   background: var(--ink);
   color: var(--paper);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
+  font-weight: 400;
+  line-height: 1.4;
   text-align: center;
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--ink-3);
   opacity: 0;
   pointer-events: none;
   transition:
@@ -638,7 +667,7 @@ main {
 }
 
 /* ==========================================================================
-   12. Standalone document pages (about, copyright, 404)
+   12. Standalone Document Pages (about, copyright, 404)
    ========================================================================== */
 
 .page-head {
@@ -647,7 +676,7 @@ main {
 }
 .page-head__lead {
   margin-top: var(--s-4);
-  max-width: 52ch;
+  max-width: 54ch;
   font-size: var(--t-lead);
   line-height: var(--lh-normal);
   color: var(--ink-3);
@@ -657,18 +686,20 @@ main {
   padding-block: var(--s-7) var(--s-9);
 }
 
-/* A definition list reads better than prose for per-book attribution, and it
-   scales as books are added without becoming a wall of paragraphs. */
 .attriblist {
   margin-top: var(--s-5);
   max-width: var(--w-text);
 }
 .attriblist__item {
-  padding-block: var(--s-4);
+  padding-block: var(--s-5);
   border-top: 1px solid var(--rule);
+}
+.attriblist__item:first-child {
+  border-top: 1px solid var(--rule-strong);
 }
 .attriblist__title {
   font-size: var(--t-body);
+  font-weight: 500;
   color: var(--ink);
 }
 .attriblist__title em {
@@ -690,19 +721,21 @@ main {
 }
 .attriblist__body a:hover {
   text-decoration-color: var(--accent);
+  color: var(--ink);
 }
 
-/* 404 */
+/* 404 Not Found */
 .notfound {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 52dvh;
+  min-height: 56dvh;
   padding-block: var(--s-8);
 }
 .notfound__code {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
+  font-weight: 600;
   letter-spacing: var(--track-label);
   color: var(--accent);
 }
@@ -712,7 +745,7 @@ main {
 }
 .notfound__body {
   margin-top: var(--s-4);
-  max-width: 46ch;
+  max-width: 48ch;
   font-family: var(--face-sans);
   font-size: var(--t-ui);
   line-height: var(--lh-normal);
@@ -721,3 +754,4 @@ main {
 .notfound__actions {
   margin-top: var(--s-6);
 }
+
