@@ -1,14 +1,5 @@
 /* ==========================================================================
    Book roadmap
-   ==========================================================================
-
-   The problem this layout solves: 46 sections in one scroll gives the reader
-   no sense of position. A sticky contents rail carries progress, the part
-   index, and the resume control, so "where am I and what is next" is
-   answerable at every scroll position without leaving the page.
-
-   Below 1024px the rail becomes a compact sticky strip under the masthead,
-   because a 15rem column would leave nothing for the content it describes.
    ========================================================================== */
 
 .book {
@@ -16,7 +7,7 @@
   grid-template-columns: var(--rail) minmax(0, 1fr);
   gap: var(--s-8);
   align-items: start;
-  padding-bottom: var(--s-9);
+  padding-bottom: var(--s-10);
 }
 
 /* --------------------------------------------------------------------------
@@ -24,7 +15,7 @@
    -------------------------------------------------------------------------- */
 
 .bookhead {
-  padding-block: var(--s-8) var(--s-6);
+  padding-block: var(--s-8) var(--s-7);
   border-bottom: 1px solid var(--rule-strong);
 }
 
@@ -46,7 +37,7 @@
   color: var(--accent);
 }
 .bookhead__crumb span[aria-hidden] {
-  color: var(--ink-3);
+  color: var(--ink-4);
 }
 
 .bookhead__grid {
@@ -57,11 +48,11 @@
 }
 
 .bookhead__title {
-  font-size: clamp(2rem, 1.2rem + 3vw, 3rem);
+  font-size: clamp(2.15rem, 1.3rem + 3vw, 3.25rem);
   line-height: 1.06;
   letter-spacing: var(--track-display);
   font-weight: 400;
-  max-width: 18ch;
+  max-width: 20ch;
 }
 
 .bookhead__byline {
@@ -71,8 +62,8 @@
   color: var(--ink-3);
 }
 .bookhead__byline strong {
-  color: var(--ink-2);
-  font-weight: 500;
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .bookhead__blurb {
@@ -80,7 +71,7 @@
   line-height: var(--lh-normal);
   color: var(--ink-3);
   font-family: var(--face-sans);
-  max-width: 46ch;
+  max-width: 48ch;
   padding-bottom: 0.35rem;
 }
 
@@ -109,30 +100,31 @@
   border-top: 1px solid var(--rule);
 }
 
-/* Progress: one figure, set large in tabular mono, with a hairline gauge.
-   No card, no KPI grid. */
+/* Progress: one figure, set large in tabular mono */
 .gauge__figure {
   display: flex;
   align-items: baseline;
-  gap: 0.3rem;
+  gap: 0.35rem;
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
   color: var(--ink);
   letter-spacing: -0.02em;
 }
 .gauge__done {
-  font-size: 2rem;
-  font-weight: 500;
+  font-size: 2.25rem;
+  font-weight: 600;
   line-height: 1;
+  color: var(--ink);
 }
 .gauge__total {
   font-size: var(--t-ui);
+  font-weight: 500;
   color: var(--ink-3);
 }
 
 .gauge__track {
   position: relative;
-  height: 2px;
+  height: 3px;
   margin-top: var(--s-4);
   background: var(--rule);
 }
@@ -147,35 +139,54 @@
 .gauge__caption {
   margin-top: var(--s-3);
   font-size: var(--t-sm);
+  font-weight: 500;
   color: var(--ink-3);
 }
 
-/* Streak is shown only once it exists; an empty streak is discouraging and
-   tells the reader nothing. The tracker sets [hidden]. */
+/* Streak badge */
 .gauge__streak {
-  margin-top: var(--s-2);
-  font-size: var(--t-sm);
-  color: var(--ink-3);
+  margin-top: var(--s-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-subtle);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  color: var(--accent-deep);
+  border-radius: var(--radius-sm);
 }
 .gauge__streak b {
-  color: var(--ink);
+  color: var(--accent-deep);
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
-  font-weight: 500;
+  font-weight: 600;
 }
 
-/* Resume. The single most-used control for a returning reader, so it gets
-   the accent rule and sits above the part index. */
+/* Resume quick action card */
 .resume {
   display: block;
-  padding: var(--s-4) 0 var(--s-4) var(--s-4);
-  border-left: 2px solid var(--accent);
+  padding: var(--s-4) var(--s-4) var(--s-4) var(--s-4);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  box-shadow: var(--shadow-subtle);
   text-decoration: none;
-  transition: background var(--fast) var(--ease);
+  transition:
+    background var(--fast) var(--ease),
+    border-color var(--fast) var(--ease),
+    transform var(--fast) var(--ease);
 }
 .resume:hover {
   background: var(--accent-wash);
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
+.resume:active {
+  transform: translateY(1px);
+}
+
 .resume__label {
   display: flex;
   align-items: center;
@@ -191,7 +202,7 @@
   transition: transform var(--mid) var(--ease);
 }
 .resume:hover .resume__arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 .resume__target {
   display: block;
@@ -208,7 +219,7 @@
   margin-right: 0.4rem;
 }
 
-/* Part index */
+/* Part index navigation */
 .railnav {
   display: flex;
   flex-direction: column;
@@ -218,13 +229,13 @@
   grid-template-columns: 1.75rem minmax(0, 1fr) auto;
   align-items: baseline;
   gap: 0.5rem;
-  padding-block: 0.5rem;
+  padding-block: 0.55rem;
   font-size: var(--t-sm);
   line-height: 1.35;
   color: var(--ink-2);
   text-decoration: none;
-  border-bottom: 1px solid var(--rule);
-  transition: color var(--fast) var(--ease);
+  border-bottom: 1px solid var(--rule-subtle);
+  transition: color var(--fast) var(--ease), background var(--fast) var(--ease);
 }
 .railnav a:last-child {
   border-bottom: 0;
@@ -235,6 +246,7 @@
 .railnav__roman {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
+  font-weight: 600;
   color: var(--ink-3);
   transition: color var(--fast) var(--ease);
 }
@@ -247,16 +259,17 @@
   font-size: var(--t-micro);
   color: var(--ink-3);
 }
-/* A completed part is stated in ink, not with a badge. */
 .railnav a[data-complete] .railnav__count {
   color: var(--ink);
+  font-weight: 600;
 }
 
-/* Tools live in a disclosure: needed occasionally, never worth the space. */
+/* Progress tools disclosure */
 .tools > summary {
   cursor: pointer;
   list-style: none;
   font-size: var(--t-sm);
+  font-weight: 500;
   color: var(--ink-3);
   transition: color var(--fast) var(--ease);
 }
@@ -300,25 +313,22 @@
   scroll-margin-top: 6rem;
 }
 .part + .part {
-  margin-top: var(--s-8);
+  margin-top: var(--s-9);
 }
 
 .part__head {
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  grid-template-columns: 3.5rem minmax(0, 1fr) auto;
   align-items: baseline;
   gap: var(--s-4);
   padding-bottom: var(--s-4);
   border-bottom: 2px solid var(--ink);
 }
 
-/* Ink, not accent. Seven permanently red part numerals would compete with
-   the single red mark that means "you are here", which is the one job the
-   accent has on this page. */
 .part__roman {
   font-family: var(--face-mono);
   font-size: var(--t-sm);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--ink);
   letter-spacing: 0.02em;
 }
@@ -334,38 +344,40 @@
   font-size: var(--t-sm);
   line-height: var(--lh-normal);
   color: var(--ink-3);
-  max-width: 58ch;
+  max-width: 60ch;
 }
 
 .part__count {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--t-sm);
+  font-weight: 500;
   color: var(--ink-3);
   white-space: nowrap;
 }
 
-/* --- Section row ---------------------------------------------------------
-   Grid: mark | number | title and sources | guide
-   The row is the product. Everything else on the page serves it. */
+/* --- Section row --------------------------------------------------------- */
 
 .row {
   display: grid;
-  grid-template-columns: 1.5rem 3.25rem minmax(0, 1fr) auto;
+  grid-template-columns: 1.5rem 3.5rem minmax(0, 1fr) auto;
   align-items: start;
   gap: var(--s-4);
-  padding-block: var(--s-4);
+  padding: var(--s-4) var(--s-3);
   border-bottom: 1px solid var(--rule);
-  transition: border-color var(--mid) var(--ease);
+  transition:
+    background var(--fast) var(--ease),
+    border-color var(--mid) var(--ease);
+}
+.row:hover {
+  background: var(--paper-subtle);
 }
 
-/* The next unread section, marked by the tracker. This is the only place
-   the accent appears in the list, which is what makes it findable. */
+/* Next unread section indicator */
 .row[data-next] {
-  border-bottom-color: var(--rule);
-  box-shadow: inset 2px 0 0 var(--accent);
-  padding-left: var(--s-4);
-  margin-left: calc(var(--s-4) * -1);
+  background: var(--accent-wash);
+  border-left: 3px solid var(--accent);
+  padding-left: calc(var(--s-3) + 1px);
 }
 
 .row__input {
@@ -376,13 +388,12 @@
   margin: 0;
 }
 
-/* The mark. Outline square when unread, solid ink when read. No tick glyph,
-   no gradient: a filled square reads instantly at 14px and needs no icon. */
+/* Checkbox mark */
 .row__mark {
   position: relative;
-  width: 0.875rem;
-  height: 0.875rem;
-  margin-top: 0.4rem;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  margin-top: 0.35rem;
   border: 1.5px solid var(--ink-4);
   background: transparent;
   cursor: pointer;
@@ -391,9 +402,6 @@
     border-color var(--fast) var(--ease),
     transform var(--fast) var(--ease);
 }
-/* The mark stays 14px because that is the right weight beside 17px text,
-   but a 14px tap target is not usable on touch. This expands the hit area to
-   roughly 35px without moving anything on screen. */
 .row__mark::after {
   content: '';
   position: absolute;
@@ -430,7 +438,7 @@
 }
 .row[data-next] .row__code {
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .row__body {
@@ -440,12 +448,10 @@
 .row__title {
   font-size: var(--t-body);
   line-height: 1.4;
-  font-weight: 400;
+  font-weight: 500;
   color: var(--ink);
   transition: color var(--fast) var(--ease);
 }
-/* Read sections recede rather than being struck through: a line through 46
-   titles is noise, and greying is enough alongside the filled mark. */
 .row:has(.row__input:checked) .row__title {
   color: var(--ink-3);
 }
@@ -462,33 +468,46 @@
   background-size: 100% 1px;
 }
 
-/* Sources: a quiet inline list separated by hairline pipes, not pills.
-   154 pills on one page was the single noisiest thing about the old design. */
+/* Source Chips */
 .row__sources {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.75rem;
-  margin-top: var(--s-2);
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-top: var(--s-3);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
 }
 .row__sources a {
-  color: var(--ink-3);
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.45rem;
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  color: var(--chip-text);
+  font-size: var(--t-micro);
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid transparent;
+  border-radius: var(--radius-sm);
   transition:
     color var(--fast) var(--ease),
-    border-color var(--fast) var(--ease);
+    border-color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .row__sources a:hover {
   color: var(--ink);
-  border-bottom-color: var(--accent);
+  border-color: var(--accent);
+  background: var(--paper-raised);
 }
-/* The one freely readable copy of a section is worth distinguishing. */
 .row__sources a[data-free] {
-  color: var(--ink-2);
-  font-weight: 500;
+  background: var(--chip-free-bg);
+  border-color: var(--chip-free-border);
+  color: var(--chip-free-text);
+  font-weight: 600;
+}
+.row__sources a[data-free]:hover {
+  background: var(--accent-subtle);
+  border-color: var(--accent);
 }
 
 .row__note {
@@ -496,7 +515,7 @@
 }
 .row__note textarea {
   width: 100%;
-  min-height: 5rem;
+  min-height: 5.5rem;
   padding: var(--s-3);
   border: 1px solid var(--rule-strong);
   background: var(--paper-raised);
@@ -505,6 +524,7 @@
   line-height: var(--lh-normal);
   color: var(--ink);
   resize: vertical;
+  box-shadow: var(--shadow-subtle);
   transition: border-color var(--fast) var(--ease);
 }
 .row__note textarea::placeholder {
@@ -516,8 +536,7 @@
   outline-offset: 2px;
 }
 
-/* Guide link and note toggle, right-aligned. The note toggle only earns its
-   place once hovered or once a note exists. */
+/* Guide link & note toggle */
 .row__aside {
   display: flex;
   align-items: center;
@@ -529,19 +548,29 @@
 
 .row__guide {
   color: var(--ink);
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid var(--rule-strong);
-  transition: border-color var(--fast) var(--ease);
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+  border-radius: var(--radius-sm);
+  transition:
+    border-color var(--fast) var(--ease),
+    color var(--fast) var(--ease),
+    background var(--fast) var(--ease);
 }
 .row__guide:hover {
-  border-bottom-color: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  background: var(--accent-wash);
 }
 
 .row__notebtn {
-  padding: 0;
+  padding: 0.2rem 0.35rem;
   border: 0;
   background: none;
   font-size: var(--t-sm);
+  font-weight: 500;
   color: var(--ink-3);
   cursor: pointer;
   opacity: 0;
@@ -564,24 +593,22 @@
 /* --- Part checklist ------------------------------------------------------ */
 
 .checklist {
-  margin-top: var(--s-5);
-  padding: var(--s-5) 0 0;
-  border-top: 1px solid var(--rule);
+  margin-top: var(--s-6);
+  padding: var(--s-5) var(--s-5);
+  background: var(--paper-subtle);
+  border: 1px solid var(--rule);
 }
-/* Sentence case, not a small-caps eyebrow. This label repeats once per part,
-   and seven uppercase micro-labels down the page read as a template rather
-   than as seven headings. */
+
 .checklist__title {
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   font-weight: 600;
-  letter-spacing: 0;
   color: var(--ink);
 }
 .checklist__items {
   margin-top: var(--s-3);
   display: grid;
-  gap: var(--s-2);
+  gap: var(--s-3);
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
 }
 .checklist__item {
@@ -591,8 +618,8 @@
 }
 .checklist__item input {
   flex: none;
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0.8125rem;
+  height: 0.8125rem;
   margin: 0;
   accent-color: var(--ink);
   cursor: pointer;
@@ -615,28 +642,31 @@
    -------------------------------------------------------------------------- */
 
 .sources {
-  margin-top: var(--s-7);
-  padding-top: var(--s-5);
+  margin-top: var(--s-8);
+  padding-top: var(--s-6);
   border-top: 1px solid var(--rule-strong);
 }
 .sources__grid {
   margin-top: var(--s-4);
   display: grid;
-  gap: 0 var(--s-6);
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--s-3) var(--s-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
 }
 .sources__item {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: var(--s-3);
-  padding-block: 0.55rem;
-  border-bottom: 1px solid var(--rule);
+  padding: var(--s-3) var(--s-4);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
 }
 .sources__item a {
-  color: var(--ink-2);
+  color: var(--ink);
+  font-weight: 500;
   text-decoration: none;
   transition: color var(--fast) var(--ease);
 }
@@ -646,6 +676,7 @@
 .sources__kind {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
+  font-weight: 600;
   color: var(--ink-3);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -656,14 +687,14 @@
    -------------------------------------------------------------------------- */
 
 .attrib {
-  margin-top: var(--s-8);
-  padding-top: var(--s-5);
+  margin-top: var(--s-9);
+  padding-top: var(--s-6);
   border-top: 1px solid var(--rule-strong);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   line-height: var(--lh-normal);
   color: var(--ink-3);
-  max-width: 70ch;
+  max-width: 72ch;
 }
 .attrib > * + * {
   margin-top: var(--s-3);
@@ -677,14 +708,11 @@
 }
 .attrib a:hover {
   text-decoration-color: var(--accent);
+  color: var(--ink);
 }
 
 /* ==========================================================================
    Responsive
-
-   Below 1024px the rail is not narrowed, it is re-thought: progress and
-   resume become a horizontal sticky strip, and the part index moves to a
-   native select, which is the right control for jumping on a phone.
    ========================================================================== */
 
 @media (max-width: 1023px) {
@@ -700,8 +728,8 @@
     padding-top: 0;
     margin-inline: calc(var(--gutter) * -1);
     padding-inline: var(--gutter);
-    background: color-mix(in srgb, var(--paper) 92%, transparent);
-    backdrop-filter: saturate(180%) blur(8px);
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
     border-bottom: 1px solid var(--rule);
   }
 
@@ -723,7 +751,7 @@
     align-items: baseline;
   }
   .gauge__done {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
   }
   .gauge__track {
     margin-top: var(--s-2);
@@ -733,9 +761,8 @@
     display: none;
   }
 
-  /* Resume collapses to a single line beside the gauge. */
   .resume {
-    padding: var(--s-2) 0 var(--s-2) var(--s-3);
+    padding: var(--s-2) var(--s-3);
     min-width: 0;
   }
   .resume__target {
@@ -762,7 +789,6 @@
   }
 }
 
-/* Jump control for narrow viewports */
 .rail__jump {
   padding-bottom: var(--s-3);
 }
@@ -782,7 +808,6 @@
     gap: var(--s-3);
     row-gap: var(--s-2);
   }
-  /* Number joins the title line rather than holding its own column. */
   .row__code {
     grid-column: 2;
     grid-row: 1;
@@ -800,7 +825,7 @@
     margin-top: var(--s-2);
   }
   .row__notebtn {
-    opacity: 1; /* no hover on touch */
+    opacity: 1;
   }
   .part__head {
     grid-template-columns: 2.5rem minmax(0, 1fr);
@@ -810,3 +835,4 @@
     margin-top: var(--s-2);
   }
 }
+
