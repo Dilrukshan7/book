@@ -1,19 +1,13 @@
 /* ==========================================================================
-   Charts
-
-   Two figures, both carrying real numbers from the book data. Neither exists
-   to decorate a section.
-
-   One deliberate departure from the usual chart mark spec: data-ends are
-   square, not 4px rounded. This site's shape language is square throughout
-   (`--radius: 0`), and rounded bar caps in a page with square buttons, square
-   inputs and hairline rules would read as an import from another system. The
-   2px surface gap between segments does the separating instead, which is what
-   the gap is for.
+   Charts & Visual Figures
    ========================================================================== */
 
 .figure {
   margin: 0;
+  padding: var(--s-5);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-subtle);
 }
 
 .figure__head {
@@ -22,11 +16,12 @@
   justify-content: space-between;
   gap: var(--s-4);
   padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--rule-subtle);
 }
 
 .figure__title {
   font-family: var(--face-sans);
-  font-size: var(--t-sm);
+  font-size: var(--t-ui);
   font-weight: 600;
   color: var(--ink);
 }
@@ -35,6 +30,8 @@
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: 0.04em;
   color: var(--ink-3);
 }
 
@@ -45,10 +42,10 @@
 .stack {
   display: flex;
   width: 100%;
-  height: 22px;
-  /* The surface doing the separating, at one consistent width. */
+  height: 24px;
   gap: 2px;
-  background: var(--paper);
+  background: var(--paper-sunken);
+  margin-top: var(--s-4);
 }
 
 .stack__seg {
@@ -56,25 +53,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2px;
+  min-width: 3px;
   background: var(--seg-color);
-  /* Grows from zero on reveal. Transform would blur the fill's edge, so this
-     animates flex-basis, which is cheap here: three segments, once, on a
-     layout that is already settled. */
-  transition: flex-grow var(--slow) var(--ease);
+  transition:
+    flex-grow var(--slow) var(--ease),
+    filter var(--fast) var(--ease);
+}
+.stack__seg:hover {
+  filter: brightness(1.08);
 }
 
 .stack__value {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--t-micro);
-  font-weight: 500;
-  color: #fff;
+  font-weight: 600;
+  color: #ffffff;
   opacity: 0;
-  transition: opacity var(--mid) var(--ease) 260ms;
+  transition: opacity var(--mid) var(--ease) 200ms;
 }
-/* Only labelled inline where the number actually fits; the legend carries
-   the rest. A clipped label is worse than no label. */
 .stack__seg[data-wide] .stack__value {
   opacity: 1;
 }
@@ -82,14 +79,14 @@
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--s-2) var(--s-5);
+  gap: var(--s-3) var(--s-6);
   margin-top: var(--s-4);
 }
 
 .legend__item {
   display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.5rem;
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   color: var(--ink-2);
@@ -97,33 +94,32 @@
 
 .legend__swatch {
   flex: none;
-  width: 0.625rem;
-  height: 0.625rem;
+  width: 0.75rem;
+  height: 0.75rem;
   background: var(--seg-color);
-  transform: translateY(0.05rem);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .legend__count {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
   color: var(--ink-3);
 }
 
 .figure__note {
-  margin-top: var(--s-3);
+  margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--rule-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   line-height: var(--lh-normal);
   color: var(--ink-3);
-  max-width: 60ch;
+  max-width: 62ch;
 }
 
 /* --------------------------------------------------------------------------
    Bar list: progress per part, in the contents rail
-
-   The rail already listed the parts with a count. Making that list
-   quantitative is better than adding a second chart that says the same thing
-   in a different shape.
    -------------------------------------------------------------------------- */
 
 .barlist__track {
@@ -141,18 +137,12 @@
   transition: width var(--slow) var(--ease);
 }
 
-/* A finished part is stated in ink rather than with a badge, matching how the
-   count is treated. */
 .railnav a[data-complete] .barlist__fill {
   background: var(--ink);
 }
 
 /* --------------------------------------------------------------------------
    Motion
-
-   Charts animate once, on entry, because a bar growing from its baseline is
-   how a reader is told "this is a quantity". Under reduced motion they are
-   simply present at their final value.
    -------------------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
@@ -169,7 +159,6 @@
 
 .freefig {
   margin-top: var(--s-6);
-  padding-top: var(--s-5);
-  border-top: 1px solid var(--rule);
-  max-width: 46rem;
+  max-width: 48rem;
 }
+

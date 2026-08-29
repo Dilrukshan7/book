@@ -41,7 +41,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="color-scheme" content="light" />
-    <meta name="theme-color" content="#fcfcfa" />
+    <meta name="theme-color" content="#faf9f5" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -70,7 +70,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 
     <header class="masthead">
       <div class="u-page masthead__inner">
-        <a class="wordmark" href="/">
+        <a class="wordmark" href="/" aria-label={`${SITE.name} homepage`}>
           <span class="wordmark__rule" aria-hidden="true"></span>
           <span>{SITE.name}</span>
         </a>
@@ -104,7 +104,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
         <div class="colophon__links">
           <a href="/about">About</a>
           <a href="/copyright">Copyright and attribution</a>
-          <a href={SITE.repo}>Source code</a>
+          <a href={SITE.repo} target="_blank" rel="noopener">Source code</a>
         </div>
       </div>
     </footer>
@@ -132,7 +132,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
               io.unobserve(el);
             }
           },
-          { rootMargin: '0px 0px -12% 0px', threshold: 0.1 },
+          { rootMargin: '0px 0px -10% 0px', threshold: 0.1 },
         );
         targets.forEach((el) => io.observe(el));
       }
