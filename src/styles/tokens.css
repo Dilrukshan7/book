@@ -1,19 +1,17 @@
 /* ==========================================================================
-   Design tokens
+   Design Tokens
    ==========================================================================
 
    The reference is scholarly publishing, not software: a book set on good
-   paper. Three decisions follow from that and are enforced everywhere.
+   paper. Three core principles guide the visual language:
 
-   1. NO HEAVY SHADOWS. Print has no elevation. Hierarchy comes from type size,
-      weight, ink colour, and hairline rules. Subtle hairlines and contrast
-      define surfaces.
-   2. RESTRAINED RADIUS. Clean, precise, and editorial.
-   3. ONE ACCENT, used as information only. Vermillion marks your position in
-      the book, the way a bookmark ribbon does. It never decorates.
+   1. NO HEAVY SHADOWS. Hierarchy comes from type size, weight, ink contrast,
+      and hairline rules. Subtle hairlines and contrast define surfaces.
+   2. RESTRAINED RADIUS. Clean, precise, and editorial with subtle 3-6px rounding.
+   3. ONE ACCENT, used as information only. Vermillion marks position in the
+      book, the way a bookmark ribbon does. It never decorates frivolously.
 
-   The state system for a section is three-valued and colour is only one of
-   its channels, so it survives greyscale and colour blindness:
+   The state system for a section is three-valued and survives greyscale / a11y:
       not read    hairline square outline
       next up     vermillion outline + vermillion rule on the row
       read        solid ink square
@@ -21,58 +19,72 @@
 
 :root {
   /* --- Surfaces -----------------------------------------------------------
-     Warm off-white rather than #fff. Pure white on a large text page glares;
-     a trace of warmth reads as archival paper. */
-  --paper: #faf9f5;
+     Warm off-white archival paper rather than pure #fff glare. */
+  --paper: #faf8f5;
   --paper-raised: #ffffff;
-  --paper-subtle: #f5f4ee;
-  --paper-sunken: #eeece4;
+  --paper-subtle: #f4f1ea;
+  --paper-sunken: #eae6dc;
+  --paper-muted: #f7f5ef;
 
   /* --- Ink ----------------------------------------------------------------
      Measured against --paper for WCAG AAA/AA readability. */
-  --ink: #161512;    /* 17.8:1  headings, primary text, prominent controls */
-  --ink-2: #3c3a33;  /*  9.8:1  body reading text */
-  --ink-3: #636157;  /*  5.6:1  metadata, captions, secondary labels */
-  --ink-4: #8c8a7e;  /*  3.4:1  NON-TEXT ONLY: borders, marks, decorative rules */
+  --ink: #141310;        /* 18.2:1  headings, primary text, prominent controls */
+  --ink-2: #34322b;      /* 10.4:1  body reading text */
+  --ink-3: #5c594e;      /*  6.2:1  metadata, captions, secondary labels */
+  --ink-4: #888476;      /*  3.6:1  NON-TEXT ONLY: borders, marks, decorative rules */
+  --ink-muted: #a6a295;  /*  2.4:1  subtle non-text elements */
 
   /* --- Rules --------------------------------------------------------------
-     The primary structural device. */
-  --rule: #e5e3d8;        /* default hairline */
-  --rule-subtle: #eeece2; /* internal row dividers */
-  --rule-strong: #cac7b9; /* major section boundaries */
-  --rule-ink: #161512;    /* emphatic, under titles */
+     Structural hairlines. */
+  --rule: #e4e0d4;        /* default hairline */
+  --rule-subtle: #eeece0; /* internal row dividers */
+  --rule-strong: #cac4b0; /* major section boundaries */
+  --rule-ink: #141310;    /* emphatic, under titles */
 
   /* --- Accent -------------------------------------------------------------
-     Vermillion. One colour, one job: where you are in the book.
-     5.3:1 on --paper. */
-  --accent: #c93818;
-  --accent-hover: #b52e11;
-  --accent-deep: #8f230b; /* 7.1:1 for accent text on tinted grounds */
-  --accent-wash: #faeee9; /* subtle tinted background */
-  --accent-subtle: #f4ded6;
+     Vermillion. Positional bookmark indicator. 5.5:1 on --paper. */
+  --accent: #c03618;
+  --accent-hover: #a82d12;
+  --accent-deep: #8a210b; /* 7.4:1 for accent text on tinted grounds */
+  --accent-wash: #fbf0ec; /* subtle tinted background */
+  --accent-subtle: #f5ddd4;
+  --accent-border: #f0cebe;
+
+  /* --- Status Indicators -------------------------------------------------- */
+  --status-read-bg: #141310;
+  --status-read-text: #ffffff;
+  --status-next-bg: #fbf0ec;
+  --status-next-border: #c03618;
+  --status-complete: #28543d;
+  --status-complete-wash: #edf5f0;
+  --status-complete-border: #c6dfcf;
 
   /* --- Source Chip Tokens ------------------------------------------------- */
-  --chip-bg: #f0eee6;
-  --chip-border: #dedbd0;
-  --chip-text: #3c3a33;
-  --chip-free-bg: #faeee9;
+  --chip-bg: #efece3;
+  --chip-border: #dad5c7;
+  --chip-text: #34322b;
+  --chip-free-bg: #fbf0ec;
   --chip-free-border: #f0cebe;
-  --chip-free-text: #8f230b;
+  --chip-free-text: #8a210b;
+  --chip-lecture-bg: #eef2f9;
+  --chip-lecture-border: #cfdcf0;
+  --chip-lecture-text: #1a427f;
+  --chip-problem-bg: #edf5f0;
+  --chip-problem-border: #cbe0d3;
+  --chip-problem-text: #1d5b38;
 
-  /* --- Chart series -------------------------------------------------------
-     A categorical set, used ONLY inside charts, where a legend defines what
-     each hue means locally. */
-  --series-1: #c93818; /* vermillion */
+  /* --- Chart Series ------------------------------------------------------- */
+  --series-1: #c03618; /* vermillion */
   --series-2: #1e4f9c; /* oxford blue */
   --series-3: #0e785d; /* deep spruce */
 
   /* --- Type ---------------------------------------------------------------
-     Families come from Astro's font pipeline (see astro.config.mjs). */
+     Self-hosted font pipeline. */
   --face-serif: var(--font-serif), 'Literata', Georgia, Cambria, serif;
-  --face-sans: var(--font-sans), 'IBM Plex Sans', 'Helvetica Neue', Arial, sans-serif;
+  --face-sans: var(--font-sans), 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --face-mono: var(--font-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 
-  /* Editorial scale. Hierarchy carried by weight, colour, and space. */
+  /* Editorial type scale */
   --t-micro: 0.6875rem;  /* 11px  mono labels */
   --t-sm: 0.8125rem;     /* 13px  metadata */
   --t-ui: 0.9375rem;     /* 15px  interface */
@@ -82,16 +94,16 @@
   --t-h3: 1.5rem;        /* 24px */
   --t-h2: 2rem;          /* 32px */
   --t-h1: 2.75rem;       /* 44px */
-  --t-display: 3.375rem; /* 54px  landing only */
+  --t-display: 3.375rem; /* 54px  landing display */
 
   --lh-tight: 1.12;
   --lh-snug: 1.28;
   --lh-normal: 1.5;
-  --lh-prose: 1.7;
+  --lh-prose: 1.72;
 
   /* Tracking */
-  --track-display: -0.022em;
-  --track-heading: -0.012em;
+  --track-display: -0.024em;
+  --track-heading: -0.014em;
   --track-label: 0.11em;
 
   /* --- Space --------------------------------------------------------------
@@ -111,20 +123,27 @@
   --w-page: 1240px;   /* outer bound */
   --w-text: 68ch;     /* long-form reading column */
   --w-narrow: 54ch;   /* standfirst, intro copy */
-  --rail: 16rem;      /* book page contents rail */
+  --rail: 16.5rem;    /* book page contents rail */
   --gutter: 1.5rem;
 
   /* --- Shape -------------------------------------------------------------- */
-  --radius: 0px;
-  --radius-sm: 2px;
+  --radius-none: 0px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-pill: 9999px;
 
   /* --- Elevation ---------------------------------------------------------- */
-  --shadow-subtle: 0 1px 3px rgba(22, 21, 18, 0.04);
-  --shadow-float: 0 8px 24px rgba(22, 21, 18, 0.08);
+  --shadow-subtle: 0 1px 2px rgba(20, 19, 16, 0.03), 0 2px 6px rgba(20, 19, 16, 0.02);
+  --shadow-card: 0 1px 3px rgba(20, 19, 16, 0.04), 0 6px 16px rgba(20, 19, 16, 0.03);
+  --shadow-float: 0 4px 12px rgba(20, 19, 16, 0.06), 0 12px 32px rgba(20, 19, 16, 0.06);
 
   /* --- Motion ------------------------------------------------------------- */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --fast: 140ms;
-  --mid: 240ms;
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --fast: 150ms;
+  --mid: 250ms;
   --slow: 400ms;
 }
