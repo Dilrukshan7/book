@@ -80,7 +80,7 @@ You must output a single, valid JSON object strictly matching this schema:
   ]
 }
 
-Ensure all parts and sections are ordered logically. Return ONLY valid JSON, with no markdown code fences or conversational text.`;
+Ensure all parts and sections are ordered logically. Return ONLY valid JSON, with no markdown code fences or conversational text. Start directly with { and end with }.`;
 
 export async function createOpenRouterStream(
   query: string,
@@ -126,8 +126,7 @@ export async function createOpenRouterStream(
       model: model,
       stream: true,
       temperature: 0.2,
-      max_tokens: 3500,
-      response_format: { type: 'json_object' },
+      max_tokens: 8000,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         {

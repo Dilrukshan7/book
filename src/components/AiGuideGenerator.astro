@@ -361,40 +361,71 @@ import '../styles/generator.css';
 
         const decoder = new TextDecoder();
         let rawBuffer = '';
+        let lineBuffer = '';
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+          lineBuffer += decoder.decode(value, { stream: true });
+          const lines = lineBuffer.split('\n');
+          // Keep the last incomplete slice in the lineBuffer
+          lineBuffer = lines.pop() || '';
 
           for (const line of lines) {
             const trimmed = line.trim();
-            if (trimmed.startsWith('data: ')) {
-              const jsonStr = trimmed.replace('data: ', '');
-              if (jsonStr === '[DONE]') continue;
-              try {
-                const parsed = JSON.parse(jsonStr);
-                const token = parsed.choices?.[0]?.delta?.content || '';
-                rawBuffer += token;
-              } catch {
-                /* chunk fragment */
+            if (!trimmed || !trimmed.startsWith('data:')) continue;
+            const jsonStr = trimmed.replace(/^data:\s*/, '');
+            if (jsonStr === '[DONE]') continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const token =
+                parsed.choices?.[0]?.delta?.content ||
+                parsed.choices?.[0]?.message?.content ||
+                '';
+              rawBuffer += token;
+              if (statusText && rawBuffer.length > 0) {
+                statusText.textContent = `Streaming roadmap structure (${Math.round(rawBuffer.length / 4)} tokens received)...`;
               }
+            } catch {
+              /* chunk fragment */
             }
           }
         }
 
-        // Parse final JSON
-        // Find JSON boundaries
-        const firstBrace = rawBuffer.indexOf('{');
-        const lastBrace = rawBuffer.lastIndexOf('}');
+        // Parse final JSON with robust cleaning
+        let cleaned = rawBuffer
+          // Strip reasoning tags from models like DeepSeek / Nemotron
+          .replace(/<think>[\s\S]*?<\/think>/gi, '')
+          // Strip markdown code fences if present
+          .replace(/```(?:json)?/gi, '')
+          .replace(/```/g, '')
+          .trim();
+
+        // Extract content between first { and last }
+        const firstBrace = cleaned.indexOf('{');
+        const lastBrace = cleaned.lastIndexOf('}');
         if (firstBrace === -1 || lastBrace === -1) {
-          throw new Error('AI output was not in valid JSON format. Please try again.');
+          throw new Error('AI response did not contain a structured JSON object. Please try with another model or title.');
         }
 
-        const cleanJson = rawBuffer.slice(firstBrace, lastBrace + 1);
-        const bookData = JSON.parse(cleanJson);
+        let cleanJson = cleaned.slice(firstBrace, lastBrace + 1);
+
+        // Remove trailing commas before closing braces/brackets
+        cleanJson = cleanJson.replace(/,\s*([\]}])/g, '$1');
+
+        let bookData: any;
+        try {
+          bookData = JSON.parse(cleanJson);
+        } catch (jsonErr: any) {
+          // If JSON parse fails, try escaping unescaped newlines in string literals
+          try {
+            const sanitizedString = cleanJson.replace(/(?<=:\s*"[^"]*)\n(?=[^"]*")/g, '\\n');
+            bookData = JSON.parse(sanitizedString);
+          } catch {
+            throw new Error(`Failed to parse AI roadmap JSON: ${jsonErr.message}.`);
+          }
+        }
 
         if (bookData.error) {
           throw new Error(bookData.error);
