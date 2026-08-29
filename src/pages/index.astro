@@ -51,24 +51,33 @@ const jsonLd = {
 >
   {/* 1. Hero: asymmetric split, live specimen on the right */}
   <section class="u-page hero">
-    <div>
+    <div class="hero__intro">
+      <div class="hero__badge">
+        <span class="badge badge--accent">Scholarly Technical Roadmaps</span>
+      </div>
       <h1 class="hero__title">
         Free material for hard books,{' '}
         <span class="hero__em">in order</span>.
       </h1>
       <p class="hero__sub">
-        Lectures, sample chapters and problem sets, published free by the
-        people who wrote them. Sequenced section by section.
+        Lectures, sample chapters, and problem sets published free by the
+        authors and universities who created them. Sequenced section by section.
       </p>
       {
         featured && (
-          <div class="hero__actions">
-            <a class="btn" href={`/books/${featured.slug}`}>
-              Open the roadmap
-              <span class="btn__arrow" aria-hidden="true">
-                &#8594;
-              </span>
-            </a>
+          <div class="hero__action-group">
+            <div class="hero__actions">
+              <a class="btn" href={`/books/${featured.slug}`}>
+                <span>Open the roadmap</span>
+                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+              </a>
+              <a class="btn btn--secondary" href="/about">
+                <span>How it works</span>
+              </a>
+            </div>
+            <p class="hero__note">
+              No paywalls &middot; No accounts &middot; Progress kept on your device
+            </p>
           </div>
         )
       }
@@ -77,10 +86,10 @@ const jsonLd = {
     {
       featured && (
         <div class="specimen" data-reveal>
-          <p class="specimen__cap">
-            <span>{featured.parts[0]!.title}</span>
-            <span>Part {featured.parts[0]!.id}</span>
-          </p>
+          <div class="specimen__head">
+            <span class="specimen__tag">Interactive Preview</span>
+            <span class="specimen__part">Part {featured.parts[0]!.id}: {featured.parts[0]!.title}</span>
+          </div>
           <div class="specimen__rows">
             {specimen.map((row) => (
               <div
@@ -88,18 +97,21 @@ const jsonLd = {
                 data-read={row.read ? '' : undefined}
                 data-here={row.here ? '' : undefined}
               >
-                <span class="specimen__mark" />
+                <span class="specimen__mark" aria-hidden="true" />
                 <span class="specimen__code">{row.code}</span>
-                <span>
+                <div class="specimen__content">
                   <span class="specimen__name">{row.title}</span>
                   <span class="specimen__src">{row.sources}</span>
-                </span>
+                </div>
               </div>
             ))}
           </div>
-          <p class="specimen__legend">
-            Filled square, read. Red rule, where you left off.
-          </p>
+          <div class="specimen__foot">
+            <span class="specimen__legend-dot specimen__legend-dot--read" aria-hidden="true"></span>
+            <span>Read</span>
+            <span class="specimen__legend-dot specimen__legend-dot--here" aria-hidden="true"></span>
+            <span>Next up (where you left off)</span>
+          </div>
         </div>
       )
     }
@@ -107,9 +119,12 @@ const jsonLd = {
 
   {/* 2. Premise: single editorial column against a wide measure */}
   <section class="u-page u-band premise" data-reveal>
-    <h2 class="premise__lead">
-      The material is already free. It is almost never in the book's order.
-    </h2>
+    <div class="premise__header">
+      <span class="u-label">The Challenge</span>
+      <h2 class="premise__lead">
+        The material is already free. It is almost never in the book's order.
+      </h2>
+    </div>
     <div class="premise__body">
       <p>
         A serious textbook often has a great deal published around it. The
@@ -122,11 +137,9 @@ const jsonLd = {
         do not. The problem sets arrive as one combined file. Working out what
         to read after section I.7 means searching three sites, every time.
       </p>
-      <p>
-        <strong>
-          These roadmaps put that material back into the book's own sequence
-        </strong>{' '}
-        and keep your place in it.
+      <p class="premise__highlight">
+        <strong>These roadmaps put that material back into the book's own sequence</strong>{' '}
+        and keep your place in it automatically.
       </p>
     </div>
   </section>
@@ -136,7 +149,7 @@ const jsonLd = {
     featured && (
       <section class="u-page u-band" aria-labelledby="book-heading" data-reveal>
         <div class="record">
-          <div>
+          <div class="record__media">
             <BookCover
               title={featured.title}
               author={featured.author}
@@ -144,32 +157,35 @@ const jsonLd = {
             />
           </div>
 
-          <div>
+          <div class="record__info">
+            <div class="record__eyebrow">
+              <span class="badge">Featured Roadmap</span>
+              <span class="record__meta-pill">{featured.parts.length} Parts</span>
+              <span class="record__meta-pill">{totalSections(featured)} Sections</span>
+            </div>
+
             <h2 class="record__title" id="book-heading">
               <a href={`/books/${featured.slug}`}>{featured.title}</a>
             </h2>
             <p class="record__meta">
-              {featured.author}, {featured.year}. {totalSections(featured)}{' '}
-              sections across {featured.parts.length} parts.
+              <strong>{featured.author}</strong>, {featured.year} &middot; {featured.publisher}
             </p>
             <p class="record__blurb">{featured.description}</p>
 
-            <div class="record__parts">
+            <div class="record__parts" aria-label="Book parts overview">
               {featured.parts.map((part) => (
-                <p class="record__part">
-                  <span aria-hidden="true">{part.id}</span>
-                  <span>{part.title}</span>
-                  <span>{part.sections.length}</span>
-                </p>
+                <div class="record__part">
+                  <span class="record__part-id" aria-hidden="true">{part.id}</span>
+                  <span class="record__part-title">{part.title}</span>
+                  <span class="record__part-count">{part.sections.length} sections</span>
+                </div>
               ))}
             </div>
 
             <div class="record__actions">
-              <a class="btn btn--secondary" href={`/books/${featured.slug}`}>
-                Open the roadmap
-                <span class="btn__arrow" aria-hidden="true">
-                  &#8594;
-                </span>
+              <a class="btn" href={`/books/${featured.slug}`}>
+                <span>Explore this roadmap</span>
+                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
               </a>
             </div>
           </div>
@@ -180,10 +196,15 @@ const jsonLd = {
 
   {/* 4. What a roadmap carries: numbered sequence, no cards */}
   <section class="u-page u-band" aria-labelledby="seq-heading" data-reveal>
-    <h2 class="u-h2" id="seq-heading">What a roadmap carries</h2>
+    <div class="seq-head">
+      <span class="u-label">Features & Structure</span>
+      <h2 class="u-h2" id="seq-heading">What a roadmap carries</h2>
+    </div>
     <div class="seq">
       <div class="seq__item">
-        <p class="seq__num">01</p>
+        <div class="seq__badge">
+          <span class="seq__num">01</span>
+        </div>
         <h3 class="seq__title">The contents, in sequence</h3>
         <p class="seq__body">
           Every section of the book in the order the author wrote it, each one
@@ -192,7 +213,9 @@ const jsonLd = {
         </p>
       </div>
       <div class="seq__item">
-        <p class="seq__num">02</p>
+        <div class="seq__badge">
+          <span class="seq__num">02</span>
+        </div>
         <h3 class="seq__title">Your place, and how far in</h3>
         <p class="seq__body">
           Tick sections off as you read. The next one is marked, so returning
@@ -201,10 +224,12 @@ const jsonLd = {
         </p>
       </div>
       <div class="seq__item">
-        <p class="seq__num">03</p>
-        <h3 class="seq__title">Guides, where they help</h3>
+        <div class="seq__badge">
+          <span class="seq__num">03</span>
+        </div>
+        <h3 class="seq__title">Study guides, where they help</h3>
         <p class="seq__body">
-          For some sections we write our own: what the section is really
+          For key sections we write our own: what the section is really
           about, what it sets up later in the book, and where people
           reliably get stuck.
         </p>
@@ -213,28 +238,32 @@ const jsonLd = {
   </section>
 
   {/* 5. Position: ruled statement band */}
-  <section class="u-page u-band position" aria-labelledby="position-heading">
-    <h2 class="position__claim" id="position-heading">
-      What we host, and what we do not.
-    </h2>
-    <div class="position__body">
-      <p>
-        We host no copyrighted books, chapters or PDFs. None are in the
-        repository and none are served from this domain. Every reading link
-        points at the server of the author or the university that chose to
-        publish that material freely.
-      </p>
-      <p>
-        There is no account, no advertising, no tracking, and nothing for
-        sale. Your progress is kept in your own browser and is never sent
-        anywhere, because there is nowhere to send it. The site is static
-        files on a free tier, which is why it can stay this way.
-      </p>
-      <p>
-        Where a book is sold, we link to buy it. Following a roadmap is a
-        supplement to owning the book, not a replacement for it. The full
-        position is on the <a href="/copyright">copyright page</a>.
-      </p>
+  <section class="u-page u-band position" aria-labelledby="position-heading" data-reveal>
+    <div class="position__card">
+      <span class="u-label">Open Access Commitment</span>
+      <h2 class="position__claim" id="position-heading">
+        What we host, and what we do not.
+      </h2>
+      <div class="position__body">
+        <p>
+          We host no copyrighted books, chapters or PDFs. None are in the
+          repository and none are served from this domain. Every reading link
+          points at the server of the author or the university that chose to
+          publish that material freely.
+        </p>
+        <p>
+          There is no account, no advertising, no tracking, and nothing for
+          sale. Your progress is kept in your own browser and is never sent
+          anywhere, because there is nowhere to send it. The site is static
+          files on a free tier, which is why it can stay this way.
+        </p>
+        <p>
+          Where a book is sold, we link to buy it. Following a roadmap is a
+          supplement to owning the book, not a replacement for it. The full
+          position is on the <a href="/copyright">copyright page</a>.
+        </p>
+      </div>
     </div>
   </section>
 </BaseLayout>
+
