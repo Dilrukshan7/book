@@ -1,13 +1,5 @@
 /* ==========================================================================
    Landing page
-
-   Five sections, five different layout families, so nothing reads as a
-   repeated template:
-     1. hero            asymmetric split, live specimen on the right
-     2. premise         single editorial column, wide measure
-     3. the book        featured record, cover plus part index
-     4. what you get    numbered sequence, asymmetric grid
-     5. position        ruled statement band
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -16,36 +8,30 @@
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
   gap: var(--s-9);
   align-items: center;
   padding-top: var(--s-8);
   padding-bottom: var(--s-9);
-  min-height: min(76dvh, 640px);
+  min-height: min(78dvh, 680px);
 }
 
 .hero__title {
-  /* Sized and measured together so the headline sets in two lines at every
-     width. Three lines pushes the CTA toward the fold and reads as an
-     accident rather than a decision. */
-  font-size: clamp(2.25rem, 1.4rem + 3vw, 2.875rem);
-  line-height: 1.06;
+  font-size: clamp(2.35rem, 1.5rem + 3.2vw, 3.125rem);
+  line-height: 1.08;
   letter-spacing: var(--track-display);
   font-weight: 400;
-  max-width: 20ch;
-  /* Descender reserve lives on the block, not on the italic span. Putting it
-     on the span made the span taller than its own line box; here it protects
-     any descender the headline copy might later contain. */
-  padding-bottom: 0.09em;
+  max-width: 22ch;
+  padding-bottom: 0.1em;
 }
-/* Italic on the operative word. Same family, never a second face. */
 .hero__em {
   font-style: italic;
+  color: var(--ink);
 }
 
 .hero__sub {
   margin-top: var(--s-5);
-  max-width: 42ch;
+  max-width: 44ch;
   font-family: var(--face-sans);
   font-size: var(--t-lead);
   line-height: var(--lh-normal);
@@ -57,50 +43,75 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s-4);
-  margin-top: var(--s-6);
+  margin-top: var(--s-7);
 }
 
-/* The specimen is the real roadmap component with real rows, not a mock-up
-   of one. It shows the product instead of describing it. */
+/* --- Live Specimen Card -------------------------------------------------- */
+
 .specimen {
-  border-top: 2px solid var(--ink);
-  padding-top: var(--s-4);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-subtle);
+  padding: var(--s-5) var(--s-6);
 }
+
 .specimen__cap {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: var(--s-4);
+  padding-bottom: var(--s-3);
+  border-bottom: 1px solid var(--rule-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-micro);
+  font-weight: 600;
   letter-spacing: var(--track-label);
   text-transform: uppercase;
   color: var(--ink-3);
 }
+
 .specimen__rows {
-  margin-top: var(--s-3);
+  margin-top: var(--s-2);
 }
+
 .specimen__row {
   display: grid;
-  grid-template-columns: 0.875rem 2.75rem minmax(0, 1fr);
+  grid-template-columns: 1rem 3rem minmax(0, 1fr);
   align-items: baseline;
   gap: var(--s-3);
-  padding-block: var(--s-3);
-  border-bottom: 1px solid var(--rule);
+  padding: var(--s-3) var(--s-2);
+  border-bottom: 1px solid var(--rule-subtle);
+  transition: background var(--fast) var(--ease);
 }
+.specimen__row:last-child {
+  border-bottom: 0;
+}
+.specimen__row:hover {
+  background: var(--paper-subtle);
+}
+
 .specimen__mark {
-  width: 0.75rem;
-  height: 0.75rem;
+  width: 0.8125rem;
+  height: 0.8125rem;
   border: 1.5px solid var(--ink-4);
-  transform: translateY(0.15rem);
+  background: transparent;
+  transform: translateY(0.12rem);
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
 }
 .specimen__row[data-read] .specimen__mark {
   background: var(--ink);
   border-color: var(--ink);
 }
+.specimen__row[data-here] {
+  background: var(--accent-wash);
+  border-left: 2px solid var(--accent);
+  padding-left: calc(var(--s-2) + 2px);
+  margin-left: -2px;
+}
 .specimen__row[data-here] .specimen__mark {
   border-color: var(--accent);
 }
+
 .specimen__code {
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
@@ -109,26 +120,32 @@
 }
 .specimen__row[data-here] .specimen__code {
   color: var(--accent);
-  font-weight: 500;
+  font-weight: 600;
 }
+
 .specimen__name {
   display: block;
   font-size: var(--t-ui);
   line-height: 1.35;
+  font-weight: 500;
   color: var(--ink);
 }
 .specimen__row[data-read] .specimen__name {
   color: var(--ink-3);
 }
+
 .specimen__src {
   display: block;
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
   font-family: var(--face-sans);
   font-size: var(--t-micro);
   color: var(--ink-3);
 }
+
 .specimen__legend {
   margin-top: var(--s-4);
+  padding-top: var(--s-3);
+  border-top: 1px solid var(--rule-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-micro);
   color: var(--ink-3);
@@ -143,7 +160,7 @@
     padding-bottom: var(--s-8);
   }
   .hero__title {
-    max-width: 16ch;
+    max-width: 18ch;
   }
 }
 
@@ -154,16 +171,20 @@
 .premise {
   display: grid;
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-  gap: var(--s-8);
+  gap: var(--s-9);
   align-items: start;
 }
+
 .premise__lead {
-  font-size: clamp(1.375rem, 1rem + 1.4vw, 1.75rem);
-  line-height: 1.32;
+  font-size: clamp(1.45rem, 1.05rem + 1.5vw, 1.875rem);
+  line-height: 1.3;
   letter-spacing: var(--track-heading);
   color: var(--ink);
   font-weight: 400;
+  border-left: 3px solid var(--ink);
+  padding-left: var(--s-4);
 }
+
 .premise__body {
   max-width: 60ch;
 }
@@ -178,7 +199,7 @@
 }
 .premise__body strong {
   color: var(--ink);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 @media (max-width: 860px) {
@@ -189,34 +210,40 @@
 }
 
 /* --------------------------------------------------------------------------
-   3. The book, as a featured record
+   3. The Book: Featured Record
    -------------------------------------------------------------------------- */
 
 .record {
   display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr);
+  grid-template-columns: 12rem minmax(0, 1fr);
   gap: var(--s-8);
   align-items: start;
-  padding-top: var(--s-6);
+  padding: var(--s-7);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-subtle);
+  transition: border-color var(--mid) var(--ease);
+}
+.record:hover {
+  border-color: var(--rule-strong);
 }
 
-/* Typographic cover. We never reproduce the publisher's cover art, so this
-   is our own object: ruled, set in the book face, proportioned 2:3. */
+/* Typographic Cover */
 .cover {
   position: relative;
   aspect-ratio: 2 / 3;
   padding: var(--s-4);
-  background: var(--paper-raised);
+  background: var(--paper-subtle);
   border: 1px solid var(--rule-strong);
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-subtle);
   transition: border-color var(--mid) var(--ease);
 }
 .record:hover .cover {
   border-color: var(--ink);
 }
 .cover::after {
-  /* Spine: a single rule, the only structural ornament on the object. */
   content: '';
   position: absolute;
   inset: 0 auto 0 0.55rem;
@@ -234,10 +261,7 @@
   width: 3rem;
 }
 
-/* --- Cover motif --------------------------------------------------------
-   A drawn diagram of what the book is about, in the chart palette. The
-   blocks are in true proportion, so the picture states the low-rank idea
-   rather than gesturing at it. */
+/* Cover Motif SVG */
 .cover__motif {
   width: 100%;
   height: auto;
@@ -279,8 +303,6 @@
   font-style: normal;
 }
 
-/* The three factors settle into place once, on entry. The order is the
-   order you would write them: U, then sigma, then V-transpose. */
 @media (prefers-reduced-motion: no-preference) {
   .cover__motif .m-fill-1,
   .cover__motif .m-fill-2,
@@ -303,7 +325,7 @@
 }
 
 .cover__title {
-  font-size: 1rem;
+  font-size: 1.0625rem;
   line-height: 1.22;
   letter-spacing: -0.015em;
   color: var(--ink);
@@ -313,16 +335,17 @@
   margin-top: auto;
   font-family: var(--face-sans);
   font-size: var(--t-micro);
+  font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--ink-3);
 }
 
 .record__title {
-  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 2rem);
-  line-height: 1.14;
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.125rem);
+  line-height: 1.15;
   letter-spacing: var(--track-display);
   font-weight: 400;
-  max-width: 20ch;
+  max-width: 22ch;
 }
 .record__title a {
   color: inherit;
@@ -330,30 +353,32 @@
   background-image: linear-gradient(var(--accent), var(--accent));
   background-repeat: no-repeat;
   background-position: 0 100%;
-  background-size: 0% 1px;
+  background-size: 0% 2px;
   transition: background-size var(--mid) var(--ease);
 }
 .record:hover .record__title a {
-  background-size: 100% 1px;
+  background-size: 100% 2px;
 }
+
 .record__meta {
   margin-top: var(--s-3);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   color: var(--ink-3);
 }
+
 .record__blurb {
   margin-top: var(--s-4);
-  max-width: 56ch;
+  max-width: 58ch;
   font-family: var(--face-sans);
   font-size: var(--t-ui);
   line-height: var(--lh-normal);
   color: var(--ink-3);
 }
 
-/* Part index: proves the depth of the roadmap without a screenshot. */
+/* Part Index */
 .record__parts {
-  margin-top: var(--s-5);
+  margin-top: var(--s-6);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
   gap: 0 var(--s-6);
@@ -363,8 +388,8 @@
   grid-template-columns: 2rem minmax(0, 1fr) auto;
   align-items: baseline;
   gap: var(--s-2);
-  padding-block: 0.45rem;
-  border-bottom: 1px solid var(--rule);
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--rule-subtle);
   font-family: var(--face-sans);
   font-size: var(--t-sm);
   color: var(--ink-2);
@@ -372,6 +397,7 @@
 .record__part span:first-child {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
+  font-weight: 500;
   color: var(--ink-3);
 }
 .record__part span:last-child {
@@ -382,51 +408,59 @@
 }
 
 .record__actions {
-  margin-top: var(--s-6);
+  margin-top: var(--s-7);
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
   .record {
-    grid-template-columns: 7.5rem minmax(0, 1fr);
-    gap: var(--s-5);
+    grid-template-columns: 1fr;
+    gap: var(--s-6);
+    padding: var(--s-5);
   }
   .cover {
+    max-width: 10rem;
     padding: var(--s-3);
-  }
-  .cover__title {
-    font-size: 0.8125rem;
   }
 }
 
 /* --------------------------------------------------------------------------
-   4. What you get, as a numbered sequence
+   4. What a Roadmap Carries (Numbered Sequence)
    -------------------------------------------------------------------------- */
 
 .seq {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--s-7);
+  gap: var(--s-6);
   margin-top: var(--s-6);
 }
-/* Deliberately not three equal cards: no borders, no boxes, and the first
-   item is given a wider measure so the row is not a mechanical triptych. */
-.seq__item:first-child {
-  grid-column: span 1;
+
+.seq__item {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  padding: var(--s-6);
+  box-shadow: var(--shadow-subtle);
+  display: flex;
+  flex-direction: column;
 }
+
 .seq__num {
   font-family: var(--face-mono);
   font-size: var(--t-micro);
+  font-weight: 600;
   color: var(--accent);
   letter-spacing: 0.08em;
 }
+
 .seq__title {
   margin-top: var(--s-3);
   padding-top: var(--s-3);
-  border-top: 1px solid var(--ink);
+  border-top: 1px solid var(--rule-subtle);
   font-size: var(--t-h4);
   line-height: 1.25;
   font-weight: 500;
+  color: var(--ink);
 }
+
 .seq__body {
   margin-top: var(--s-3);
   font-family: var(--face-sans);
@@ -438,28 +472,26 @@
 @media (max-width: 860px) {
   .seq {
     grid-template-columns: 1fr;
-    gap: var(--s-6);
+    gap: var(--s-5);
   }
 }
 
 /* --------------------------------------------------------------------------
-   5. Position statement
+   5. Position Statement
    -------------------------------------------------------------------------- */
 
-/* A full-width claim over a two-column text set. Deliberately not another
-   left-statement / right-body split: the premise section already uses that
-   composition, and repeating it would make the page read as a template. */
 .position__claim {
-  max-width: 28ch;
-  font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem);
+  max-width: 32ch;
+  font-size: clamp(1.55rem, 1.15rem + 1.6vw, 2.125rem);
   line-height: 1.2;
   letter-spacing: var(--track-display);
   font-weight: 400;
   color: var(--ink);
 }
+
 .position__body {
   margin-top: var(--s-6);
-  padding-top: var(--s-5);
+  padding-top: var(--s-6);
   border-top: 1px solid var(--rule);
   columns: 2;
   column-gap: var(--s-8);
@@ -480,9 +512,11 @@
   text-decoration: underline;
   text-decoration-color: var(--ink-4);
   text-underline-offset: 0.16em;
+  transition: text-decoration-color var(--fast) var(--ease), color var(--fast) var(--ease);
 }
 .position__body a:hover {
   text-decoration-color: var(--accent);
+  color: var(--accent-deep);
 }
 
 @media (max-width: 860px) {
@@ -490,3 +524,4 @@
     columns: 1;
   }
 }
+
