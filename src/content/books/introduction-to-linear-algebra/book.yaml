@@ -4,6 +4,12 @@ author: Gilbert Strang
 year: 2023
 publisher: Wellesley-Cambridge Press
 isbn: "978-1-7331466-7-8"
+edition: "Sixth Edition"
+level: introductory
+subjects:
+  - Linear Algebra
+  - Applied Mathematics
+  - Data Science
 order: 2
 status: available
 

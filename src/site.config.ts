@@ -34,7 +34,7 @@ export const SITE = {
 
 /** Primary navigation, rendered in the site header. */
 export const NAV = [
-  { label: 'Books', href: '/' },
+  { label: 'Books', href: '/books' },
   { label: 'About', href: '/about' },
   { label: 'Copyright', href: '/copyright' },
 ] as const;

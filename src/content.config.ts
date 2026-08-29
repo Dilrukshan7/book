@@ -84,6 +84,9 @@ const bookSchema = z
     year: z.number().int(),
     publisher: z.string().optional(),
     isbn: z.string().optional(),
+    edition: z.string().optional(),
+    subjects: z.array(z.string()).default([]),
+    level: z.enum(['introductory', 'intermediate', 'advanced']).default('intermediate'),
     tagline: z.string().min(1),
     description: z.string().min(1),
 

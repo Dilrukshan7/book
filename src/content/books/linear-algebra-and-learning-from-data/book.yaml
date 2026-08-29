@@ -4,6 +4,13 @@ author: Gilbert Strang
 year: 2019
 publisher: Wellesley-Cambridge Press
 isbn: "978-0-692-19638-0"
+edition: "First Edition"
+level: advanced
+subjects:
+  - Linear Algebra
+  - Deep Learning
+  - Optimization
+  - Data Science
 order: 1
 status: available
 

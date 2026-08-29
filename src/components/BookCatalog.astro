@@ -1,0 +1,550 @@
+---
+import type { Book } from '../lib/books';
+import { totalSections } from '../lib/books';
+import BookCover from './BookCover.astro';
+import '../styles/catalog.css';
+
+interface Props {
+  books: Book[];
+}
+
+const { books } = Astro.props;
+
+// Extract all unique subjects across the library
+const allSubjects = Array.from(
+  new Set(books.flatMap((b) => b.subjects ?? [])),
+).sort();
+
+const allLevels = [
+  { id: 'all', label: 'All Levels' },
+  { id: 'introductory', label: 'Introductory' },
+  { id: 'intermediate', label: 'Intermediate' },
+  { id: 'advanced', label: 'Advanced' },
+];
+---
+
+<div class="catalog" data-catalog>
+  {/* 1. Explorer Toolbar */}
+  <div class="catalog__toolbar">
+    <div class="catalog__search-row">
+      <div class="catalog__search-wrap">
+        <svg
+          class="catalog__search-icon"
+          viewBox="0 0 20 20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          aria-hidden="true"
+        >
+          <circle cx="8.5" cy="8.5" r="5.5" />
+          <path d="M12.5 12.5L17 17" stroke-linecap="round" />
+        </svg>
+        <input
+          type="search"
+          class="catalog__search"
+          placeholder="Search by title, author, topic, ISBN, or course..."
+          aria-label="Search technical roadmaps"
+          data-catalog-search
+        />
+      </div>
+
+      <div class="catalog__controls">
+        <label class="u-sr" for="catalog-sort">Sort roadmaps by</label>
+        <select id="catalog-sort" class="catalog__select" data-catalog-sort>
+          <option value="order">Curated Order</option>
+          <option value="year-desc">Newest First</option>
+          <option value="title-asc">Title (A &rarr; Z)</option>
+          <option value="sections-desc">Most Sections</option>
+        </select>
+
+        <label class="u-sr" for="catalog-progress">Filter by your reading progress</label>
+        <select id="catalog-progress" class="catalog__select" data-catalog-progress-filter>
+          <option value="all">All Progress</option>
+          <option value="in-progress">In Progress</option>
+          <option value="completed">Completed</option>
+          <option value="not-started">Not Started</option>
+        </select>
+      </div>
+
+      <div class="catalog__view-toggle" role="group" aria-label="Layout alignment view">
+        <button
+          type="button"
+          class="catalog__view-btn"
+          data-view-btn="grid"
+          aria-pressed="true"
+          title="Visual Cover Grid View"
+        >
+          <span aria-hidden="true">&#9638;</span>
+          <span>Grid</span>
+        </button>
+        <button
+          type="button"
+          class="catalog__view-btn"
+          data-view-btn="rows"
+          aria-pressed="false"
+          title="High-Density Editorial Rows View"
+        >
+          <span aria-hidden="true">&#9776;</span>
+          <span>List</span>
+        </button>
+      </div>
+    </div>
+
+    {/* Subject & Level Filter Pills */}
+    <div class="catalog__filter-row" role="group" aria-label="Filter by subject topic">
+      <span class="catalog__filter-label">Topic:</span>
+      <button
+        type="button"
+        class="catalog__filter-chip"
+        data-subject-filter=""
+        aria-pressed="true"
+      >
+        All
+      </button>
+      {
+        allSubjects.map((subject) => (
+          <button
+            type="button"
+            class="catalog__filter-chip"
+            data-subject-filter={subject}
+            aria-pressed="false"
+          >
+            {subject}
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="catalog__filter-row" role="group" aria-label="Filter by level">
+      <span class="catalog__filter-label">Level:</span>
+      {
+        allLevels.map((lvl) => (
+          <button
+            type="button"
+            class="catalog__filter-chip"
+            data-level-filter={lvl.id === 'all' ? '' : lvl.id}
+            aria-pressed={lvl.id === 'all' ? 'true' : 'false'}
+          >
+            {lvl.label}
+          </button>
+        ))
+      }
+    </div>
+
+    {/* Status Bar */}
+    <div class="catalog__status-bar">
+      <span class="catalog__count" data-catalog-count aria-live="polite">
+        Showing {books.length} of {books.length} roadmaps
+      </span>
+      <button type="button" class="catalog__clear-btn" data-catalog-clear hidden>
+        Clear filters
+      </button>
+    </div>
+  </div>
+
+  {/* 2. Visual Grid View */}
+  <div class="catalog__grid" data-catalog-grid>
+    {
+      books.map((book) => {
+        const sectionsCount = totalSections(book);
+        return (
+          <article
+            class="catalog-card"
+            data-book-item
+            data-slug={book.slug}
+            data-title={book.title.toLowerCase()}
+            data-author={book.author.toLowerCase()}
+            data-year={book.year}
+            data-order={book.order}
+            data-sections={sectionsCount}
+            data-level={book.level ?? 'intermediate'}
+            data-subjects={(book.subjects ?? []).join(',').toLowerCase()}
+            data-isbn={(book.isbn ?? '').toLowerCase()}
+            data-search={`${book.title} ${book.author} ${book.year} ${book.isbn ?? ''} ${(book.subjects ?? []).join(' ')} ${book.description} ${book.course?.name ?? ''}`.toLowerCase()}
+          >
+            <div class="catalog-card__head">
+              <div class="catalog-card__media">
+                <BookCover
+                  title={book.title}
+                  author={book.author}
+                  motif={book.coverMotif}
+                />
+              </div>
+
+              <div class="catalog-card__meta">
+                <div class="catalog-card__badges">
+                  {book.edition && (
+                    <span class="badge badge--accent">{book.edition}</span>
+                  )}
+                  {book.level && (
+                    <span class="record__meta-pill" style="text-transform: capitalize;">
+                      {book.level}
+                    </span>
+                  )}
+                </div>
+
+                <h3 class="catalog-card__title">
+                  <a href={`/books/${book.slug}`}>{book.title}</a>
+                </h3>
+
+                <p class="catalog-card__byline">
+                  <strong>{book.author}</strong> &middot; {book.year}
+                </p>
+
+                <p class="catalog-card__desc">{book.description}</p>
+              </div>
+            </div>
+
+            {book.subjects && book.subjects.length > 0 && (
+              <div class="catalog-card__subjects">
+                {book.subjects.map((sub) => (
+                  <span class="catalog-card__subject-tag">{sub}</span>
+                ))}
+              </div>
+            )}
+
+            {/* Reading progress gauge */}
+            <div class="catalog-card__progress-wrap" data-card-progress-wrap>
+              <div class="catalog-card__progress-head">
+                <span>Reading Progress</span>
+                <span data-card-progress-pct>0%</span>
+              </div>
+              <div class="catalog-card__progress-track" aria-hidden="true">
+                <div class="catalog-card__progress-fill" data-card-progress-fill></div>
+              </div>
+            </div>
+
+            <div class="catalog-card__foot">
+              <div class="catalog-card__stats">
+                <span>{book.parts.length} Parts &middot; {sectionsCount} Sections</span>
+              </div>
+
+              <a class="btn btn--secondary" href={`/books/${book.slug}`}>
+                <span>Roadmap</span>
+                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+              </a>
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+
+  {/* 3. High-Density Editorial Rows View */}
+  <div class="catalog__rows" data-catalog-rows hidden>
+    {
+      books.map((book) => {
+        const sectionsCount = totalSections(book);
+        return (
+          <div
+            class="catalog-row"
+            data-book-item
+            data-slug={book.slug}
+            data-title={book.title.toLowerCase()}
+            data-author={book.author.toLowerCase()}
+            data-year={book.year}
+            data-order={book.order}
+            data-sections={sectionsCount}
+            data-level={book.level ?? 'intermediate'}
+            data-subjects={(book.subjects ?? []).join(',').toLowerCase()}
+            data-isbn={(book.isbn ?? '').toLowerCase()}
+            data-search={`${book.title} ${book.author} ${book.year} ${book.isbn ?? ''} ${(book.subjects ?? []).join(' ')} ${book.description} ${book.course?.name ?? ''}`.toLowerCase()}
+          >
+            <div>
+              <h3 class="catalog-row__title">
+                <a href={`/books/${book.slug}`}>{book.title}</a>
+              </h3>
+              <span class="catalog-card__stats">
+                {book.parts.length} Parts &middot; {sectionsCount} Sections
+                {book.edition ? ` \u00B7 ${book.edition}` : ''}
+              </span>
+            </div>
+
+            <div class="catalog-row__author">
+              <span>{book.author} ({book.year})</span>
+            </div>
+
+            <div class="catalog-row__level">
+              <span class="record__meta-pill" style="text-transform: capitalize;">
+                {book.level ?? 'intermediate'}
+              </span>
+            </div>
+
+            <div class="catalog-row__progress">
+              <div class="catalog-row__progress-text">
+                <span data-row-progress-text>0% completed</span>
+              </div>
+              <div class="catalog-row__progress-track" aria-hidden="true">
+                <div class="catalog-row__progress-fill" data-row-progress-fill></div>
+              </div>
+            </div>
+
+            <div class="catalog-row__action">
+              <a class="btn btn--secondary" href={`/books/${book.slug}`}>
+                <span>Open &rarr;</span>
+              </a>
+            </div>
+          </div>
+        );
+      })
+    }
+  </div>
+
+  {/* 4. Empty State */}
+  <div class="catalog__empty" data-catalog-empty hidden>
+    <h3 class="catalog__empty-title">No roadmaps found</h3>
+    <p class="catalog__empty-text">
+      No technical roadmap matches your current search and filter combination.
+    </p>
+    <div class="catalog__empty-action">
+      <button type="button" class="btn" data-catalog-clear>
+        Clear all filters
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { createStorage, keys, readJSON } from '../lib/storage';
+
+  function initCatalog() {
+    const root = document.querySelector<HTMLElement>('[data-catalog]');
+    if (!root) return;
+
+    const storage = createStorage();
+    const searchInput = root.querySelector<HTMLInputElement>('[data-catalog-search]');
+    const sortSelect = root.querySelector<HTMLSelectElement>('[data-catalog-sort]');
+    const progressSelect = root.querySelector<HTMLSelectElement>('[data-catalog-progress-filter]');
+    const countEl = root.querySelector<HTMLElement>('[data-catalog-count]');
+    const clearBtnList = root.querySelectorAll<HTMLElement>('[data-catalog-clear]');
+    const gridContainer = root.querySelector<HTMLElement>('[data-catalog-grid]');
+    const rowsContainer = root.querySelector<HTMLElement>('[data-catalog-rows]');
+    const emptyState = root.querySelector<HTMLElement>('[data-catalog-empty]');
+    const viewButtons = root.querySelectorAll<HTMLButtonElement>('[data-view-btn]');
+    const subjectButtons = root.querySelectorAll<HTMLButtonElement>('[data-subject-filter]');
+    const levelButtons = root.querySelectorAll<HTMLButtonElement>('[data-level-filter]');
+
+    const items = Array.from(root.querySelectorAll<HTMLElement>('[data-book-item]'));
+
+    // Cache book progress data from localStorage
+    const progressMap = new Map<string, { done: number; total: number; pct: number }>();
+    const uniqueSlugs = Array.from(new Set(items.map((it) => it.dataset.slug!)));
+
+    uniqueSlugs.forEach((slug) => {
+      interface BookProgressData {
+        readSections?: Record<string, unknown>;
+      }
+      const state = readJSON<BookProgressData>(storage, keys.progress(slug), {
+        readSections: {},
+      });
+      const totalSectionsCount = Number(
+        items.find((it) => it.dataset.slug === slug)?.dataset.sections ?? 1,
+      );
+      const doneCount = state.readSections ? Object.keys(state.readSections).length : 0;
+      const pct = Math.min(100, Math.round((doneCount / totalSectionsCount) * 100));
+      progressMap.set(slug, { done: doneCount, total: totalSectionsCount, pct });
+    });
+
+    // Update UI progress indicators
+    items.forEach((item) => {
+      const slug = item.dataset.slug!;
+      const info = progressMap.get(slug);
+      if (!info) return;
+
+      const cardPct = item.querySelector<HTMLElement>('[data-card-progress-pct]');
+      const cardFill = item.querySelector<HTMLElement>('[data-card-progress-fill]');
+      const rowText = item.querySelector<HTMLElement>('[data-row-progress-text]');
+      const rowFill = item.querySelector<HTMLElement>('[data-row-progress-fill]');
+
+      if (cardPct) cardPct.textContent = `${info.pct}%`;
+      if (cardFill) cardFill.style.width = `${info.pct}%`;
+      if (rowText) rowText.textContent = `${info.pct}% (${info.done}/${info.total})`;
+      if (rowFill) rowFill.style.width = `${info.pct}%`;
+    });
+
+    // Filter State
+    let currentSearch = '';
+    let currentSubject = '';
+    let currentLevel = '';
+    let currentProgress = 'all';
+    let currentSort = 'order';
+    let currentView: 'grid' | 'rows' =
+      (localStorage.getItem('readbooks:catalog_view') as 'grid' | 'rows') || 'grid';
+
+    function setView(view: 'grid' | 'rows') {
+      currentView = view;
+      localStorage.setItem('readbooks:catalog_view', view);
+      if (gridContainer) gridContainer.hidden = view !== 'grid';
+      if (rowsContainer) rowsContainer.hidden = view !== 'rows';
+
+      viewButtons.forEach((btn) => {
+        btn.setAttribute('aria-pressed', btn.dataset.viewBtn === view ? 'true' : 'false');
+      });
+    }
+
+    setView(currentView);
+
+    viewButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetView = btn.dataset.viewBtn as 'grid' | 'rows';
+        if (targetView) setView(targetView);
+      });
+    });
+
+    function applyFiltersAndSort() {
+      const q = currentSearch.trim().toLowerCase();
+      let visibleGridCount = 0;
+
+      // Filter
+      items.forEach((item) => {
+        const slug = item.dataset.slug!;
+        const searchStr = item.dataset.search ?? '';
+        const level = item.dataset.level ?? '';
+        const subjectsStr = item.dataset.subjects ?? '';
+        const progressInfo = progressMap.get(slug);
+
+        let matchesSearch = !q || searchStr.includes(q);
+        let matchesSubject = !currentSubject || subjectsStr.includes(currentSubject.toLowerCase());
+        let matchesLevel = !currentLevel || level === currentLevel;
+
+        let matchesProgress = true;
+        if (currentProgress === 'in-progress') {
+          matchesProgress = Boolean(progressInfo && progressInfo.pct > 0 && progressInfo.pct < 100);
+        } else if (currentProgress === 'completed') {
+          matchesProgress = Boolean(progressInfo && progressInfo.pct === 100);
+        } else if (currentProgress === 'not-started') {
+          matchesProgress = Boolean(!progressInfo || progressInfo.pct === 0);
+        }
+
+        const isVisible = matchesSearch && matchesSubject && matchesLevel && matchesProgress;
+        item.hidden = !isVisible;
+
+        if (isVisible && item.classList.contains('catalog-card')) {
+          visibleGridCount++;
+        }
+      });
+
+      // Sort
+      function sortContainer(container: HTMLElement | null) {
+        if (!container) return;
+        const containerItems = Array.from(container.querySelectorAll<HTMLElement>('[data-book-item]'));
+
+        containerItems.sort((a, b) => {
+          if (currentSort === 'year-desc') {
+            return Number(b.dataset.year) - Number(a.dataset.year);
+          }
+          if (currentSort === 'title-asc') {
+            return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+          }
+          if (currentSort === 'sections-desc') {
+            return Number(b.dataset.sections) - Number(a.dataset.sections);
+          }
+          // Default: order
+          return Number(a.dataset.order) - Number(b.dataset.order);
+        });
+
+        containerItems.forEach((it) => container.appendChild(it));
+      }
+
+      sortContainer(gridContainer);
+      sortContainer(rowsContainer);
+
+      // Status text & Clear button
+      const totalAvailable = uniqueSlugs.length;
+      if (countEl) {
+        countEl.textContent = `Showing ${visibleGridCount} of ${totalAvailable} roadmaps`;
+      }
+
+      const hasActiveFilters = Boolean(
+        q || currentSubject || currentLevel || currentProgress !== 'all',
+      );
+      clearBtnList.forEach((btn) => {
+        btn.hidden = !hasActiveFilters;
+      });
+
+      if (emptyState) {
+        emptyState.hidden = visibleGridCount > 0;
+      }
+    }
+
+    // Search event
+    searchInput?.addEventListener('input', (e) => {
+      currentSearch = (e.target as HTMLInputElement).value;
+      applyFiltersAndSort();
+    });
+
+    // Sort event
+    sortSelect?.addEventListener('change', (e) => {
+      currentSort = (e.target as HTMLSelectElement).value;
+      applyFiltersAndSort();
+    });
+
+    // Progress filter event
+    progressSelect?.addEventListener('change', (e) => {
+      currentProgress = (e.target as HTMLSelectElement).value;
+      applyFiltersAndSort();
+    });
+
+    // Subject chip events
+    subjectButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentSubject = btn.dataset.subjectFilter ?? '';
+        subjectButtons.forEach((b) =>
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'),
+        );
+        applyFiltersAndSort();
+      });
+    });
+
+    // Level chip events
+    levelButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        currentLevel = btn.dataset.levelFilter ?? '';
+        levelButtons.forEach((b) =>
+          b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'),
+        );
+        applyFiltersAndSort();
+      });
+    });
+
+    // Clear filters
+    function clearAll() {
+      currentSearch = '';
+      currentSubject = '';
+      currentLevel = '';
+      currentProgress = 'all';
+      if (searchInput) searchInput.value = '';
+      if (progressSelect) progressSelect.value = 'all';
+      subjectButtons.forEach((b) =>
+        b.setAttribute('aria-pressed', !b.dataset.subjectFilter ? 'true' : 'false'),
+      );
+      levelButtons.forEach((b) =>
+        b.setAttribute('aria-pressed', !b.dataset.levelFilter ? 'true' : 'false'),
+      );
+      applyFiltersAndSort();
+    }
+
+    clearBtnList.forEach((btn) => btn.addEventListener('click', clearAll));
+
+    // Keyboard shortcut: '/' focuses search
+    window.addEventListener('keydown', (e) => {
+      if (
+        e.key === '/' &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
+        e.preventDefault();
+        searchInput?.focus();
+      }
+    });
+
+    applyFiltersAndSort();
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCatalog);
+  } else {
+    initCatalog();
+  }
+</script>

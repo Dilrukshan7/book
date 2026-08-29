@@ -1,8 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import BookCover from '../components/BookCover.astro';
-import { resolveSectionLinks, totalSections } from '../lib/books';
+import BookCatalog from '../components/BookCatalog.astro';
+import { resolveSectionLinks } from '../lib/books';
 import { SITE } from '../site.config';
 import '../styles/home.css';
 
@@ -147,69 +147,14 @@ const jsonLd = {
   {/* 3. The books: all available roadmaps */}
   <section class="u-page u-band books-catalog" aria-labelledby="books-heading" data-reveal>
     <div class="books-catalog__head">
-      <span class="u-label">Roadmaps Catalog</span>
-      <h2 class="u-h2" id="books-heading">All Available Roadmaps</h2>
+      <span class="u-label">Roadmaps Catalog &amp; Discovery</span>
+      <h2 class="u-h2" id="books-heading">Explore Technical Roadmaps</h2>
       <p class="books-catalog__sub">
-        Structured step-by-step paths through technical books with free lectures and problem sets.
+        Structured step-by-step paths through hard textbooks, with free lectures, problem sets, and personal progress tracking.
       </p>
     </div>
 
-    <div class="records-list">
-      {
-        available.map((book) => (
-          <div class="record" id={`book-${book.slug}`}>
-            <div class="record__media">
-              <BookCover
-                title={book.title}
-                author={book.author}
-                motif={book.coverMotif}
-              />
-            </div>
-
-            <div class="record__info">
-              <div class="record__eyebrow">
-                <span class="badge">Roadmap</span>
-                <span class="record__meta-pill">{book.parts.length} Parts</span>
-                <span class="record__meta-pill">{totalSections(book)} Sections</span>
-                {book.isbn && <span class="record__meta-pill">ISBN {book.isbn}</span>}
-              </div>
-
-              <h3 class="record__title">
-                <a href={`/books/${book.slug}`}>{book.title}</a>
-              </h3>
-              <p class="record__meta">
-                <strong>{book.author}</strong>, {book.year}{book.publisher ? ` \u00B7 ${book.publisher}` : ''}
-              </p>
-              <p class="record__blurb">{book.description}</p>
-
-              <div class="record__parts" aria-label="Book parts overview">
-                {book.parts.slice(0, 4).map((part) => (
-                  <div class="record__part">
-                    <span class="record__part-id" aria-hidden="true">{part.id}</span>
-                    <span class="record__part-title">{part.title}</span>
-                    <span class="record__part-count">{part.sections.length} sections</span>
-                  </div>
-                ))}
-                {book.parts.length > 4 && (
-                  <div class="record__part record__part--more">
-                    <span class="record__part-id" aria-hidden="true">+</span>
-                    <span class="record__part-title">and {book.parts.length - 4} more parts</span>
-                    <span class="record__part-count">{totalSections(book)} total</span>
-                  </div>
-                )}
-              </div>
-
-              <div class="record__actions">
-                <a class="btn" href={`/books/${book.slug}`}>
-                  <span>Open the roadmap</span>
-                  <span class="btn__arrow" aria-hidden="true">&#8594;</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        ))
-      }
-    </div>
+    <BookCatalog books={available} />
   </section>
 
   {/* 4. What a roadmap carries: numbered sequence, no cards */}
