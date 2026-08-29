@@ -1,0 +1,459 @@
+---
+import '../styles/generator.css';
+---
+
+{/* Launcher Button */}
+<button
+  type="button"
+  class="generator-launcher-btn"
+  data-generator-trigger
+  aria-haspopup="dialog"
+  aria-expanded="false"
+>
+  <span class="generator-launcher-btn__sparkle" aria-hidden="true">&#10024;</span>
+  <span>AI Roadmap Generator</span>
+</button>
+
+{/* Modal Dialog */}
+<div
+  class="generator-modal"
+  id="ai-generator-modal"
+  data-generator-modal
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="generator-modal-title"
+  hidden
+>
+  <div class="generator-dialog" data-generator-dialog>
+    {/* Header */}
+    <header class="generator-header">
+      <div class="generator-header__title-group">
+        <span class="badge badge--accent">Studio</span>
+        <h2 class="generator-header__title" id="generator-modal-title">
+          AI Technical Roadmap Generator
+        </h2>
+      </div>
+      <button
+        type="button"
+        class="generator-header__close"
+        data-generator-close
+        aria-label="Close generator modal"
+      >
+        &times;
+      </button>
+    </header>
+
+    {/* Body */}
+    <div class="generator-body">
+      <p class="u-text-sm" style="color: var(--ink-3); margin: 0;">
+        Enter any technical textbook title, ISBN, or course name. Our AI engine generates a structured section-by-section roadmap, prerequisite checklist, and links formatted for ReadBooks.
+      </p>
+
+      {/* Form */}
+      <form class="generator-form" data-generator-form>
+        <div class="generator-input-wrap">
+          <input
+            type="text"
+            class="generator-input"
+            placeholder="e.g. ISBN 978-0262033848, or 'Introduction to Algorithms'..."
+            maxlength="250"
+            required
+            data-generator-input
+          />
+          <button type="submit" class="generator-submit" data-generator-submit>
+            <span>Generate Roadmap</span>
+            <span aria-hidden="true">&#8594;</span>
+          </button>
+        </div>
+
+        {/* Quick Example Suggestions */}
+        <div class="generator-suggestions">
+          <span class="generator-suggestions__label">Examples:</span>
+          <button
+            type="button"
+            class="generator-chip"
+            data-suggest="Introduction to Algorithms by Cormen, Leiserson, Rivest, Stein"
+          >
+            CLRS Algorithms
+          </button>
+          <button
+            type="button"
+            class="generator-chip"
+            data-suggest="Quantum Computation and Quantum Information by Nielsen & Chuang"
+          >
+            Nielsen &amp; Chuang
+          </button>
+          <button
+            type="button"
+            class="generator-chip"
+            data-suggest="Convex Optimization by Stephen Boyd and Lieven Vandenberghe"
+          >
+            Boyd Convex Optimization
+          </button>
+        </div>
+      </form>
+
+      {/* Status Bar */}
+      <div class="generator-status" data-generator-status hidden>
+        <div class="generator-pulse" aria-hidden="true"></div>
+        <span data-generator-status-text>Synthesizing textbook curriculum and chapters...</span>
+      </div>
+
+      {/* Error Notice */}
+      <div class="notice notice--alert" data-generator-error hidden>
+        <p data-generator-error-text></p>
+      </div>
+
+      {/* Result Workspace */}
+      <div class="generator-result" data-generator-result hidden>
+        <div class="generator-tabs" role="tablist" aria-label="Roadmap display formats">
+          <button
+            type="button"
+            class="generator-tab-btn"
+            role="tab"
+            aria-selected="true"
+            data-tab="visual"
+          >
+            Visual Roadmap Preview
+          </button>
+          <button
+            type="button"
+            class="generator-tab-btn"
+            role="tab"
+            aria-selected="false"
+            data-tab="yaml"
+          >
+            Raw book.yaml
+          </button>
+        </div>
+
+        {/* Visual Tab */}
+        <div class="generator-panel" data-panel="visual">
+          <div class="generator-preview-card" data-preview-card>
+            {/* Populated dynamically */}
+          </div>
+        </div>
+
+        {/* YAML Tab */}
+        <div class="generator-panel" data-panel="yaml" hidden>
+          <div class="generator-code-wrap">
+            <pre class="generator-code-block"><code data-generator-yaml></code></pre>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div class="generator-actions">
+          <button type="button" class="btn btn--secondary" data-copy-yaml>
+            <span>Copy book.yaml</span>
+          </button>
+          <button type="button" class="btn" data-download-yaml>
+            <span>Download .yaml</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initAiGenerator() {
+    const trigger = document.querySelector<HTMLButtonElement>('[data-generator-trigger]');
+    const modal = document.querySelector<HTMLElement>('[data-generator-modal]');
+    const closeBtn = document.querySelector<HTMLButtonElement>('[data-generator-close]');
+    const form = document.querySelector<HTMLFormElement>('[data-generator-form]');
+    const input = document.querySelector<HTMLInputElement>('[data-generator-input]');
+    const submitBtn = document.querySelector<HTMLButtonElement>('[data-generator-submit]');
+    const suggestChips = document.querySelectorAll<HTMLButtonElement>('[data-suggest]');
+    const statusBox = document.querySelector<HTMLElement>('[data-generator-status]');
+    const statusText = document.querySelector<HTMLElement>('[data-generator-status-text]');
+    const errorBox = document.querySelector<HTMLElement>('[data-generator-error]');
+    const errorText = document.querySelector<HTMLElement>('[data-generator-error-text]');
+    const resultBox = document.querySelector<HTMLElement>('[data-generator-result]');
+    const previewCard = document.querySelector<HTMLElement>('[data-preview-card]');
+    const yamlCode = document.querySelector<HTMLElement>('[data-generator-yaml]');
+    const tabBtns = document.querySelectorAll<HTMLButtonElement>('[data-tab]');
+    const panels = document.querySelectorAll<HTMLElement>('[data-panel]');
+    const copyBtn = document.querySelector<HTMLButtonElement>('[data-copy-yaml]');
+    const downloadBtn = document.querySelector<HTMLButtonElement>('[data-download-yaml]');
+
+    if (!trigger || !modal) return;
+
+    let currentBookData: any = null;
+    let currentYamlString = '';
+
+    function openModal() {
+      modal?.removeAttribute('hidden');
+      modal?.classList.add('is-open');
+      trigger?.setAttribute('aria-expanded', 'true');
+      input?.focus();
+    }
+
+    function closeModal() {
+      modal?.classList.remove('is-open');
+      modal?.setAttribute('hidden', '');
+      trigger?.setAttribute('aria-expanded', 'false');
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn?.addEventListener('click', closeModal);
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+        closeModal();
+      }
+    });
+
+    suggestChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        if (input) {
+          input.value = chip.dataset.suggest || '';
+          input.focus();
+        }
+      });
+    });
+
+    // Tab Switching
+    tabBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        tabBtns.forEach((b) => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+        panels.forEach((p) => {
+          p.hidden = p.dataset.panel !== tab;
+        });
+      });
+    });
+
+    // Convert structured JSON to ReadBooks formatted YAML string
+    function jsonToYaml(data: any): string {
+      const lines: string[] = [];
+      lines.push(`title: "${data.title || 'Untitled'}"`);
+      lines.push(`author: "${data.author || 'Unknown'}"`);
+      lines.push(`year: ${data.year || new Date().getFullYear()}`);
+      if (data.publisher) lines.push(`publisher: "${data.publisher}"`);
+      if (data.isbn) lines.push(`isbn: "${data.isbn}"`);
+      if (data.edition) lines.push(`edition: "${data.edition}"`);
+      lines.push(`level: ${data.level || 'intermediate'}`);
+      if (data.subjects && data.subjects.length > 0) {
+        lines.push('subjects:');
+        data.subjects.forEach((s: string) => lines.push(`  - "${s}"`));
+      }
+      lines.push(`tagline: "${data.tagline || ''}"`);
+      lines.push(`description: >-\n  ${(data.description || '').replace(/\n/g, '\n  ')}`);
+      lines.push(`coverMotif: ${data.coverMotif || 'grid'}`);
+      lines.push(`officialPage: "${data.officialPage || 'https://math.mit.edu'}"`);
+      lines.push(
+        'accessNotice: >-\n  Free supporting materials sequenced from legitimate academic open-access sources.',
+      );
+
+      if (data.course) {
+        lines.push('course:');
+        lines.push(`  name: "${data.course.name || ''}"`);
+        lines.push(`  url: "${data.course.url || ''}"`);
+        if (data.course.license) lines.push(`  license: "${data.course.license}"`);
+      }
+
+      if (data.parts && data.parts.length > 0) {
+        lines.push('\nparts:');
+        data.parts.forEach((p: any) => {
+          lines.push(`  - id: "${p.id}"`);
+          lines.push(`    title: "${p.title}"`);
+          if (p.checklist && p.checklist.length > 0) {
+            lines.push('    checklist:');
+            p.checklist.forEach((c: string) => lines.push(`      - "${c}"`));
+          }
+          if (p.sections && p.sections.length > 0) {
+            lines.push('    sections:');
+            p.sections.forEach((s: any) => {
+              lines.push(`      - code: "${s.code}"`);
+              lines.push(`        title: "${s.title}"`);
+              if (s.summary) lines.push(`        summary: "${s.summary}"`);
+              if (s.links && s.links.length > 0) {
+                lines.push('        links:');
+                s.links.forEach((l: any) => {
+                  lines.push(`          - label: "${l.label}"`);
+                  lines.push(`            url: "${l.url}"`);
+                  lines.push(`            kind: "${l.kind || 'reading'}"`);
+                });
+              }
+            });
+          }
+        });
+      }
+
+      return lines.join('\n');
+    }
+
+    function renderVisualPreview(data: any) {
+      if (!previewCard) return;
+      const partsHtml = (data.parts || [])
+        .map(
+          (p: any) => `
+          <div class="generator-part-box">
+            <h4 class="generator-part-title">Part ${p.id}: ${p.title}</h4>
+            <div class="generator-part-sections">
+              ${(p.sections || [])
+                .map(
+                  (s: any) => `
+                <div class="generator-section-row">
+                  <span class="generator-section-code">${s.code}</span>
+                  <span>${s.title}</span>
+                </div>
+              `,
+                )
+                .join('')}
+            </div>
+          </div>
+        `,
+        )
+        .join('');
+
+      previewCard.innerHTML = `
+        <div class="generator-preview-head">
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span class="badge badge--accent">${data.level || 'Academic'}</span>
+            ${data.edition ? `<span class="record__meta-pill">${data.edition}</span>` : ''}
+          </div>
+          <h3 class="generator-preview-title">${data.title}</h3>
+          <p class="generator-preview-meta">
+            <strong>${data.author}</strong> &middot; ${data.year} ${data.publisher ? `&middot; ${data.publisher}` : ''}
+          </p>
+          <p class="u-text-sm" style="color: var(--ink-2); margin-top: 0.5rem;">${data.description}</p>
+        </div>
+        <div class="generator-preview-parts">
+          ${partsHtml}
+        </div>
+      `;
+    }
+
+    // Handle Form Submit & Streaming
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const query = input?.value.trim();
+      if (!query) return;
+
+      // Reset state
+      errorBox?.setAttribute('hidden', '');
+      resultBox?.setAttribute('hidden', '');
+      statusBox?.removeAttribute('hidden');
+      if (statusText) statusText.textContent = 'Contacting OpenRouter AI model...';
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/generate-guide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Server responded with status ${res.status}`);
+        }
+
+        if (statusText) statusText.textContent = 'Generating structured study roadmap...';
+
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error('Response stream not readable.');
+
+        const decoder = new TextDecoder();
+        let rawBuffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ')) {
+              const jsonStr = trimmed.replace('data: ', '');
+              if (jsonStr === '[DONE]') continue;
+              try {
+                const parsed = JSON.parse(jsonStr);
+                const token = parsed.choices?.[0]?.delta?.content || '';
+                rawBuffer += token;
+              } catch {
+                /* chunk fragment */
+              }
+            }
+          }
+        }
+
+        // Parse final JSON
+        // Find JSON boundaries
+        const firstBrace = rawBuffer.indexOf('{');
+        const lastBrace = rawBuffer.lastIndexOf('}');
+        if (firstBrace === -1 || lastBrace === -1) {
+          throw new Error('AI output was not in valid JSON format. Please try again.');
+        }
+
+        const cleanJson = rawBuffer.slice(firstBrace, lastBrace + 1);
+        const bookData = JSON.parse(cleanJson);
+
+        if (bookData.error) {
+          throw new Error(bookData.error);
+        }
+
+        currentBookData = bookData;
+        currentYamlString = jsonToYaml(bookData);
+
+        renderVisualPreview(bookData);
+        if (yamlCode) yamlCode.textContent = currentYamlString;
+
+        statusBox?.setAttribute('hidden', '');
+        resultBox?.removeAttribute('hidden');
+      } catch (err: any) {
+        statusBox?.setAttribute('hidden', '');
+        errorBox?.removeAttribute('hidden');
+        if (errorText) errorText.textContent = err.message || 'An unexpected error occurred.';
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+
+    // Copy YAML
+    copyBtn?.addEventListener('click', async () => {
+      if (!currentYamlString) return;
+      try {
+        await navigator.clipboard.writeText(currentYamlString);
+        const origText = copyBtn.textContent;
+        copyBtn.textContent = 'Copied to Clipboard!';
+        window.setTimeout(() => {
+          copyBtn.textContent = origText;
+        }, 2000);
+      } catch {
+        /* fallback */
+      }
+    });
+
+    // Download YAML
+    downloadBtn?.addEventListener('click', () => {
+      if (!currentYamlString) return;
+      const slug = (currentBookData?.title || 'book')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+      const blob = new Blob([currentYamlString], { type: 'text/yaml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${slug || 'book'}.yaml`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAiGenerator);
+  } else {
+    initAiGenerator();
+  }
+</script>

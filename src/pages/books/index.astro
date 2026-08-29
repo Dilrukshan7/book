@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import BookCatalog from '../../components/BookCatalog.astro';
+import AiGuideGenerator from '../../components/AiGuideGenerator.astro';
 import { SITE } from '../../site.config';
 
 const entries = await getCollection('books');
@@ -34,16 +35,24 @@ const jsonLd = {
 >
   <div class="u-page" style="padding-top: var(--s-8); padding-bottom: var(--s-10);">
     <header class="page-head" style="margin-bottom: var(--s-7);">
-      <nav class="bookhead__crumb" aria-label="Breadcrumb">
-        <a href="/">Home</a>
-        <span aria-hidden="true">/</span>
-        <span>Books Library</span>
-      </nav>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--s-4);">
+        <div>
+          <nav class="bookhead__crumb" aria-label="Breadcrumb">
+            <a href="/">Home</a>
+            <span aria-hidden="true">/</span>
+            <span>Books Library</span>
+          </nav>
 
-      <h1 class="u-h1">Technical Books &amp; Roadmaps</h1>
-      <p class="page-head__lead">
-        Structured step-by-step paths through hard textbooks, with lectures, sample chapters, and problem sets published free by their authors.
-      </p>
+          <h1 class="u-h1">Technical Books &amp; Roadmaps</h1>
+          <p class="page-head__lead">
+            Structured step-by-step paths through hard textbooks, with lectures, sample chapters, and problem sets published free by their authors.
+          </p>
+        </div>
+
+        <div>
+          <AiGuideGenerator />
+        </div>
+      </div>
     </header>
 
     <BookCatalog books={available} />
