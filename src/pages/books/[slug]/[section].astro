@@ -9,6 +9,7 @@ import {
   sectionHref,
   sectionSlug,
 } from '../../../lib/books';
+import { SITE } from '../../../site.config';
 import '../../../styles/guide.css';
 
 export async function getStaticPaths() {
@@ -67,11 +68,77 @@ const found = findSection(book, guide.data.section)!;
 const { section, part } = found;
 const links = resolveSectionLinks(book, section);
 const { Content } = await render(guide);
+
+const sectionUrl = `${SITE.url}/books/${book.slug}/${sectionSlug(section.code)}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE.url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Books',
+          item: `${SITE.url}/books`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: book.title,
+          item: `${SITE.url}/books/${book.slug}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: `Section ${section.code}: ${section.title}`,
+          item: sectionUrl,
+        },
+      ],
+    },
+    {
+      '@type': ['TechArticle', 'LearningResource'],
+      '@id': `${sectionUrl}#article`,
+      headline: `${section.code} ${section.title} — Study Guide`,
+      description: guide.data.summary,
+      url: sectionUrl,
+      inLanguage: 'en',
+      learningResourceType: 'Study Guide',
+      educationalLevel: book.level,
+      about: book.subjects,
+      author: {
+        '@type': 'Organization',
+        name: SITE.name,
+        url: SITE.url,
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: SITE.name,
+        url: SITE.url,
+        logo: `${SITE.url}/favicon.svg`,
+      },
+      isPartOf: {
+        '@type': 'Book',
+        name: book.title,
+        author: { '@type': 'Person', name: book.author },
+        url: `${SITE.url}/books/${book.slug}`,
+      },
+    },
+  ],
+};
 ---
 
 <BaseLayout
   title={`${section.code} ${section.title}`}
   description={guide.data.summary}
+  ogType="article"
+  jsonLd={jsonLd}
 >
   <article class="u-page guide">
     <header class="guide__head">

@@ -31,16 +31,48 @@ const specimen = featured
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: SITE.name,
-  description: SITE.description,
-  url: SITE.url,
-  hasPart: available.map((book) => ({
-    '@type': 'Book',
-    name: book.title,
-    author: { '@type': 'Person', name: book.author },
-    url: `${SITE.url}/books/${book.slug}`,
-  })),
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE.url}/#website`,
+      url: SITE.url,
+      name: SITE.name,
+      description: SITE.description,
+      inLanguage: SITE.locale,
+      publisher: {
+        '@type': 'Organization',
+        '@id': `${SITE.url}/#organization`,
+        name: SITE.name,
+        url: SITE.url,
+        logo: `${SITE.url}/favicon.svg`,
+        sameAs: [SITE.repo],
+      },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${SITE.url}/books?q={search_term_string}`,
+        },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'CollectionPage',
+      '@id': `${SITE.url}/#webpage`,
+      url: SITE.url,
+      name: `${SITE.name}: ${SITE.tagline}`,
+      isPartOf: { '@id': `${SITE.url}/#website` },
+      about: { '@id': `${SITE.url}/#organization` },
+      description: SITE.description,
+      inLanguage: SITE.locale,
+      hasPart: available.map((book) => ({
+        '@type': 'Book',
+        name: book.title,
+        author: { '@type': 'Person', name: book.author },
+        url: `${SITE.url}/books/${book.slug}`,
+      })),
+    },
+  ],
 };
 ---
 

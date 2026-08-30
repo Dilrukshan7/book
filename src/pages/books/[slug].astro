@@ -56,22 +56,65 @@ const kindLabel: Record<string, string> = {
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Book',
-  name: book.title,
-  author: { '@type': 'Person', name: book.author },
-  datePublished: String(book.year),
-  publisher: book.publisher
-    ? { '@type': 'Organization', name: book.publisher }
-    : undefined,
-  isbn: book.isbn,
-  url: `${SITE.url}/books/${book.slug}`,
-  sameAs: book.officialPage,
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE.url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Books',
+          item: `${SITE.url}/books`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: book.title,
+          item: `${SITE.url}/books/${book.slug}`,
+        },
+      ],
+    },
+    {
+      '@type': 'Book',
+      '@id': `${SITE.url}/books/${book.slug}#book`,
+      name: book.title,
+      description:
+        book.tagline ||
+        `A free, ordered reading roadmap for ${book.title} by ${book.author}.`,
+      author: {
+        '@type': 'Person',
+        name: book.author,
+      },
+      datePublished: String(book.year),
+      publisher: book.publisher
+        ? { '@type': 'Organization', name: book.publisher }
+        : undefined,
+      isbn: book.isbn,
+      inLanguage: 'en',
+      about: book.subjects,
+      educationalLevel: book.level,
+      url: `${SITE.url}/books/${book.slug}`,
+      sameAs: book.officialPage,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: SITE.name,
+        url: SITE.url,
+      },
+    },
+  ],
 };
 ---
 
 <BaseLayout
   title={book.title}
   description={`A free, ordered reading roadmap for ${book.title} by ${book.author}. All ${sections} sections, each linked to the material published free for it.`}
+  ogType="book"
   jsonLd={jsonLd}
 >
   <div class="u-page">

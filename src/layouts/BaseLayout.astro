@@ -8,20 +8,39 @@ interface Props {
   description?: string;
   /** Appended to the site name in <title>. Set false for the landing page. */
   suffix?: boolean;
+  /** Open Graph type: website, book, or article. Defaults to 'website'. */
+  ogType?: 'website' | 'article' | 'book';
+  /** Image URL for Open Graph & Twitter cards. */
+  image?: string;
+  /** Image alt text for accessibility & rich search cards. */
+  imageAlt?: string;
+  /** Set true on error or ephemeral client pages to prevent indexing. */
+  noindex?: boolean;
   /** JSON-LD structured data, serialized into a script tag. */
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
   title,
   description = SITE.description,
   suffix = true,
+  ogType = 'website',
+  image,
+  imageAlt,
+  noindex = false,
   jsonLd,
 } = Astro.props;
 
 const pageTitle = suffix ? `${title} · ${SITE.name}` : title;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).href;
-const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const siteOrigin = (Astro.site ? Astro.site.toString() : SITE.url).replace(/\/+$/, '');
+const cleanPath = Astro.url.pathname.replace(/\/+$/, '');
+const canonical = cleanPath ? `${siteOrigin}${cleanPath}` : siteOrigin;
+const currentPath = cleanPath || '/';
+
+const ogImageUrl = image
+  ? (image.startsWith('http') ? image : `${siteOrigin}${image.startsWith('/') ? '' : '/'}${image}`)
+  : `${siteOrigin}/og-image.svg`;
+const ogImageAlt = imageAlt || `${pageTitle} — ${SITE.name}`;
 ---
 
 <!doctype html>
@@ -33,6 +52,18 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
+    {/* Robots Crawl & Indexing Directives */}
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta
+          name="robots"
+          content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        />
+      )
+    }
+
     {/* Self-hosted, with metric-matched fallbacks so swapping in the real
         face causes no layout shift. */}
     <Font cssVariable="--font-serif" preload />
@@ -43,14 +74,24 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
     <meta name="color-scheme" content="light" />
     <meta name="theme-color" content="#faf8f5" />
 
-    <meta property="og:type" content="website" />
+    {/* Open Graph / Facebook / LinkedIn / Discord */}
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    {/* Twitter / X */}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="sitemap" href="/sitemap-index.xml" />
 

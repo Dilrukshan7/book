@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /roadmap/viewer
+Disallow: /404
 
 Sitemap: https://readbooks.pages.dev/sitemap-index.xml

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <style>
+      .bg { fill: #faf8f5; }
+      .card-border { fill: none; stroke: #e5dfd5; stroke-width: 2; }
+      .accent { fill: #b8451b; }
+      .text-title { font-family: 'Literata', 'Georgia', serif; font-size: 64px; font-weight: 600; fill: #2c2520; }
+      .text-tagline { font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; font-size: 32px; font-weight: 400; fill: #61584e; }
+      .text-badge { font-family: 'IBM Plex Mono', monospace; font-size: 18px; font-weight: 500; fill: #b8451b; letter-spacing: 0.1em; }
+      .badge-bg { fill: #f3eae0; rx: 6px; }
+      .footer-text { font-family: 'IBM Plex Sans', sans-serif; font-size: 22px; fill: #8a7e72; }
+      .grid-pattern { stroke: #eee8df; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" class="bg" />
+
+  <!-- Subtle background graph motif -->
+  <g class="grid-pattern" opacity="0.6">
+    <line x1="100" y1="0" x2="100" y2="630" />
+    <line x1="300" y1="0" x2="300" y2="630" />
+    <line x1="500" y1="0" x2="500" y2="630" />
+    <line x1="700" y1="0" x2="700" y2="630" />
+    <line x1="900" y1="0" x2="900" y2="630" />
+    <line x1="1100" y1="0" x2="1100" y2="630" />
+    <line x1="0" y1="120" x2="1200" y2="120" />
+    <line x1="0" y1="260" x2="1200" y2="260" />
+    <line x1="0" y1="400" x2="1200" y2="400" />
+    <line x1="0" y1="540" x2="1200" y2="540" />
+  </g>
+
+  <!-- Inner Frame -->
+  <rect x="50" y="50" width="1100" height="530" rx="16" class="card-border" />
+
+  <!-- Badge -->
+  <rect x="100" y="110" width="310" height="38" class="badge-bg" />
+  <text x="116" y="135" class="text-badge">SCHOLARLY TECHNICAL ROADMAPS</text>
+
+  <!-- Main Brand Title -->
+  <text x="100" y="240" class="text-title">ReadBooks</text>
+
+  <!-- Brand Rule -->
+  <rect x="100" y="270" width="140" height="6" class="accent" rx="3" />
+
+  <!-- Tagline / Value Proposition -->
+  <text x="100" y="340" class="text-tagline">Free material for hard books, in order.</text>
+  <text x="100" y="390" class="text-tagline" fill="#7a7065">Step-by-step reading roadmaps, lectures, and problem sets.</text>
+
+  <!-- Footer Metadata -->
+  <g transform="translate(100, 500)">
+    <circle cx="8" cy="-6" r="6" fill="#b8451b" />
+    <text x="26" y="0" class="footer-text">Open Educational Resources</text>
+    <text x="360" y="0" class="footer-text">&middot;</text>
+    <text x="390" y="0" class="footer-text">No Paywalls</text>
+    <text x="540" y="0" class="footer-text">&middot;</text>
+    <text x="570" y="0" class="footer-text">readbooks.pages.dev</text>
+  </g>
+</svg>

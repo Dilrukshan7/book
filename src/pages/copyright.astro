@@ -5,11 +5,48 @@ import { SITE } from '../site.config';
 
 const entries = await getCollection('books');
 const books = entries.map((e) => e.data).sort((a, b) => a.order - b.order);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE.url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Copyright and Attribution',
+          item: `${SITE.url}/copyright`,
+        },
+      ],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${SITE.url}/copyright#webpage`,
+      name: `Copyright and Attribution — ${SITE.name}`,
+      description: `How ${SITE.name} handles copyright: we host no copyrighted material and link only to rights holders' own servers.`,
+      url: `${SITE.url}/copyright`,
+      inLanguage: SITE.locale,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: SITE.name,
+        url: SITE.url,
+      },
+    },
+  ],
+};
 ---
 
 <BaseLayout
   title="Copyright and attribution"
   description={`How ${SITE.name} handles copyright: we host no copyrighted material and link only to rights holders' own servers.`}
+  jsonLd={jsonLd}
 >
   <div class="u-page">
     <header class="page-head">

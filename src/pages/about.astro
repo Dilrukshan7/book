@@ -1,11 +1,48 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE } from '../site.config';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE.url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'About',
+          item: `${SITE.url}/about`,
+        },
+      ],
+    },
+    {
+      '@type': 'AboutPage',
+      '@id': `${SITE.url}/about#webpage`,
+      name: `About — ${SITE.name}`,
+      description: `Why ${SITE.name} exists, how it stays free, and where your reading progress is kept.`,
+      url: `${SITE.url}/about`,
+      inLanguage: SITE.locale,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: SITE.name,
+        url: SITE.url,
+      },
+    },
+  ],
+};
 ---
 
 <BaseLayout
   title="About"
   description={`Why ${SITE.name} exists, how it stays free, and where your reading progress is kept.`}
+  jsonLd={jsonLd}
 >
   <div class="u-page">
     <header class="page-head">

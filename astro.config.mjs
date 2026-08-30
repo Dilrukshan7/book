@@ -87,7 +87,14 @@ function devApiPlugin() {
 export default defineConfig({
   site: SITE.url,
   trailingSlash: 'ignore',
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !page.endsWith('/404') &&
+        !page.endsWith('/404/') &&
+        !page.includes('/roadmap/viewer'),
+    }),
+  ],
 
   vite: {
     plugins: [devApiPlugin()],

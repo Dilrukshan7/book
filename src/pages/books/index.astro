@@ -14,16 +14,44 @@ const available = books.filter((b) => b.status === 'available');
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'CollectionPage',
-  name: `Technical Books & Roadmaps \u2014 ${SITE.name}`,
-  description: 'Explore structured, section-by-section reading roadmaps for advanced technical books with free lectures and problem sets.',
-  url: `${SITE.url}/books`,
-  hasPart: available.map((book) => ({
-    '@type': 'Book',
-    name: book.title,
-    author: { '@type': 'Person', name: book.author },
-    url: `${SITE.url}/books/${book.slug}`,
-  })),
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE.url,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Books Library',
+          item: `${SITE.url}/books`,
+        },
+      ],
+    },
+    {
+      '@type': 'CollectionPage',
+      '@id': `${SITE.url}/books#webpage`,
+      name: `Technical Books & Roadmaps \u2014 ${SITE.name}`,
+      description:
+        'Explore structured, section-by-section reading roadmaps for advanced technical books with free lectures and problem sets.',
+      url: `${SITE.url}/books`,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: SITE.name,
+        url: SITE.url,
+      },
+      hasPart: available.map((book) => ({
+        '@type': 'Book',
+        name: book.title,
+        author: { '@type': 'Person', name: book.author },
+        url: `${SITE.url}/books/${book.slug}`,
+      })),
+    },
+  ],
 };
 ---
 
