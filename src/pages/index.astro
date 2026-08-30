@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BookCatalog from '../components/BookCatalog.astro';
-import AiGuideGenerator from '../components/AiGuideGenerator.astro';
 import { resolveSectionLinks } from '../lib/books';
 import { SITE } from '../site.config';
 import '../styles/home.css';
@@ -179,18 +178,12 @@ const jsonLd = {
 
   {/* 3. The books: all available roadmaps */}
   <section class="u-page u-band books-catalog" aria-labelledby="books-heading" data-reveal>
-    <div class="books-catalog__head" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--s-4);">
-      <div>
-        <span class="u-label">Roadmaps Catalog &amp; Discovery</span>
-        <h2 class="u-h2" id="books-heading">Explore Technical Roadmaps</h2>
-        <p class="books-catalog__sub">
-          Structured step-by-step paths through hard textbooks, with free lectures, problem sets, and personal progress tracking.
-        </p>
-      </div>
-
-      <div>
-        <AiGuideGenerator />
-      </div>
+    <div class="books-catalog__head">
+      <span class="u-label">Roadmaps Catalog &amp; Discovery</span>
+      <h2 class="u-h2" id="books-heading">Explore Technical Roadmaps</h2>
+      <p class="books-catalog__sub">
+        Structured step-by-step paths through hard textbooks, with free lectures, problem sets, and personal progress tracking.
+      </p>
     </div>
 
     <BookCatalog books={available} />

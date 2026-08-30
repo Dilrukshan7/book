@@ -18,9 +18,8 @@ export const SITE = {
 
   /**
    * Canonical origin. Used for sitemap, canonical tags, and Open Graph URLs.
-   * Update this once a custom domain is attached.
    */
-  url: 'https://readbooks.pages.dev',
+  url: 'https://books.blansyn.com',
 
   /** Contact address for copyright / takedown enquiries. */
   contactEmail: 'dilrukshanofficial@gmail.com',
