@@ -62,7 +62,7 @@
   margin-top: var(--s-3);
   font-family: var(--face-sans);
   font-size: var(--t-micro);
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 /* --- Live Specimen Card -------------------------------------------------- */
@@ -530,7 +530,7 @@
   font-family: var(--face-mono);
   font-variant-numeric: tabular-nums;
   font-size: var(--t-micro);
-  color: var(--ink-4);
+  color: var(--ink-3);
 }
 
 .record__part--more {
