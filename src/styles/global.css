@@ -514,10 +514,10 @@ main {
 @media (prefers-reduced-motion: no-preference) {
   [data-reveal] {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
     transition:
-      opacity var(--slow) var(--ease),
-      transform var(--slow) var(--ease);
+      opacity var(--fast) var(--ease),
+      transform var(--fast) var(--ease);
   }
   [data-reveal].is-revealed {
     opacity: 1;
