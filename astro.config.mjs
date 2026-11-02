@@ -1,12 +1,16 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import node from '@astrojs/node';
 import { SITE } from './src/site.config.ts';
 
 // https://astro.build/config
 export default defineConfig({
   site: SITE.url,
   trailingSlash: 'ignore',
+  adapter: node({
+    mode: 'standalone',
+  }),
   integrations: [
     sitemap({
       filter: (page) => !page.endsWith('/404') && !page.endsWith('/404/'),

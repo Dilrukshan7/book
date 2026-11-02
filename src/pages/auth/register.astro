@@ -1,0 +1,91 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCurrentUser } from '../../lib/auth';
+import '../../styles/subscriptions.css';
+
+export const prerender = false;
+
+const user = getCurrentUser(Astro.request);
+const redirect = Astro.url.searchParams.get('redirect') || '/books';
+
+if (user) {
+  return Astro.redirect(redirect);
+}
+---
+
+<BaseLayout title="Create Account · ReadBooks" description="Create an account to subscribe to technical book passes">
+  <div class="u-page">
+    <div class="auth-container">
+      <div class="sub-header" style="border-bottom: none; margin-bottom: var(--space-4);">
+        <h1 class="sub-header__title" style="font-size: var(--step-2);">Create account</h1>
+        <p class="sub-header__desc">Get access to study guides, interactive problem sets, and passes.</p>
+      </div>
+
+      <div id="auth-error" class="form-feedback form-feedback--error" style="display: none; margin-bottom: var(--space-4);"></div>
+
+      <form class="auth-form" id="register-form">
+        <div class="form-group">
+          <label class="form-label" for="name">Full name</label>
+          <input class="form-input" type="text" id="name" name="name" required autocomplete="name" placeholder="Ada Lovelace" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email address</label>
+          <input class="form-input" type="email" id="email" name="email" required autocomplete="email" placeholder="ada@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password (min 6 characters)</label>
+          <input class="form-input" type="password" id="password" name="password" minlength="6" required autocomplete="new-password" placeholder="••••••••" />
+        </div>
+
+        <button type="submit" class="btn-sub" id="submit-btn" style="margin-top: var(--space-2);">
+          Create account
+        </button>
+      </form>
+
+      <p style="margin-top: var(--space-6); font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); text-align: center;">
+        Already have an account? <a href={`/auth/login?redirect=${encodeURIComponent(redirect)}`} style="color: var(--accent); font-weight: 500;">Sign in</a>
+      </p>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ redirect }}>
+    const form = document.getElementById('register-form');
+    const errBox = document.getElementById('auth-error');
+    const submitBtn = document.getElementById('submit-btn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          errBox.textContent = data.error?.message || 'Registration failed. Please try again.';
+          errBox.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Create account';
+        } else {
+          window.location.href = redirect;
+        }
+      } catch (err) {
+        errBox.textContent = 'Network error. Please try again.';
+        errBox.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Create account';
+      }
+    });
+  </script>
+</BaseLayout>

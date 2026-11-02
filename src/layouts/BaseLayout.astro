@@ -115,7 +115,7 @@ const ogImageAlt = imageAlt || `${pageTitle} — ${SITE.name}`;
           <span class="wordmark__rule" aria-hidden="true"></span>
           <span>{SITE.name}</span>
         </a>
-        <nav class="masthead__nav" aria-label="Primary">
+        <nav class="masthead__nav" aria-label="Primary" id="masthead-nav">
           {
             NAV.map((item) => (
               <a
@@ -127,6 +127,11 @@ const ogImageAlt = imageAlt || `${pageTitle} — ${SITE.name}`;
               </a>
             ))
           }
+          <span id="nav-auth-slot" style="display: inline-flex; gap: var(--space-3);">
+            <a class="u-navlink" href="/auth/login" id="nav-login-link">
+              Sign In
+            </a>
+          </span>
         </nav>
       </div>
     </header>
@@ -177,6 +182,31 @@ const ogImageAlt = imageAlt || `${pageTitle} — ${SITE.name}`;
         );
         targets.forEach((el) => io.observe(el));
       }
+    </script>
+
+    {/* Dynamic auth hydration for header navigation */}
+    <script is:inline>
+      (async function() {
+        try {
+          const res = await fetch('/api/auth/me');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data?.user) {
+              const u = data.data.user;
+              const slot = document.getElementById('nav-auth-slot');
+              if (slot) {
+                let html = '<a class="u-navlink" href="/account/subscriptions">My Passes</a>';
+                if (u.role === 'ADMIN') {
+                  html += '<a class="u-navlink" href="/admin/subscriptions">Admin</a>';
+                }
+                slot.innerHTML = html;
+              }
+            }
+          }
+        } catch {
+          // fallback
+        }
+      })();
     </script>
   </body>
 </html>

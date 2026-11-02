@@ -12,7 +12,7 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-const DIST = 'dist';
+const DIST = existsSync(join('dist', 'client')) ? join('dist', 'client') : 'dist';
 const CONCURRENCY = 6;
 const TIMEOUT_MS = 30_000;
 const RETRIES = 2;
@@ -68,18 +68,22 @@ for (const file of pages) {
 }
 
 /* ------------------------------------------------------------------ *
- * Internal routes: confirm each one was actually emitted.
+ * Internal routes: confirm each one was actually emitted or has a source route.
  * ------------------------------------------------------------------ */
 const internalFailures = [];
 if (checkInternal) {
   for (const route of internal) {
-    if (route.startsWith('/sitemap')) continue;
+    if (route.startsWith('/sitemap') || !route) continue;
     const candidates = [
       join(DIST, route),
       join(DIST, route, 'index.html'),
       join(DIST, `${route}.html`),
+      join('src', 'pages', `${route}.astro`),
+      join('src', 'pages', route, 'index.astro'),
     ];
-    if (!candidates.some((p) => existsSync(p))) {
+    const isDynamicMatch =
+      existsSync(join('src', 'pages', 'books', '[slug].astro')) && route.startsWith('/books/');
+    if (!candidates.some((p) => existsSync(p)) && !isDynamicMatch) {
       internalFailures.push(route);
     }
   }

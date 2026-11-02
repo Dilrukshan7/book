@@ -1,0 +1,185 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCurrentUser } from '../../lib/auth';
+import { listUserSubscriptions } from '../../lib/subscriptions';
+import '../../styles/subscriptions.css';
+
+export const prerender = false;
+
+const user = getCurrentUser(Astro.request);
+if (!user) {
+  return Astro.redirect('/auth/login?redirect=/account/subscriptions');
+}
+
+const allSubs = listUserSubscriptions(user.id);
+const activeSubs = allSubs.filter((s) => s.status === 'ACTIVE' && (!s.expires_at || new Date(s.expires_at) > new Date()));
+const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at && new Date(s.expires_at) <= new Date()));
+---
+
+<BaseLayout title="My Passes · ReadBooks" description="Manage your active technical book subscriptions and Passyn passes">
+  <div class="u-page sub-container">
+    <div class="sub-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: gap; gap: var(--space-4);">
+      <div>
+        <h1 class="sub-header__title">My Book Passes</h1>
+        <p class="sub-header__desc">
+          Logged in as <strong>{user.name}</strong> ({user.email}). Powered by Passyn Developer API.
+        </p>
+      </div>
+      <div style="display: flex; gap: var(--space-2);">
+        {user.role === 'ADMIN' && (
+          <a href="/admin/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+            Admin Dashboard
+          </a>
+        )}
+        <button id="logout-btn" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+          Sign out
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Subscriptions -->
+    <section style="margin-bottom: var(--space-12);">
+      <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
+        Active Passes ({activeSubs.length})
+      </h2>
+
+      {activeSubs.length === 0 ? (
+        <div style="background: var(--paper-raised); border: 1px dashed var(--rule-strong); padding: var(--space-8); border-radius: 4px; text-align: center;">
+          <p style="font-family: var(--font-sans); color: var(--ink-3); margin-bottom: var(--space-4);">
+            You have no active book passes at this moment.
+          </p>
+          <a href="/books" class="btn-sub" style="display: inline-flex; width: auto; padding: var(--space-3) var(--space-6);">
+            Browse Technical Books
+          </a>
+        </div>
+      ) : (
+        <div class="plans-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+          {activeSubs.map((sub) => {
+            const expiresDate = sub.expires_at ? new Date(sub.expires_at).toLocaleString() : 'Never';
+            return (
+              <div class="plan-card plan-card--featured" id={`sub-${sub.id}`}>
+                <span class="plan-card__badge">ACTIVE PASS</span>
+                <h3 class="plan-card__title" style="margin-top: var(--space-2);">
+                  <a href={`/books/${sub.book_slug}`} style="color: var(--ink); text-decoration: none;">
+                    {sub.book_slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+                  </a>
+                </h3>
+                <p class="plan-card__meta">Plan: {sub.plan_name}</p>
+
+                <div class="plan-card__desc" style="font-family: var(--font-mono); font-size: var(--step--2); color: var(--ink-3);">
+                  <div>Activated: {sub.activated_at ? new Date(sub.activated_at).toLocaleDateString() : '—'}</div>
+                  <div style="color: var(--status-complete); font-weight: 600; margin-top: 4px;">
+                    Expires: {expiresDate}
+                  </div>
+                  {sub.passyn_access_id && (
+                    <div style="margin-top: 4px; opacity: 0.8;">
+                      Passyn Access ID: <span style="font-size: 11px;">{sub.passyn_access_id}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div style="display: flex; gap: var(--space-2); margin-top: var(--space-4);">
+                  <a href={`/books/${sub.book_slug}`} class="btn-sub" style="text-align: center;">
+                    Read Book
+                  </a>
+                  <button
+                    type="button"
+                    class="btn-sub btn-sub--danger cancel-sub-btn"
+                    data-sub-id={sub.id}
+                    style="width: auto; padding: var(--space-3) var(--space-4);"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </section>
+
+    <!-- Past / Inactive Subscriptions -->
+    {pastSubs.length > 0 && (
+      <section>
+        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
+          Subscription History ({pastSubs.length})
+        </h2>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Book</th>
+                <th>Plan</th>
+                <th>Status</th>
+                <th>Activated</th>
+                <th>Ended / Expired</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pastSubs.map((sub) => (
+                <tr>
+                  <td>
+                    <strong>{sub.book_slug}</strong>
+                  </td>
+                  <td>{sub.plan_name}</td>
+                  <td>
+                    <span class={`badge badge--${sub.status.toLowerCase()}`}>
+                      {sub.status}
+                    </span>
+                  </td>
+                  <td>{sub.activated_at ? new Date(sub.activated_at).toLocaleDateString() : '—'}</td>
+                  <td>{sub.expires_at ? new Date(sub.expires_at).toLocaleDateString() : '—'}</td>
+                  <td style="font-size: var(--step--2); color: var(--ink-3);">
+                    {sub.revoke_reason || '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+  </div>
+
+  <script is:inline>
+    // Logout handler
+    document.getElementById('logout-btn')?.addEventListener('click', async () => {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = '/books';
+    });
+
+    // Cancel subscription buttons
+    document.querySelectorAll('.cancel-sub-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const subId = btn.getAttribute('data-sub-id');
+        if (!confirm('Are you sure you want to cancel this pass? You will immediately lose access to protected study guides.')) {
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'Cancelling...';
+
+        try {
+          const res = await fetch('/api/subscriptions/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ subscriptionId: subId, reason: 'Cancelled by customer' }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            window.location.reload();
+          } else {
+            alert(data.error?.message || 'Failed to cancel subscription');
+            btn.disabled = false;
+            btn.textContent = 'Cancel';
+          }
+        } catch {
+          alert('Network error. Could not cancel.');
+          btn.disabled = false;
+          btn.textContent = 'Cancel';
+        }
+      });
+    });
+  </script>
+</BaseLayout>

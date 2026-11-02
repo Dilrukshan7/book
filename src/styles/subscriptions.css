@@ -1,0 +1,373 @@
+/* ==========================================================================
+   Subscription & Auth Editorial Styles
+   Consistent with ReadBooks design language (paper, hairlines, vermillion)
+   ========================================================================== */
+
+/* --- Container & Layout -------------------------------------------------- */
+.sub-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4) var(--space-16);
+}
+
+.sub-header {
+  border-bottom: 2px solid var(--rule-ink);
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+.sub-header__title {
+  font-family: var(--font-serif);
+  font-size: var(--step-3);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: var(--leading-tight);
+  margin-bottom: var(--space-2);
+}
+
+.sub-header__desc {
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  color: var(--ink-3);
+  max-width: 65ch;
+}
+
+/* --- Plan Grid & Cards -------------------------------------------------- */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+  margin: var(--space-6) 0 var(--space-8);
+}
+
+.plan-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color var(--transition-fast);
+}
+
+.plan-card:hover {
+  border-color: var(--ink-2);
+}
+
+.plan-card--featured {
+  border: 2px solid var(--accent);
+}
+
+.plan-card__badge {
+  position: absolute;
+  top: -11px;
+  right: var(--space-4);
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  padding: 2px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.plan-card__title {
+  font-family: var(--font-serif);
+  font-size: var(--step-1);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--space-1);
+}
+
+.plan-card__meta {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  margin-bottom: var(--space-4);
+}
+
+.plan-card__price-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--rule-subtle);
+  padding-bottom: var(--space-4);
+}
+
+.plan-card__price {
+  font-family: var(--font-sans);
+  font-size: var(--step-3);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.plan-card__currency {
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+}
+
+.plan-card__period {
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  color: var(--ink-3);
+  margin-left: auto;
+}
+
+.plan-card__desc {
+  font-family: var(--font-serif);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-6);
+  flex-grow: 1;
+}
+
+.plan-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.plan-card__features li {
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  color: var(--ink-2);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+
+.plan-card__features li::before {
+  content: '✓';
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* --- Buttons & Controls ------------------------------------------------- */
+.btn-sub {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--ink);
+  color: #fff;
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.btn-sub:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-sub:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-sub--secondary {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--rule-strong);
+}
+
+.btn-sub--secondary:hover {
+  background: var(--paper-subtle);
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.btn-sub--danger {
+  background: transparent;
+  color: var(--accent-deep);
+  border-color: var(--accent-border);
+}
+
+.btn-sub--danger:hover {
+  background: var(--accent-wash);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* --- Paywall Banner & Access Restriction --------------------------------- */
+.paywall-block {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-top: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: var(--space-8);
+  margin: var(--space-8) 0;
+}
+
+.paywall-block__header {
+  margin-bottom: var(--space-6);
+}
+
+.paywall-block__tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  border: 1px solid var(--accent-border);
+  padding: 2px 6px;
+  border-radius: 2px;
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+}
+
+.paywall-block__title {
+  font-family: var(--font-serif);
+  font-size: var(--step-2);
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--space-2);
+}
+
+.paywall-block__lead {
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  color: var(--ink-3);
+  line-height: var(--leading-relaxed);
+}
+
+/* --- Auth Forms --------------------------------------------------------- */
+.auth-container {
+  max-width: 440px;
+  margin: var(--space-12) auto;
+  padding: var(--space-8);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.form-input {
+  font-family: var(--font-sans);
+  font-size: var(--step-0);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--ink);
+}
+
+.form-feedback {
+  padding: var(--space-3);
+  border-radius: 3px;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+}
+
+.form-feedback--error {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  border: 1px solid var(--accent-border);
+}
+
+.form-feedback--success {
+  background: var(--status-complete-wash);
+  color: var(--status-complete);
+  border: 1px solid var(--status-complete-border);
+}
+
+/* --- Badges & Data Tables ----------------------------------------------- */
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  padding: 2px 6px;
+  border-radius: 2px;
+  text-transform: uppercase;
+}
+
+.badge--active {
+  background: var(--status-complete-wash);
+  color: var(--status-complete);
+  border: 1px solid var(--status-complete-border);
+}
+
+.badge--expired {
+  background: var(--paper-subtle);
+  color: var(--ink-3);
+  border: 1px solid var(--rule);
+}
+
+.badge--revoked {
+  background: var(--accent-wash);
+  color: var(--accent-deep);
+  border: 1px solid var(--accent-border);
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  margin-top: var(--space-4);
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-sans);
+  font-size: var(--step--1);
+  text-align: left;
+}
+
+.admin-table th {
+  background: var(--paper-subtle);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--step--2);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.admin-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--rule-subtle);
+  color: var(--ink-2);
+}
+
+.admin-table tr:hover td {
+  background: var(--paper-muted);
+}

@@ -1,0 +1,388 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCurrentUser } from '../../lib/auth';
+import { listAllPlans, listAllSubscriptions } from '../../lib/subscriptions';
+import { getDb } from '../../lib/db';
+import '../../styles/subscriptions.css';
+
+export const prerender = false;
+
+const user = getCurrentUser(Astro.request);
+if (!user || user.role !== 'ADMIN') {
+  return Astro.redirect('/auth/login?redirect=/admin/subscriptions');
+}
+
+const db = getDb();
+const plans = listAllPlans();
+const subscriptions = listAllSubscriptions();
+const webhookEvents = db.prepare(`SELECT * FROM webhook_events ORDER BY processed_at DESC LIMIT 25`).all() as Array<{
+  id: string;
+  event_id: string;
+  event_type: string;
+  status: string;
+  processed_at: string;
+  error_message?: string;
+}>;
+---
+
+<BaseLayout title="Admin Subscription Management · ReadBooks" description="Manage Passyn subscription plans, subscribers, and webhooks">
+  <div class="u-page sub-container" style="max-width: 1100px;">
+    <div class="sub-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-4);">
+      <div>
+        <nav class="bookhead__crumb" style="margin-bottom: var(--space-2);">
+          <a href="/books">Books</a>
+          <span aria-hidden="true">/</span>
+          <span>Admin</span>
+        </nav>
+        <h1 class="sub-header__title">Subscription Management</h1>
+        <p class="sub-header__desc">
+          Configure book access plans, monitor subscribers, and inspect Passyn webhook deliveries.
+        </p>
+      </div>
+      <div>
+        <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+          User Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Section 1: Plan Management -->
+    <section style="margin-bottom: var(--space-12);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
+        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink);">
+          Book Subscription Plans ({plans.length})
+        </h2>
+        <button id="toggle-new-plan" class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-4);">
+          + Create New Plan
+        </button>
+      </div>
+
+      <!-- Create Plan Modal/Form -->
+      <div id="new-plan-panel" style="display: none; background: var(--paper-raised); border: 1px solid var(--rule-strong); border-radius: 4px; padding: var(--space-6); margin-bottom: var(--space-6);">
+        <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-4);">
+          Configure New Book Pass (Passyn Sync)
+        </h3>
+        <form id="create-plan-form" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4);">
+          <div class="form-group">
+            <label class="form-label" for="plan-book">Target Book</label>
+            <select class="form-input" id="plan-book" required>
+              <option value="introduction-to-linear-algebra">Introduction to Linear Algebra</option>
+              <option value="linear-algebra-and-learning-from-data">Linear Algebra & Learning from Data</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="plan-name">Plan Name</label>
+            <input class="form-input" id="plan-name" type="text" placeholder="e.g. 14-Day Sprint Pass" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="plan-price">Price (USD)</label>
+            <input class="form-input" id="plan-price" type="number" step="0.01" min="0" placeholder="9.99" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="plan-duration">Duration (Hours)</label>
+            <input class="form-input" id="plan-duration" type="number" min="1" placeholder="336" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="plan-type">Pass Type</label>
+            <select class="form-input" id="plan-type">
+              <option value="DAY">DAY (Standard day pass)</option>
+              <option value="WEEKLY">WEEKLY (7-day block)</option>
+              <option value="CUSTOM">CUSTOM (Specific duration)</option>
+              <option value="EXAM">EXAM (Exam prep block)</option>
+              <option value="PROJECT">PROJECT (Project milestone)</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" for="plan-desc">Description</label>
+            <input class="form-input" id="plan-desc" type="text" placeholder="Complete access to study guides and exam problem breakdowns" />
+          </div>
+
+          <div style="grid-column: 1 / -1; display: flex; gap: var(--space-2); justify-content: flex-end;">
+            <button type="button" id="cancel-new-plan" class="btn-sub btn-sub--secondary" style="width: auto;">
+              Cancel
+            </button>
+            <button type="submit" id="submit-new-plan" class="btn-sub" style="width: auto;">
+              Save & Create in Passyn
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Book</th>
+              <th>Plan Name</th>
+              <th>Price</th>
+              <th>Duration</th>
+              <th>Passyn Pass ID</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plans.map((p) => (
+              <tr>
+                <td><strong>{p.book_slug}</strong></td>
+                <td>{p.name}</td>
+                <td>${p.price.toFixed(2)} {p.currency}</td>
+                <td>{p.duration_hours} hrs ({Math.round(p.duration_hours / 24)} days)</td>
+                <td style="font-family: var(--font-mono); font-size: 11px;">{p.passyn_pass_id}</td>
+                <td>
+                  <span class={`badge ${p.is_active ? 'badge--active' : 'badge--expired'}`}>
+                    {p.is_active ? 'ACTIVE' : 'INACTIVE'}
+                  </span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: var(--space-1);">
+                    <button
+                      type="button"
+                      class="btn-sub btn-sub--secondary toggle-plan-btn"
+                      data-id={p.id}
+                      data-active={p.is_active ? 'false' : 'true'}
+                      style="padding: 2px 8px; font-size: 11px;"
+                    >
+                      {p.is_active ? 'Disable' : 'Enable'}
+                    </button>
+                    <button
+                      type="button"
+                      class="btn-sub btn-sub--danger archive-plan-btn"
+                      data-id={p.id}
+                      style="padding: 2px 8px; font-size: 11px;"
+                    >
+                      Archive
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: Active & Historical Subscribers -->
+    <section style="margin-bottom: var(--space-12);">
+      <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
+        Subscribers & Pass Records ({subscriptions.length})
+      </h2>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Subscriber</th>
+              <th>Book</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th>Passyn Access ID</th>
+              <th>Activated</th>
+              <th>Expires</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {subscriptions.length === 0 ? (
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--ink-3); padding: var(--space-6);">
+                  No customer subscriptions recorded yet.
+                </td>
+              </tr>
+            ) : (
+              subscriptions.map((s) => (
+                <tr>
+                  <td>
+                    <strong>{s.user_name || 'Reader'}</strong><br />
+                    <span style="font-size: 11px; color: var(--ink-3);">{s.user_email}</span>
+                  </td>
+                  <td>{s.book_slug}</td>
+                  <td>{s.plan_name}</td>
+                  <td>
+                    <span class={`badge badge--${s.status.toLowerCase()}`}>
+                      {s.status}
+                    </span>
+                  </td>
+                  <td style="font-family: var(--font-mono); font-size: 11px;">
+                    {s.passyn_access_id || '—'}
+                  </td>
+                  <td>{s.activated_at ? new Date(s.activated_at).toLocaleDateString() : '—'}</td>
+                  <td>{s.expires_at ? new Date(s.expires_at).toLocaleDateString() : '—'}</td>
+                  <td>
+                    {s.status === 'ACTIVE' && (
+                      <button
+                        type="button"
+                        class="btn-sub btn-sub--danger revoke-sub-btn"
+                        data-id={s.id}
+                        style="padding: 2px 8px; font-size: 11px;"
+                      >
+                        Revoke Access
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: Webhook Event Log -->
+    <section>
+      <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
+        Passyn Webhook Deliveries & Audit Logs ({webhookEvents.length})
+      </h2>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Event ID</th>
+              <th>Event Type</th>
+              <th>Status</th>
+              <th>Processed At</th>
+              <th>Details / Errors</th>
+            </tr>
+          </thead>
+          <tbody>
+            {webhookEvents.length === 0 ? (
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--ink-3); padding: var(--space-6);">
+                  No webhook events received yet. Webhooks endpoint is listening at <code>/api/webhooks/passyn</code>.
+                </td>
+              </tr>
+            ) : (
+              webhookEvents.map((w) => (
+                <tr>
+                  <td style="font-family: var(--font-mono); font-size: 11px;">{w.event_id}</td>
+                  <td><code>{w.event_type}</code></td>
+                  <td>
+                    <span class={`badge ${w.status === 'PROCESSED' ? 'badge--active' : 'badge--revoked'}`}>
+                      {w.status}
+                    </span>
+                  </td>
+                  <td>{new Date(w.processed_at).toLocaleString()}</td>
+                  <td style="font-size: 11px; color: var(--ink-3);">{w.error_message || 'OK'}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script is:inline>
+    // Toggle new plan form
+    const toggleBtn = document.getElementById('toggle-new-plan');
+    const panel = document.getElementById('new-plan-panel');
+    const cancelBtn = document.getElementById('cancel-new-plan');
+    const form = document.getElementById('create-plan-form');
+
+    toggleBtn?.addEventListener('click', () => {
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+
+    cancelBtn?.addEventListener('click', () => {
+      panel.style.display = 'none';
+    });
+
+    // Create plan submit
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submit-new-plan');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating...';
+
+      const bookSlug = document.getElementById('plan-book').value;
+      const name = document.getElementById('plan-name').value;
+      const price = parseFloat(document.getElementById('plan-price').value);
+      const durationHours = parseInt(document.getElementById('plan-duration').value, 10);
+      const passType = document.getElementById('plan-type').value;
+      const description = document.getElementById('plan-desc').value;
+
+      try {
+        const res = await fetch('/api/admin/plans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookSlug, name, price, durationHours, passType, description }),
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          window.location.reload();
+        } else {
+          alert(data.error?.message || 'Failed to create plan');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Save & Create in Passyn';
+        }
+      } catch {
+        alert('Network error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Save & Create in Passyn';
+      }
+    });
+
+    // Toggle plan status
+    document.querySelectorAll('.toggle-plan-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const isActive = btn.getAttribute('data-active') === 'true';
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/admin/plans/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isActive }),
+          });
+          if (res.ok) window.location.reload();
+          else alert('Failed to update plan status');
+        } catch {
+          alert('Network error');
+        }
+      });
+    });
+
+    // Archive plan
+    document.querySelectorAll('.archive-plan-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to archive this plan?')) return;
+        const id = btn.getAttribute('data-id');
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/admin/plans/${id}`, { method: 'DELETE' });
+          if (res.ok) window.location.reload();
+          else alert('Failed to archive plan');
+        } catch {
+          alert('Network error');
+        }
+      });
+    });
+
+    // Revoke subscription
+    document.querySelectorAll('.revoke-sub-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const reason = prompt('Reason for revocation:', 'Administrative revocation');
+        if (!reason) return;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`/api/admin/subscriptions/${id}/revoke`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reason }),
+          });
+          if (res.ok) window.location.reload();
+          else alert('Failed to revoke subscription');
+        } catch {
+          alert('Network error');
+        }
+      });
+    });
+  </script>
+</BaseLayout>

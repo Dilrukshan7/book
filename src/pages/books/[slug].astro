@@ -8,34 +8,33 @@ import {
   sectionAnchor,
   totalSections,
 } from '../../lib/books';
+import { getCurrentUser } from '../../lib/auth';
+import { listPlansForBook, getUserActiveSubscription, seedDefaultPlansIfMissing } from '../../lib/subscriptions';
 import { SITE } from '../../site.config';
 import '../../styles/roadmap.css';
 import '../../styles/charts.css';
+import '../../styles/subscriptions.css';
 
-export async function getStaticPaths() {
-  const books = await getCollection('books');
-  const guides = await getCollection('guides');
-  const guideIds = guides.map((g) => g.id);
+export const prerender = false;
 
-  return books
-    .filter((entry) => entry.data.status === 'available')
-    .map((entry) => {
-      // The directory name is the route, so a mismatch with the declared
-      // slug would silently publish the book at an unexpected URL.
-      if (entry.id !== entry.data.slug) {
-        throw new Error(
-          `Book directory "src/content/books/${entry.id}" declares ` +
-            `slug "${entry.data.slug}". The directory name and the slug must ` +
-            'match, because the directory name is what routes the page.',
-        );
-      }
-      assertGuidesResolve(entry.data, entry.id, guideIds);
-      return { params: { slug: entry.data.slug }, props: { entry } };
-    });
+const { slug } = Astro.params;
+const books = await getCollection('books');
+const entry = books.find((b) => b.data.slug === slug || b.id === slug);
+
+if (!entry || entry.data.status !== 'available') {
+  return Astro.redirect('/404');
 }
 
-const { entry } = Astro.props;
+const guidesAll = await getCollection('guides');
+const guideIds = guidesAll.map((g) => g.id);
+assertGuidesResolve(entry.data, entry.id, guideIds);
+
 const book = entry.data;
+
+await seedDefaultPlansIfMissing();
+const user = getCurrentUser(Astro.request);
+const plans = listPlansForBook(book.slug);
+const activeSub = user ? getUserActiveSubscription(user.id, book.slug) : null;
 
 const guides = await getCollection('guides', (g) =>
   g.id.startsWith(`${entry.id}/`),
@@ -255,6 +254,79 @@ const jsonLd = {
           <FreeMaterialFigure book={book} />
         </div>
 
+        <!-- Passyn Subscription Passes Section -->
+        <section class="book-subscriptions" style="margin: var(--space-8) 0; border-top: 1px solid var(--rule-strong); padding-top: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4);">
+            <div>
+              <span class="paywall-block__tag" style="margin-bottom: var(--space-1);">Passyn Access Infrastructure</span>
+              <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink);">
+                Study Guide Passes
+              </h2>
+            </div>
+            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
+              {activeSub ? '✓ Active Pass Enabled' : 'Unlock chapter study guides, video lecture breakdowns, and milestones.'}
+            </p>
+          </div>
+
+          {activeSub ? (
+            <div style="background: var(--status-complete-wash); border: 1px solid var(--status-complete-border); border-radius: 4px; padding: var(--space-6); margin-bottom: var(--space-6);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+                <div>
+                  <span class="badge badge--active" style="margin-bottom: var(--space-2);">PASS ACTIVE</span>
+                  <h3 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--status-complete); margin: var(--space-1) 0;">
+                    {activeSub.plan_name}
+                  </h3>
+                  <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2);">
+                    You have full access to all protected study guides for this book until <strong>{activeSub.expires_at ? new Date(activeSub.expires_at).toLocaleString() : 'expiry'}</strong>.
+                  </p>
+                </div>
+                <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+                  Manage in Dashboard
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div class="plans-grid">
+              {plans.map((p, idx) => (
+                <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
+                  {idx === 1 && <span class="plan-card__badge">MOST POPULAR</span>}
+                  <h3 class="plan-card__title">{p.name}</h3>
+                  <p class="plan-card__meta">Passyn Pass · {p.duration_hours}h access</p>
+                  <div class="plan-card__price-wrap">
+                    <span class="plan-card__price">${p.price.toFixed(2)}</span>
+                    <span class="plan-card__currency">{p.currency}</span>
+                    <span class="plan-card__period">/ {p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : '24 hrs'}</span>
+                  </div>
+                  <p class="plan-card__desc">{p.description || 'Full unmetered access to study guides and roadmaps.'}</p>
+                  <ul class="plan-card__features">
+                    <li>All chapter study guides</li>
+                    <li>Problem set & solution breakdowns</li>
+                    <li>Passyn verified access token</li>
+                  </ul>
+                  {user ? (
+                    <button
+                      type="button"
+                      class="btn-sub purchase-pass-btn"
+                      data-plan-id={p.id}
+                      data-book-slug={book.slug}
+                    >
+                      Get Pass (${p.price.toFixed(2)})
+                    </button>
+                  ) : (
+                    <a
+                      href={`/auth/login?redirect=${encodeURIComponent(`/books/${book.slug}`)}`}
+                      class="btn-sub btn-sub--secondary"
+                      style="text-align: center;"
+                    >
+                      Sign In to Subscribe
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         <div class="parts">
           {
             book.parts.map((part) => (
@@ -348,6 +420,38 @@ const jsonLd = {
       <div class="toast" data-toast role="status" aria-live="polite"></div>
     </div>
   </div>
+
+  <script is:inline>
+    document.querySelectorAll('.purchase-pass-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const planId = btn.getAttribute('data-plan-id');
+        const bookSlug = btn.getAttribute('data-book-slug');
+
+        btn.disabled = true;
+        btn.textContent = 'Activating pass...';
+
+        try {
+          const res = await fetch('/api/subscriptions/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ planId, bookSlug }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            window.location.reload();
+          } else {
+            alert(data.error?.message || 'Subscription activation failed');
+            btn.disabled = false;
+            btn.textContent = 'Get Pass';
+          }
+        } catch {
+          alert('Network error. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Get Pass';
+        }
+      });
+    });
+  </script>
 </BaseLayout>
 
 <script>

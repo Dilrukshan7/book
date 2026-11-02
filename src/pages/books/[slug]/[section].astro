@@ -1,5 +1,5 @@
 ---
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import {
   findSection,
@@ -9,65 +9,57 @@ import {
   sectionHref,
   sectionSlug,
 } from '../../../lib/books';
+import { getCurrentUser } from '../../../lib/auth';
+import { checkBookAccess } from '../../../lib/access';
+import { listPlansForBook, seedDefaultPlansIfMissing } from '../../../lib/subscriptions';
 import { SITE } from '../../../site.config';
 import '../../../styles/guide.css';
+import '../../../styles/subscriptions.css';
 
-export async function getStaticPaths() {
-  const books = await getCollection('books');
-  const allGuides = await getCollection('guides');
+export const prerender = false;
 
-  return books
-    .filter((bookEntry) => bookEntry.data.status === 'available')
-    .flatMap((bookEntry) => {
-      const order = sectionCodes(bookEntry.data);
-      const bookGuides = allGuides
-        .filter((g) => g.id.startsWith(`${bookEntry.id}/`))
-        .sort(
-          (a, b) =>
-            order.indexOf(a.data.section) - order.indexOf(b.data.section),
-        );
+const { slug, section: sectionParam } = Astro.params;
 
-      return bookGuides.map((guide, index) => {
-        const found = findSection(bookEntry.data, guide.data.section);
-        // A guide pointing at a section code the book does not contain
-        // would otherwise render an orphan page; fail the build instead.
-        if (!found) {
-          throw new Error(
-            `Study guide "${guide.id}.md" declares section "${guide.data.section}", ` +
-              `which does not exist in book "${bookEntry.id}".`,
-          );
-        }
-
-        return {
-          params: {
-            slug: bookEntry.data.slug,
-            section: sectionSlug(found.section.code),
-          },
-          props: {
-            bookEntry,
-            guide,
-            prev: bookGuides[index - 1] ?? null,
-            next: bookGuides[index + 1] ?? null,
-          },
-        };
-      });
-    });
+const books = await getCollection('books');
+const bookEntry = books.find((b) => b.data.slug === slug || b.id === slug);
+if (!bookEntry || bookEntry.data.status !== 'available') {
+  return Astro.redirect('/404');
 }
 
-interface Props {
-  bookEntry: CollectionEntry<'books'>;
-  guide: CollectionEntry<'guides'>;
-  prev: CollectionEntry<'guides'> | null;
-  next: CollectionEntry<'guides'> | null;
-}
-
-const { bookEntry, guide, prev, next } = Astro.props as Props;
 const book = bookEntry.data;
+const order = sectionCodes(book);
+
+const allGuides = await getCollection('guides');
+const bookGuides = allGuides
+  .filter((g) => g.id.startsWith(`${bookEntry.id}/`))
+  .sort(
+    (a, b) =>
+      order.indexOf(a.data.section) - order.indexOf(b.data.section),
+  );
+
+const guideIndex = bookGuides.findIndex((g) => {
+  const found = findSection(book, g.data.section);
+  return found && sectionSlug(found.section.code) === sectionParam;
+});
+
+if (guideIndex === -1) {
+  return Astro.redirect('/404');
+}
+
+const guide = bookGuides[guideIndex];
+const prev = bookGuides[guideIndex - 1] ?? null;
+const next = bookGuides[guideIndex + 1] ?? null;
 
 const found = findSection(book, guide.data.section)!;
 const { section, part } = found;
 const links = resolveSectionLinks(book, section);
 const { Content } = await render(guide);
+
+// BACKEND-ENFORCED SUBSCRIPTION ACCESS CHECK
+await seedDefaultPlansIfMissing();
+const user = getCurrentUser(Astro.request);
+const accessCheck = await checkBookAccess(user, book.slug);
+const plans = listPlansForBook(book.slug);
 
 const sectionUrl = `${SITE.url}/books/${book.slug}/${sectionSlug(section.code)}`;
 const jsonLd = {
@@ -161,9 +153,67 @@ const jsonLd = {
     </header>
 
     <div class="guide__body">
-      <div class="prose">
-        <Content />
-      </div>
+      {
+        accessCheck.hasAccess ? (
+          <div class="prose">
+            <Content />
+          </div>
+        ) : (
+          <div class="paywall-block" style="margin-top: 0;">
+            <div class="paywall-block__header">
+              <span class="paywall-block__tag">Restricted Study Guide</span>
+              <h2 class="paywall-block__title">
+                Passyn Pass Required to Read Guide
+              </h2>
+              <p class="paywall-block__lead">
+                This study guide for <strong>{section.code}: {section.title}</strong> is protected. Choose a Passyn subscription pass below for instant access:
+              </p>
+            </div>
+
+            <div class="plans-grid" style="margin-bottom: var(--space-6);">
+              {plans.map((p, idx) => (
+                <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
+                  {idx === 1 && <span class="plan-card__badge">RECOMMENDED</span>}
+                  <h3 class="plan-card__title">{p.name}</h3>
+                  <div class="plan-card__price-wrap">
+                    <span class="plan-card__price">${p.price.toFixed(2)}</span>
+                    <span class="plan-card__currency">{p.currency}</span>
+                    <span class="plan-card__period">/ {p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : '24 hrs'}</span>
+                  </div>
+                  <p class="plan-card__desc">{p.description}</p>
+                  {user ? (
+                    <button
+                      type="button"
+                      class="btn-sub purchase-pass-btn"
+                      data-plan-id={p.id}
+                      data-book-slug={book.slug}
+                    >
+                      Get Pass (${p.price.toFixed(2)})
+                    </button>
+                  ) : (
+                    <a
+                      href={`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`}
+                      class="btn-sub btn-sub--secondary"
+                      style="text-align: center;"
+                    >
+                      Sign In to Subscribe
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
+              {accessCheck.reason === 'EXPIRED' && (
+                <strong style="color: var(--accent-deep);">Note: Your previous subscription has expired.</strong>
+              )}
+              {accessCheck.reason === 'REVOKED' && (
+                <strong style="color: var(--accent-deep);">Note: Your previous subscription was cancelled or revoked.</strong>
+              )}
+            </p>
+          </div>
+        )
+      }
 
       {/* The sources sit beside the guide on wide viewports and above it on
           narrow ones, so the reader can open the lecture while reading. */}
@@ -228,4 +278,36 @@ const jsonLd = {
       }
     </nav>
   </article>
+
+  <script is:inline>
+    document.querySelectorAll('.purchase-pass-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const planId = btn.getAttribute('data-plan-id');
+        const bookSlug = btn.getAttribute('data-book-slug');
+
+        btn.disabled = true;
+        btn.textContent = 'Activating pass...';
+
+        try {
+          const res = await fetch('/api/subscriptions/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ planId, bookSlug }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            window.location.reload();
+          } else {
+            alert(data.error?.message || 'Subscription activation failed');
+            btn.disabled = false;
+            btn.textContent = 'Get Pass';
+          }
+        } catch {
+          alert('Network error. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Get Pass';
+        }
+      });
+    });
+  </script>
 </BaseLayout>

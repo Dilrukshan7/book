@@ -17,14 +17,17 @@
     "check:spacing": "node scripts/check-spacing.mjs",
     "check:links": "node scripts/check-links.mjs --internal",
     "verify": "npm run check && npm run build && npm run check:spacing",
+    "test": "vitest run",
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/node": "^11.1.9",
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.2.9"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
   }
 }
