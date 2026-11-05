@@ -181,6 +181,9 @@ const allLevels = [
                       {book.level}
                     </span>
                   )}
+                  <span class="record__meta-pill" style="border-color: var(--accent); color: var(--accent-deep); font-weight: 500;">
+                    Passyn Passes
+                  </span>
                 </div>
 
                 <h3 class="catalog-card__title">
@@ -219,10 +222,15 @@ const allLevels = [
                 <span>{book.parts.length} Parts &middot; {sectionsCount} Sections</span>
               </div>
 
-              <a class="btn btn--secondary" href={`/books/${book.slug}`}>
-                <span>Roadmap</span>
-                <span class="btn__arrow" aria-hidden="true">&#8594;</span>
-              </a>
+              <div style="display: flex; gap: var(--space-2);">
+                <a class="btn btn--secondary" href={`/subscriptions`}>
+                  <span>Passes</span>
+                </a>
+                <a class="btn" href={`/books/${book.slug}`}>
+                  <span>Roadmap</span>
+                  <span class="btn__arrow" aria-hidden="true">&#8594;</span>
+                </a>
+              </div>
             </div>
           </article>
         );

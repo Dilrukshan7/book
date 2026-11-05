@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { randomBytes, scryptSync } from 'node:crypto';
 
 let dbInstance: DatabaseSync | null = null;
 
@@ -142,4 +143,101 @@ export function runMigrations(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
     CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
   `);
+
+  // 7. Seed default platform admin account if missing
+  const adminEmail = (process.env.ADMIN_EMAIL || 'admin@readbooks.dev').trim().toLowerCase();
+  const existingAdmin = db.prepare(`SELECT id FROM users WHERE email = ?`).get(adminEmail);
+  if (!existingAdmin) {
+    const salt = randomBytes(16).toString('hex');
+    const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPass123!';
+    const hash = scryptSync(adminPassword, salt, 64).toString('hex');
+    const passwordHash = `${salt}:${hash}`;
+    const id = `usr_admin_${randomBytes(8).toString('hex')}`;
+    const now = new Date().toISOString();
+    db.prepare(`
+      INSERT INTO users (id, email, name, password_hash, role, created_at, updated_at)
+      VALUES (?, ?, 'Platform Admin', ?, 'ADMIN', ?, ?)
+    `).run(id, adminEmail, passwordHash, now, now);
+  }
+
+  // 8. Seed default subscription plans if missing
+  const planCount = db.prepare(`SELECT COUNT(*) as count FROM book_plans`).get() as { count: number };
+  if (planCount.count === 0) {
+    const defaultPlans = [
+      {
+        bookSlug: 'introduction-to-linear-algebra',
+        name: '24-Hour Intensive Pass',
+        description: 'Full unmetered access to all study guides, video notes, and roadmap milestones for 24 hours.',
+        price: 4.99,
+        durationHours: 24,
+        passType: 'DAY',
+      },
+      {
+        bookSlug: 'introduction-to-linear-algebra',
+        name: '7-Day Study Sprint Pass',
+        description: 'One full week of structured access to study guides and problem set breakdowns.',
+        price: 14.99,
+        durationHours: 168,
+        passType: 'WEEKLY',
+      },
+      {
+        bookSlug: 'introduction-to-linear-algebra',
+        name: 'Semester Mastery Pass (30 Days)',
+        description: '30-day comprehensive access with full interactive progress tracking and study guides.',
+        price: 29.99,
+        durationHours: 720,
+        passType: 'CUSTOM',
+      },
+      {
+        bookSlug: 'linear-algebra-and-learning-from-data',
+        name: '24-Hour Sprint Pass',
+        description: '24-hour full access to MIT 18.065 deep learning and matrix calculus study guides.',
+        price: 5.99,
+        durationHours: 24,
+        passType: 'DAY',
+      },
+      {
+        bookSlug: 'linear-algebra-and-learning-from-data',
+        name: 'Weekly Deep-Dive Pass',
+        description: '7-day deep-dive into SVD, PCA, neural networks, and optimization roadmaps.',
+        price: 18.99,
+        durationHours: 168,
+        passType: 'WEEKLY',
+      },
+      {
+        bookSlug: 'linear-algebra-and-learning-from-data',
+        name: 'Full Course Pass (30 Days)',
+        description: '30 days of comprehensive study guide and deep learning mathematics access.',
+        price: 34.99,
+        durationHours: 720,
+        passType: 'CUSTOM',
+      },
+    ];
+
+    const now = new Date().toISOString();
+    const insertPlan = db.prepare(`
+      INSERT INTO book_plans (
+        id, book_slug, passyn_pass_id, name, description,
+        price, currency, duration_hours, pass_type, is_active,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, ?, 1, ?, ?)
+    `);
+
+    for (const p of defaultPlans) {
+      const planId = `plan_${randomBytes(8).toString('hex')}`;
+      const passynPassId = `pass_mock_${randomBytes(6).toString('hex')}`;
+      insertPlan.run(
+        planId,
+        p.bookSlug,
+        passynPassId,
+        p.name,
+        p.description,
+        p.price,
+        p.durationHours,
+        p.passType,
+        now,
+        now
+      );
+    }
+  }
 }

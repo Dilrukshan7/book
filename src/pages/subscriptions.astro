@@ -1,0 +1,266 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCurrentUser } from '../lib/auth';
+import {
+  listAllPlans,
+  listUserSubscriptions,
+  seedDefaultPlansIfMissing,
+} from '../lib/subscriptions';
+import '../styles/subscriptions.css';
+
+export const prerender = false;
+
+await seedDefaultPlansIfMissing();
+const user = getCurrentUser(Astro.request);
+const allPlans = listAllPlans().filter((p) => p.is_active === 1);
+const userSubs = user ? listUserSubscriptions(user.id) : [];
+const activeSubsMap = new Map<string, typeof userSubs[0]>();
+
+for (const sub of userSubs) {
+  if (sub.status === 'ACTIVE' && (!sub.expires_at || new Date(sub.expires_at) > new Date())) {
+    activeSubsMap.set(sub.book_slug, sub);
+  }
+}
+
+const books = await getCollection('books');
+const availableBooks = books.filter((b) => b.data.status === 'available');
+
+// Group plans by book
+const plansByBook = availableBooks.map((book) => {
+  const plans = allPlans.filter((p) => p.book_slug === book.data.slug);
+  const activeSub = activeSubsMap.get(book.data.slug);
+  return {
+    book: book.data,
+    plans,
+    activeSub,
+  };
+});
+---
+
+<BaseLayout
+  title="Subscription Passes & Pricing · ReadBooks"
+  description="Flexible, time-bounded passes for technical book roadmaps and study guides powered by Passyn Developer API."
+>
+  <div class="u-page sub-container" style="max-width: 1040px;">
+    <!-- Hero Section -->
+    <header class="sub-header" style="text-align: center; border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-8); margin-bottom: var(--space-10);">
+      <span class="paywall-block__tag" style="margin-bottom: var(--space-2); display: inline-block;">
+        Passyn Developer API Infrastructure
+      </span>
+      <h1 class="sub-header__title" style="font-size: var(--step-4); margin-bottom: var(--space-3);">
+        Book Subscription Passes
+      </h1>
+      <p class="sub-header__desc" style="margin: 0 auto; font-size: var(--step-0); color: var(--ink-2); line-height: var(--leading-relaxed);">
+        Unlock comprehensive chapter study guides, matrix calculus breakdowns, and problem walkthroughs.
+        Choose the exact access window you need — from 24-hour sprints to semester-long mastery passes.
+      </p>
+
+      {user ? (
+        <div style="margin-top: var(--space-4); display: inline-flex; align-items: center; gap: var(--space-3); background: var(--paper-subtle); padding: var(--space-2) var(--space-4); border-radius: 4px; border: 1px solid var(--rule);">
+          <span style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2);">
+            Signed in as <strong>{user.name}</strong> ({user.email})
+          </span>
+          <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: 2px 10px; font-size: var(--step--2);">
+            My Dashboard
+          </a>
+        </div>
+      ) : (
+        <div style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-3);">
+          <a href="/auth/register?redirect=/subscriptions" class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-6);">
+            Create Free Account
+          </a>
+          <a href="/auth/login?redirect=/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-6);">
+            Sign In
+          </a>
+        </div>
+      )}
+    </header>
+
+    <!-- Books and Plans Sections -->
+    {plansByBook.map(({ book, plans, activeSub }) => (
+      <section style="margin-bottom: var(--space-16);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 2px solid var(--rule-ink); padding-bottom: var(--space-3);">
+          <div>
+            <span style="font-family: var(--font-mono); font-size: var(--step--2); color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+              Textbook Roadmap & Guides
+            </span>
+            <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-top: 2px;">
+              <a href={`/books/${book.slug}`} style="color: var(--ink); text-decoration: none;">
+                {book.title}
+              </a>
+            </h2>
+            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
+              by {book.author} ({book.year}) · {book.tagline}
+            </p>
+          </div>
+
+          <div>
+            {activeSub ? (
+              <span class="badge badge--active" style="padding: 6px 12px; font-size: var(--step--1);">
+                ✓ ACTIVE PASS UNTIL {new Date(activeSub.expires_at || '').toLocaleDateString()}
+              </span>
+            ) : (
+              <a href={`/books/${book.slug}`} class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4); font-size: var(--step--1);">
+                View Full Book Roadmap →
+              </a>
+            )}
+          </div>
+        </div>
+
+        {activeSub && (
+          <div style="background: var(--status-complete-wash); border: 1px solid var(--status-complete-border); border-radius: 4px; padding: var(--space-4) var(--space-6); margin-bottom: var(--space-6); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <strong style="color: var(--status-complete); font-family: var(--font-sans);">
+                Active Subscription: {activeSub.plan_name}
+              </strong>
+              <div style="font-size: var(--step--1); color: var(--ink-2); margin-top: 2px;">
+                You have unrestricted access to all chapter study guides and problem walkthroughs for this book until {new Date(activeSub.expires_at || '').toLocaleString()}.
+              </div>
+            </div>
+            <div style="display: flex; gap: var(--space-2);">
+              <a href={`/books/${book.slug}`} class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-4);">
+                Read Book Guides
+              </a>
+              <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+                Manage
+              </a>
+            </div>
+          </div>
+        )}
+
+        <div class="plans-grid">
+          {plans.map((p, idx) => {
+            const isFeatured = idx === 1;
+            const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hours`;
+            return (
+              <div class={`plan-card ${isFeatured ? 'plan-card--featured' : ''}`}>
+                {isFeatured && <span class="plan-card__badge">MOST POPULAR</span>}
+                <h3 class="plan-card__title">{p.name}</h3>
+                <p class="plan-card__meta">Passyn Pass · {p.duration_hours}h access</p>
+
+                <div class="plan-card__price-wrap">
+                  <span class="plan-card__price">${p.price.toFixed(2)}</span>
+                  <span class="plan-card__currency">{p.currency}</span>
+                  <span class="plan-card__period">/ {periodLabel}</span>
+                </div>
+
+                <p class="plan-card__desc">
+                  {p.description || 'Full unmetered access to study guides, interactive notes, and problem sets.'}
+                </p>
+
+                <ul class="plan-card__features">
+                  <li>Full study guides for all chapters</li>
+                  <li>Problem set and exam walkthroughs</li>
+                  <li>Instant activation via Passyn API</li>
+                  <li>Unrestricted progress synchronization</li>
+                  <li>Zero recurring traps: auto-expires gracefully</li>
+                </ul>
+
+                {activeSub ? (
+                  <button type="button" class="btn-sub btn-sub--secondary" disabled style="opacity: 0.8;">
+                    Pass Already Active
+                  </button>
+                ) : user ? (
+                  <button
+                    type="button"
+                    class="btn-sub purchase-pass-btn"
+                    data-plan-id={p.id}
+                    data-book-slug={book.slug}
+                  >
+                    Get Pass (${p.price.toFixed(2)})
+                  </button>
+                ) : (
+                  <a
+                    href={`/auth/login?redirect=${encodeURIComponent('/subscriptions')}`}
+                    class="btn-sub btn-sub--secondary"
+                    style="text-align: center;"
+                  >
+                    Sign In to Subscribe
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+
+    <!-- FAQ & Architecture Section -->
+    <section style="background: var(--paper-raised); border: 1px solid var(--rule-strong); border-radius: 4px; padding: var(--space-8); margin-top: var(--space-12);">
+      <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-bottom: var(--space-6);">
+        Frequently Asked Questions
+      </h2>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
+            What is Passyn?
+          </h3>
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
+            Passyn is a multi-tenant access and pass infrastructure platform. ReadBooks integrates with Passyn's Developer API to issue, verify, and synchronize time-bounded passes seamlessly.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
+            What material is free vs pass-protected?
+          </h3>
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
+            The high-level book roadmaps, section ordering, and links to free university lectures remain 100% open to everyone. Deep-dive chapter study guides and structured milestone walkthroughs require an active pass.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
+            Do passes renew automatically?
+          </h3>
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
+            Passyn passes are designed around intentional, time-bounded study sprints. Passes run for their full duration (24h, 7d, 30d) and expire gracefully without unexpected recurring charges.
+          </p>
+        </div>
+
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
+            Can I cancel or manage my passes?
+          </h3>
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
+            Yes! Your customer dashboard at <a href="/account/subscriptions" style="color: var(--accent);">/account/subscriptions</a> displays all active and past passes, exact expiration timestamps, and instant self-service cancellation.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script is:inline>
+    document.querySelectorAll('.purchase-pass-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const planId = btn.getAttribute('data-plan-id');
+        const bookSlug = btn.getAttribute('data-book-slug');
+
+        btn.disabled = true;
+        btn.textContent = 'Activating pass...';
+
+        try {
+          const res = await fetch('/api/subscriptions/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ planId, bookSlug }),
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            window.location.reload();
+          } else {
+            alert(data.error?.message || 'Subscription activation failed');
+            btn.disabled = false;
+            btn.textContent = 'Get Pass';
+          }
+        } catch {
+          alert('Network error. Please try again.');
+          btn.disabled = false;
+          btn.textContent = 'Get Pass';
+        }
+      });
+    });
+  </script>
+</BaseLayout>

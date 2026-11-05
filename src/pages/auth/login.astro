@@ -6,9 +6,12 @@ import '../../styles/subscriptions.css';
 export const prerender = false;
 
 const user = getCurrentUser(Astro.request);
-const redirect = Astro.url.searchParams.get('redirect') || '/books';
+const redirect = Astro.url.searchParams.get('redirect') || '/subscriptions';
 
 if (user) {
+  if (redirect.startsWith('/admin') && user.role !== 'ADMIN') {
+    return Astro.redirect('/account/subscriptions');
+  }
   return Astro.redirect(redirect);
 }
 ---
@@ -72,7 +75,9 @@ if (user) {
           submitBtn.disabled = false;
           submitBtn.textContent = 'Sign in';
         } else {
-          window.location.href = redirect;
+          const params = new URLSearchParams(window.location.search);
+          const dest = params.get('redirect') || redirect || '/subscriptions';
+          window.location.href = dest;
         }
       } catch (err) {
         errBox.textContent = 'Network error. Please try again.';

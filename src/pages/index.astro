@@ -5,6 +5,7 @@ import BookCatalog from '../components/BookCatalog.astro';
 import { resolveSectionLinks } from '../lib/books';
 import { SITE } from '../site.config';
 import '../styles/home.css';
+import '../styles/subscriptions.css';
 
 const entries = await getCollection('books');
 const books = entries
@@ -189,7 +190,39 @@ const jsonLd = {
     <BookCatalog books={available} />
   </section>
 
-  {/* 4. What a roadmap carries: numbered sequence, no cards */}
+  {/* 4. Passyn Subscription Passes Section */}
+  <section class="u-page u-band" aria-labelledby="subs-heading" data-reveal>
+    <div class="seq-head" style="margin-bottom: var(--space-6);">
+      <span class="u-label">Subscription Access</span>
+      <h2 class="u-h2" id="subs-heading">Flexible Study Guide Passes</h2>
+      <p style="font-family: var(--font-sans); color: var(--ink-3); margin-top: var(--space-2); max-width: 65ch;">
+        Powered by Passyn Developer API. Choose from 24-hour sprints, weekly deep-dives, or full semester passes to unlock structured study guides and problem breakdowns.
+      </p>
+    </div>
+
+    <div style="background: var(--paper-raised); border: 1px solid var(--rule-strong); border-top: 3px solid var(--accent); border-radius: 4px; padding: var(--space-8); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-6);">
+      <div style="max-width: 60ch;">
+        <span class="paywall-block__tag" style="margin-bottom: var(--space-2); display: inline-block;">Passyn Infrastructure</span>
+        <h3 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-bottom: var(--space-2);">
+          Time-bounded access without recurring traps
+        </h3>
+        <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
+          Unlock comprehensive study guides for Gilbert Strang’s <em>Linear Algebra & Learning from Data</em> and <em>Introduction to Linear Algebra</em>. Instant activation, verified via Passyn, with self-service cancellation anytime.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: var(--space-3); min-width: 220px;">
+        <a href="/subscriptions" class="btn-sub" style="text-align: center; padding: var(--space-3) var(--space-6);">
+          View Subscription Plans →
+        </a>
+        <a href="/books" class="btn-sub btn-sub--secondary" style="text-align: center; padding: var(--space-2) var(--space-4);">
+          Browse Roadmaps
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {/* 5. What a roadmap carries: numbered sequence, no cards */}
   <section class="u-page u-band" aria-labelledby="seq-heading" data-reveal>
     <div class="seq-head">
       <span class="u-label">Features & Structure</span>
