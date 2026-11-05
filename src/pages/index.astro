@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import BookCatalog from '../components/BookCatalog.astro';
 import { resolveSectionLinks } from '../lib/books';
 import { SITE } from '../site.config';
+import PoweredByPassyn from '../components/PoweredByPassyn.astro';
 import '../styles/home.css';
 import '../styles/subscriptions.css';
 
@@ -190,30 +191,30 @@ const jsonLd = {
     <BookCatalog books={available} />
   </section>
 
-  {/* 4. Passyn Subscription Passes Section */}
+  {/* 4. Reading Passes Section */}
   <section class="u-page u-band" aria-labelledby="subs-heading" data-reveal>
     <div class="seq-head" style="margin-bottom: var(--space-6);">
-      <span class="u-label">Subscription Access</span>
-      <h2 class="u-h2" id="subs-heading">Flexible Study Guide Passes</h2>
+      <span class="u-label">Study Passes</span>
+      <h2 class="u-h2" id="subs-heading">Focused Study Guide Access</h2>
       <p style="font-family: var(--font-sans); color: var(--ink-3); margin-top: var(--space-2); max-width: 65ch;">
-        Powered by Passyn Developer API. Choose from 24-hour sprints, weekly deep-dives, or full semester passes to unlock structured study guides and problem breakdowns.
+        Time-bounded access passes for deep study sprints, worked problem sets, and chapter guides — without unexpected recurring renewals.
       </p>
     </div>
 
-    <div style="background: var(--paper-raised); border: 1px solid var(--rule-strong); border-top: 3px solid var(--accent); border-radius: 4px; padding: var(--space-8); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-6);">
+    <div style="background: var(--paper-raised); border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 4px; padding: var(--space-6) var(--space-8); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-6);">
       <div style="max-width: 60ch;">
-        <span class="paywall-block__tag" style="margin-bottom: var(--space-2); display: inline-block;">Passyn Infrastructure</span>
         <h3 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-bottom: var(--space-2);">
-          Time-bounded access without recurring traps
+          Sprint-oriented passes for serious learners
         </h3>
-        <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
-          Unlock comprehensive study guides for Gilbert Strang’s <em>Linear Algebra & Learning from Data</em> and <em>Introduction to Linear Algebra</em>. Instant activation, verified via Passyn, with self-service cancellation anytime.
+        <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed); margin-bottom: var(--space-3);">
+          Unlock comprehensive study guides for Gilbert Strang’s <em>Linear Algebra & Learning from Data</em> and <em>Introduction to Linear Algebra</em>. Choose from 24-hour sprints, weekly deep-dives, or semester mastery passes.
         </p>
+        <PoweredByPassyn />
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: var(--space-3); min-width: 220px;">
-        <a href="/subscriptions" class="btn-sub" style="text-align: center; padding: var(--space-3) var(--space-6);">
-          View Subscription Plans →
+      <div style="display: flex; flex-direction: column; gap: var(--space-2); min-width: 200px;">
+        <a href="/subscriptions" class="btn-sub" style="text-align: center; padding: var(--space-2) var(--space-5);">
+          View Study Passes →
         </a>
         <a href="/books" class="btn-sub btn-sub--secondary" style="text-align: center; padding: var(--space-2) var(--space-4);">
           Browse Roadmaps

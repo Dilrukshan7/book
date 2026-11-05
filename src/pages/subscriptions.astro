@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import PoweredByPassyn from '../components/PoweredByPassyn.astro';
 import { getCurrentUser } from '../lib/auth';
 import {
   listAllPlans,
@@ -39,38 +40,36 @@ const plansByBook = availableBooks.map((book) => {
 ---
 
 <BaseLayout
-  title="Subscription Passes & Pricing · ReadBooks"
-  description="Flexible, time-bounded passes for technical book roadmaps and study guides powered by Passyn Developer API."
+  title="Study Passes & Access · ReadBooks"
+  description="Flexible, time-bounded passes for chapter study guides, problem breakdowns, and roadmap milestones."
 >
-  <div class="u-page sub-container" style="max-width: 1040px;">
-    <!-- Hero Section -->
-    <header class="sub-header" style="text-align: center; border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-8); margin-bottom: var(--space-10);">
-      <span class="paywall-block__tag" style="margin-bottom: var(--space-2); display: inline-block;">
-        Passyn Developer API Infrastructure
-      </span>
-      <h1 class="sub-header__title" style="font-size: var(--step-4); margin-bottom: var(--space-3);">
-        Book Subscription Passes
+  <div class="u-page sub-container">
+    <!-- Minimalist Editorial Header -->
+    <header class="sub-header">
+      <span class="sub-header__eyebrow">Study Access</span>
+      <h1 class="sub-header__title">
+        Reading Passes
       </h1>
-      <p class="sub-header__desc" style="margin: 0 auto; font-size: var(--step-0); color: var(--ink-2); line-height: var(--leading-relaxed);">
-        Unlock comprehensive chapter study guides, matrix calculus breakdowns, and problem walkthroughs.
-        Choose the exact access window you need — from 24-hour sprints to semester-long mastery passes.
+      <p class="sub-header__desc">
+        Direct, unmetered access to chapter study notes, worked examples, and problem walkthroughs.
+        Choose a focused sprint window — with zero recurring subscriptions.
       </p>
 
       {user ? (
-        <div style="margin-top: var(--space-4); display: inline-flex; align-items: center; gap: var(--space-3); background: var(--paper-subtle); padding: var(--space-2) var(--space-4); border-radius: 4px; border: 1px solid var(--rule);">
+        <div style="margin-top: var(--space-4); display: inline-flex; align-items: center; gap: var(--space-3); background: var(--paper-raised); padding: var(--space-2) var(--space-4); border-radius: 4px; border: 1px solid var(--rule);">
           <span style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2);">
             Signed in as <strong>{user.name}</strong> ({user.email})
           </span>
           <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: 2px 10px; font-size: var(--step--2);">
-            My Dashboard
+            My Passes
           </a>
         </div>
       ) : (
         <div style="margin-top: var(--space-4); display: flex; justify-content: center; gap: var(--space-3);">
-          <a href="/auth/register?redirect=/subscriptions" class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-6);">
-            Create Free Account
+          <a href="/auth/register?redirect=/subscriptions" class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-5);">
+            Create Account
           </a>
-          <a href="/auth/login?redirect=/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-6);">
+          <a href="/auth/login?redirect=/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-5);">
             Sign In
           </a>
         </div>
@@ -79,50 +78,47 @@ const plansByBook = availableBooks.map((book) => {
 
     <!-- Books and Plans Sections -->
     {plansByBook.map(({ book, plans, activeSub }) => (
-      <section style="margin-bottom: var(--space-16);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 2px solid var(--rule-ink); padding-bottom: var(--space-3);">
+      <section style="margin-bottom: var(--space-12);">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 1px solid var(--rule); padding-bottom: var(--space-3);">
           <div>
-            <span style="font-family: var(--font-mono); font-size: var(--step--2); color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-              Textbook Roadmap & Guides
-            </span>
-            <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-top: 2px;">
+            <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin: 0;">
               <a href={`/books/${book.slug}`} style="color: var(--ink); text-decoration: none;">
                 {book.title}
               </a>
             </h2>
-            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
-              by {book.author} ({book.year}) · {book.tagline}
+            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); margin-top: 2px;">
+              by {book.author} ({book.year})
             </p>
           </div>
 
           <div>
             {activeSub ? (
-              <span class="badge badge--active" style="padding: 6px 12px; font-size: var(--step--1);">
-                ✓ ACTIVE PASS UNTIL {new Date(activeSub.expires_at || '').toLocaleDateString()}
+              <span class="badge badge--active" style="padding: 4px 10px;">
+                ✓ Active pass until {new Date(activeSub.expires_at || '').toLocaleDateString()}
               </span>
             ) : (
-              <a href={`/books/${book.slug}`} class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4); font-size: var(--step--1);">
-                View Full Book Roadmap →
+              <a href={`/books/${book.slug}`} class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
+                View Roadmap →
               </a>
             )}
           </div>
         </div>
 
         {activeSub && (
-          <div style="background: var(--status-complete-wash); border: 1px solid var(--status-complete-border); border-radius: 4px; padding: var(--space-4) var(--space-6); margin-bottom: var(--space-6); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+          <div style="background: var(--paper-raised); border: 1px solid var(--rule); border-left: 3px solid var(--status-complete); border-radius: 4px; padding: var(--space-4) var(--space-6); margin-bottom: var(--space-6); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
             <div>
-              <strong style="color: var(--status-complete); font-family: var(--font-sans);">
-                Active Subscription: {activeSub.plan_name}
+              <strong style="color: var(--ink); font-family: var(--font-sans); font-size: var(--step--1);">
+                Current Pass: {activeSub.plan_name}
               </strong>
-              <div style="font-size: var(--step--1); color: var(--ink-2); margin-top: 2px;">
-                You have unrestricted access to all chapter study guides and problem walkthroughs for this book until {new Date(activeSub.expires_at || '').toLocaleString()}.
+              <div style="font-size: var(--step--1); color: var(--ink-3); margin-top: 2px;">
+                Unrestricted access to all study guides until {new Date(activeSub.expires_at || '').toLocaleString()}.
               </div>
             </div>
             <div style="display: flex; gap: var(--space-2);">
-              <a href={`/books/${book.slug}`} class="btn-sub" style="width: auto; padding: var(--space-2) var(--space-4);">
-                Read Book Guides
+              <a href={`/books/${book.slug}`} class="btn-sub" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
+                Read Guides
               </a>
-              <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+              <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
                 Manage
               </a>
             </div>
@@ -135,9 +131,9 @@ const plansByBook = availableBooks.map((book) => {
             const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hours`;
             return (
               <div class={`plan-card ${isFeatured ? 'plan-card--featured' : ''}`}>
-                {isFeatured && <span class="plan-card__badge">MOST POPULAR</span>}
+                {isFeatured && <span class="plan-card__badge">POPULAR</span>}
                 <h3 class="plan-card__title">{p.name}</h3>
-                <p class="plan-card__meta">Passyn Pass · {p.duration_hours}h access</p>
+                <p class="plan-card__meta">{periodLabel} access</p>
 
                 <div class="plan-card__price-wrap">
                   <span class="plan-card__price">${p.price.toFixed(2)}</span>
@@ -150,16 +146,15 @@ const plansByBook = availableBooks.map((book) => {
                 </p>
 
                 <ul class="plan-card__features">
-                  <li>Full study guides for all chapters</li>
-                  <li>Problem set and exam walkthroughs</li>
-                  <li>Instant activation via Passyn API</li>
-                  <li>Unrestricted progress synchronization</li>
-                  <li>Zero recurring traps: auto-expires gracefully</li>
+                  <li>Complete chapter study guides</li>
+                  <li>Problem set and solution walkthroughs</li>
+                  <li>Instant activation across all devices</li>
+                  <li>Auto-expires without recurring renewals</li>
                 </ul>
 
                 {activeSub ? (
-                  <button type="button" class="btn-sub btn-sub--secondary" disabled style="opacity: 0.8;">
-                    Pass Already Active
+                  <button type="button" class="btn-sub btn-sub--secondary" disabled style="opacity: 0.7;">
+                    Pass Active
                   </button>
                 ) : user ? (
                   <button
@@ -176,56 +171,64 @@ const plansByBook = availableBooks.map((book) => {
                     class="btn-sub btn-sub--secondary"
                     style="text-align: center;"
                   >
-                    Sign In to Subscribe
+                    Sign In to Unlock
                   </a>
                 )}
               </div>
             );
           })}
         </div>
+
+        <!-- Discreet Powered by Passyn indicator -->
+        <div style="display: flex; justify-content: flex-end; margin-top: var(--space-2);">
+          <PoweredByPassyn />
+        </div>
       </section>
     ))}
 
-    <!-- FAQ & Architecture Section -->
-    <section style="background: var(--paper-raised); border: 1px solid var(--rule-strong); border-radius: 4px; padding: var(--space-8); margin-top: var(--space-12);">
-      <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin-bottom: var(--space-6);">
-        Frequently Asked Questions
-      </h2>
+    <!-- FAQ Section -->
+    <section style="background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 4px; padding: var(--space-6) var(--space-8); margin-top: var(--space-10);">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-6); border-bottom: 1px solid var(--rule-subtle); padding-bottom: var(--space-3);">
+        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin: 0;">
+          Frequently Asked Questions
+        </h2>
+        <PoweredByPassyn />
+      </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-6);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-6);">
         <div>
-          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
-            What is Passyn?
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1); color: var(--ink);">
+            What is included in a study pass?
           </h3>
-          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
-            Passyn is a multi-tenant access and pass infrastructure platform. ReadBooks integrates with Passyn's Developer API to issue, verify, and synchronize time-bounded passes seamlessly.
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); line-height: var(--leading-relaxed);">
+            Study passes grant unrestricted access to full chapter study guides, step-by-step problem walkthroughs, and key formula summaries.
           </p>
         </div>
 
         <div>
-          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
-            What material is free vs pass-protected?
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1); color: var(--ink);">
+            What material is free?
           </h3>
-          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
-            The high-level book roadmaps, section ordering, and links to free university lectures remain 100% open to everyone. Deep-dive chapter study guides and structured milestone walkthroughs require an active pass.
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); line-height: var(--leading-relaxed);">
+            The comprehensive book roadmaps, section ordering, and links to free university lectures remain permanently open to all readers.
           </p>
         </div>
 
         <div>
-          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1); color: var(--ink);">
             Do passes renew automatically?
           </h3>
-          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
-            Passyn passes are designed around intentional, time-bounded study sprints. Passes run for their full duration (24h, 7d, 30d) and expire gracefully without unexpected recurring charges.
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); line-height: var(--leading-relaxed);">
+            No. Reading passes are designed around dedicated study sprints (24 hours, 7 days, or 30 days). Passes expire naturally without recurring charges.
           </p>
         </div>
 
         <div>
-          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1);">
-            Can I cancel or manage my passes?
+          <h3 style="font-family: var(--font-serif); font-size: var(--step-0); font-weight: 600; margin-bottom: var(--space-1); color: var(--ink);">
+            Can I manage or cancel passes?
           </h3>
-          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2); line-height: var(--leading-relaxed);">
-            Yes! Your customer dashboard at <a href="/account/subscriptions" style="color: var(--accent);">/account/subscriptions</a> displays all active and past passes, exact expiration timestamps, and instant self-service cancellation.
+          <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3); line-height: var(--leading-relaxed);">
+            Yes. You can inspect all active passes and timestamps directly from your <a href="/account/subscriptions" style="color: var(--accent); text-decoration: underline;">account dashboard</a> anytime.
           </p>
         </div>
       </div>

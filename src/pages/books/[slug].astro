@@ -10,6 +10,7 @@ import {
 } from '../../lib/books';
 import { getCurrentUser } from '../../lib/auth';
 import { listPlansForBook, getUserActiveSubscription, seedDefaultPlansIfMissing } from '../../lib/subscriptions';
+import PoweredByPassyn from '../../components/PoweredByPassyn.astro';
 import { SITE } from '../../site.config';
 import '../../styles/roadmap.css';
 import '../../styles/charts.css';
@@ -254,13 +255,13 @@ const jsonLd = {
           <FreeMaterialFigure book={book} />
         </div>
 
-        <!-- Passyn Subscription Passes Section -->
-        <section class="book-subscriptions" style="margin: var(--space-8) 0; border-top: 1px solid var(--rule-strong); padding-top: var(--space-6);">
+        <!-- Minimalist Study Passes Section -->
+        <section class="book-subscriptions" style="margin: var(--space-8) 0; border-top: 1px solid var(--rule); padding-top: var(--space-6);">
           <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4);">
             <div>
-              <span class="paywall-block__tag" style="margin-bottom: var(--space-1);">Passyn Access Infrastructure</span>
-              <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink);">
-                Study Guide Passes
+              <span class="sub-header__eyebrow" style="font-size: 11px;">Study Guides</span>
+              <h2 style="font-family: var(--font-serif); font-size: var(--step-2); font-weight: 600; color: var(--ink); margin: 0;">
+                Reading Passes
               </h2>
             </div>
             <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
@@ -269,60 +270,68 @@ const jsonLd = {
           </div>
 
           {activeSub ? (
-            <div style="background: var(--status-complete-wash); border: 1px solid var(--status-complete-border); border-radius: 4px; padding: var(--space-6); margin-bottom: var(--space-6);">
+            <div style="background: var(--paper-raised); border: 1px solid var(--rule); border-left: 3px solid var(--status-complete); border-radius: 4px; padding: var(--space-5) var(--space-6); margin-bottom: var(--space-6);">
               <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
                 <div>
-                  <span class="badge badge--active" style="margin-bottom: var(--space-2);">PASS ACTIVE</span>
-                  <h3 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--status-complete); margin: var(--space-1) 0;">
+                  <span class="badge badge--active" style="margin-bottom: var(--space-1);">Pass Active</span>
+                  <h3 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin: var(--space-1) 0;">
                     {activeSub.plan_name}
                   </h3>
-                  <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-2);">
-                    You have full access to all protected study guides for this book until <strong>{activeSub.expires_at ? new Date(activeSub.expires_at).toLocaleString() : 'expiry'}</strong>.
+                  <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
+                    Full access to all protected study guides until <strong>{activeSub.expires_at ? new Date(activeSub.expires_at).toLocaleString() : 'expiry'}</strong>.
                   </p>
                 </div>
-                <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+                <a href="/account/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
                   Manage in Dashboard
                 </a>
               </div>
             </div>
           ) : (
-            <div class="plans-grid">
-              {plans.map((p, idx) => (
-                <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
-                  {idx === 1 && <span class="plan-card__badge">MOST POPULAR</span>}
-                  <h3 class="plan-card__title">{p.name}</h3>
-                  <p class="plan-card__meta">Passyn Pass · {p.duration_hours}h access</p>
-                  <div class="plan-card__price-wrap">
-                    <span class="plan-card__price">${p.price.toFixed(2)}</span>
-                    <span class="plan-card__currency">{p.currency}</span>
-                    <span class="plan-card__period">/ {p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : '24 hrs'}</span>
-                  </div>
-                  <p class="plan-card__desc">{p.description || 'Full unmetered access to study guides and roadmaps.'}</p>
-                  <ul class="plan-card__features">
-                    <li>All chapter study guides</li>
-                    <li>Problem set & solution breakdowns</li>
-                    <li>Passyn verified access token</li>
-                  </ul>
-                  {user ? (
-                    <button
-                      type="button"
-                      class="btn-sub purchase-pass-btn"
-                      data-plan-id={p.id}
-                      data-book-slug={book.slug}
-                    >
-                      Get Pass (${p.price.toFixed(2)})
-                    </button>
-                  ) : (
-                    <a
-                      href={`/auth/login?redirect=${encodeURIComponent(`/books/${book.slug}`)}`}
-                      class="btn-sub btn-sub--secondary"
-                      style="text-align: center;"
-                    >
-                      Sign In to Subscribe
-                    </a>
-                  )}
-                </div>
-              ))}
+            <div>
+              <div class="plans-grid">
+                {plans.map((p, idx) => {
+                  const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hrs`;
+                  return (
+                    <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
+                      {idx === 1 && <span class="plan-card__badge">POPULAR</span>}
+                      <h3 class="plan-card__title">{p.name}</h3>
+                      <p class="plan-card__meta">{periodLabel} access</p>
+                      <div class="plan-card__price-wrap">
+                        <span class="plan-card__price">${p.price.toFixed(2)}</span>
+                        <span class="plan-card__currency">{p.currency}</span>
+                        <span class="plan-card__period">/ {periodLabel}</span>
+                      </div>
+                      <p class="plan-card__desc">{p.description || 'Full unmetered access to study guides and roadmaps.'}</p>
+                      <ul class="plan-card__features">
+                        <li>All chapter study guides</li>
+                        <li>Problem set & solution breakdowns</li>
+                        <li>No recurring charges</li>
+                      </ul>
+                      {user ? (
+                        <button
+                          type="button"
+                          class="btn-sub purchase-pass-btn"
+                          data-plan-id={p.id}
+                          data-book-slug={book.slug}
+                        >
+                          Get Pass (${p.price.toFixed(2)})
+                        </button>
+                      ) : (
+                        <a
+                          href={`/auth/login?redirect=${encodeURIComponent(`/books/${book.slug}`)}`}
+                          class="btn-sub btn-sub--secondary"
+                          style="text-align: center;"
+                        >
+                          Sign In to Unlock
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-2);">
+                <PoweredByPassyn />
+              </div>
             </div>
           )}
         </section>

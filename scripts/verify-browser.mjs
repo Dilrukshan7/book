@@ -60,10 +60,10 @@ async function runBrowserVerification() {
     const bookTitle = await page.textContent('.bookhead__title');
     console.log(`   Book Title: "${bookTitle?.trim()}"`);
     const subSectionText = await page.textContent('.book-subscriptions');
-    if (!subSectionText?.includes('Study Guide Passes')) {
-      throw new Error('Passyn Subscription section not found on Book roadmap page!');
+    if (!subSectionText?.includes('Reading Passes') && !subSectionText?.includes('Study Guides')) {
+      throw new Error('Subscription passes section not found on Book roadmap page!');
     }
-    console.log('   Passyn Subscription Section verified on Book Roadmap');
+    console.log('   Subscription Passes Section verified on Book Roadmap');
     await page.screenshot({ path: join(SCREENSHOTS_DIR, '03_book_roadmap_subscriptions.png'), fullPage: false });
     console.log('   Saved screenshot: 03_book_roadmap_subscriptions.png');
 
@@ -72,7 +72,7 @@ async function runBrowserVerification() {
     await page.goto(`${BASE_URL}/books/linear-algebra-and-learning-from-data/i-1`, { waitUntil: 'networkidle' });
     const paywallTitle = await page.textContent('.paywall-block__title');
     console.log(`   Paywall Banner Title: "${paywallTitle?.trim()}"`);
-    if (!paywallTitle?.includes('Passyn Pass Required')) {
+    if (!paywallTitle?.includes('Study Pass Required')) {
       throw new Error('Paywall did not trigger for unauthenticated user on protected study guide!');
     }
     await page.screenshot({ path: join(SCREENSHOTS_DIR, '04_study_guide_paywall.png'), fullPage: false });

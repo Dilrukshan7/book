@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import PoweredByPassyn from '../../components/PoweredByPassyn.astro';
 import { getCurrentUser } from '../../lib/auth';
 import { listUserSubscriptions } from '../../lib/subscriptions';
 import '../../styles/subscriptions.css';
@@ -16,22 +17,23 @@ const activeSubs = allSubs.filter((s) => s.status === 'ACTIVE' && (!s.expires_at
 const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at && new Date(s.expires_at) <= new Date()));
 ---
 
-<BaseLayout title="My Passes · ReadBooks" description="Manage your active technical book subscriptions and Passyn passes">
+<BaseLayout title="My Passes · ReadBooks" description="Manage your active technical book subscriptions and access passes">
   <div class="u-page sub-container">
-    <div class="sub-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: gap; gap: var(--space-4);">
+    <div class="sub-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-4); text-align: left;">
       <div>
-        <h1 class="sub-header__title">My Book Passes</h1>
-        <p class="sub-header__desc">
-          Logged in as <strong>{user.name}</strong> ({user.email}). Powered by Passyn Developer API.
+        <span class="sub-header__eyebrow">Account Dashboard</span>
+        <h1 class="sub-header__title" style="margin-bottom: var(--space-1);">My Reading Passes</h1>
+        <p class="sub-header__desc" style="margin: 0;">
+          Signed in as <strong>{user.name}</strong> ({user.email}).
         </p>
       </div>
-      <div style="display: flex; gap: var(--space-2);">
+      <div style="display: flex; align-items: center; gap: var(--space-2);">
         {user.role === 'ADMIN' && (
-          <a href="/admin/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
-            Admin Dashboard
+          <a href="/admin/subscriptions" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
+            Admin View
           </a>
         )}
-        <button id="logout-btn" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-2) var(--space-4);">
+        <button id="logout-btn" class="btn-sub btn-sub--secondary" style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);">
           Sign out
         </button>
       </div>
@@ -39,32 +41,35 @@ const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at &&
 
     <!-- Active Subscriptions -->
     <section style="margin-bottom: var(--space-12);">
-      <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
-        Active Passes ({activeSubs.length})
-      </h2>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule); padding-bottom: var(--space-2);">
+        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin: 0;">
+          Active Passes ({activeSubs.length})
+        </h2>
+        <PoweredByPassyn />
+      </div>
 
       {activeSubs.length === 0 ? (
-        <div style="background: var(--paper-raised); border: 1px dashed var(--rule-strong); padding: var(--space-8); border-radius: 4px; text-align: center;">
+        <div style="background: var(--paper-raised); border: 1px dashed var(--rule); padding: var(--space-8); border-radius: 4px; text-align: center;">
           <p style="font-family: var(--font-sans); color: var(--ink-3); margin-bottom: var(--space-4);">
             You have no active book passes at this moment.
           </p>
-          <a href="/books" class="btn-sub" style="display: inline-flex; width: auto; padding: var(--space-3) var(--space-6);">
-            Browse Technical Books
+          <a href="/subscriptions" class="btn-sub" style="display: inline-flex; width: auto; padding: var(--space-2) var(--space-5);">
+            Browse Study Passes
           </a>
         </div>
       ) : (
-        <div class="plans-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+        <div class="plans-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
           {activeSubs.map((sub) => {
             const expiresDate = sub.expires_at ? new Date(sub.expires_at).toLocaleString() : 'Never';
             return (
               <div class="plan-card plan-card--featured" id={`sub-${sub.id}`}>
-                <span class="plan-card__badge">ACTIVE PASS</span>
-                <h3 class="plan-card__title" style="margin-top: var(--space-2);">
+                <span class="plan-card__badge">ACTIVE</span>
+                <h3 class="plan-card__title" style="margin-top: var(--space-1);">
                   <a href={`/books/${sub.book_slug}`} style="color: var(--ink); text-decoration: none;">
                     {sub.book_slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                   </a>
                 </h3>
-                <p class="plan-card__meta">Plan: {sub.plan_name}</p>
+                <p class="plan-card__meta">{sub.plan_name}</p>
 
                 <div class="plan-card__desc" style="font-family: var(--font-mono); font-size: var(--step--2); color: var(--ink-3);">
                   <div>Activated: {sub.activated_at ? new Date(sub.activated_at).toLocaleDateString() : '—'}</div>
@@ -72,21 +77,21 @@ const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at &&
                     Expires: {expiresDate}
                   </div>
                   {sub.passyn_access_id && (
-                    <div style="margin-top: 4px; opacity: 0.8;">
-                      Passyn Access ID: <span style="font-size: 11px;">{sub.passyn_access_id}</span>
+                    <div style="margin-top: 4px; opacity: 0.6; font-size: 10px;">
+                      Ref: #{sub.passyn_access_id.slice(-10)}
                     </div>
                   )}
                 </div>
 
                 <div style="display: flex; gap: var(--space-2); margin-top: var(--space-4);">
-                  <a href={`/books/${sub.book_slug}`} class="btn-sub" style="text-align: center;">
+                  <a href={`/books/${sub.book_slug}`} class="btn-sub" style="text-align: center; padding: var(--space-1) var(--space-3);">
                     Read Book
                   </a>
                   <button
                     type="button"
                     class="btn-sub btn-sub--danger cancel-sub-btn"
                     data-sub-id={sub.id}
-                    style="width: auto; padding: var(--space-3) var(--space-4);"
+                    style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);"
                   >
                     Cancel
                   </button>
@@ -100,9 +105,9 @@ const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at &&
 
     <!-- Past / Inactive Subscriptions -->
     {pastSubs.length > 0 && (
-      <section>
-        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule-strong); padding-bottom: var(--space-2);">
-          Subscription History ({pastSubs.length})
+      <section style="margin-bottom: var(--space-8);">
+        <h2 style="font-family: var(--font-serif); font-size: var(--step-1); font-weight: 600; color: var(--ink); margin-bottom: var(--space-4); border-bottom: 1px solid var(--rule); padding-bottom: var(--space-2);">
+          Pass History ({pastSubs.length})
         </h2>
         <div class="table-wrap">
           <table class="admin-table">

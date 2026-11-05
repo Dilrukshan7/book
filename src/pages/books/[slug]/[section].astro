@@ -12,6 +12,7 @@ import {
 import { getCurrentUser } from '../../../lib/auth';
 import { checkBookAccess } from '../../../lib/access';
 import { listPlansForBook, seedDefaultPlansIfMissing } from '../../../lib/subscriptions';
+import PoweredByPassyn from '../../../components/PoweredByPassyn.astro';
 import { SITE } from '../../../site.config';
 import '../../../styles/guide.css';
 import '../../../styles/subscriptions.css';
@@ -161,56 +162,65 @@ const jsonLd = {
         ) : (
           <div class="paywall-block" style="margin-top: 0;">
             <div class="paywall-block__header">
-              <span class="paywall-block__tag">Restricted Study Guide</span>
+              <span class="paywall-block__tag">Study Guide</span>
               <h2 class="paywall-block__title">
-                Passyn Pass Required to Read Guide
+                Study Pass Required
               </h2>
               <p class="paywall-block__lead">
-                This study guide for <strong>{section.code}: {section.title}</strong> is protected. Choose a Passyn subscription pass below for instant access:
+                This study guide for <strong>{section.code}: {section.title}</strong> is available with an active reading pass. Choose an access window below:
               </p>
             </div>
 
             <div class="plans-grid" style="margin-bottom: var(--space-6);">
-              {plans.map((p, idx) => (
-                <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
-                  {idx === 1 && <span class="plan-card__badge">RECOMMENDED</span>}
-                  <h3 class="plan-card__title">{p.name}</h3>
-                  <div class="plan-card__price-wrap">
-                    <span class="plan-card__price">${p.price.toFixed(2)}</span>
-                    <span class="plan-card__currency">{p.currency}</span>
-                    <span class="plan-card__period">/ {p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : '24 hrs'}</span>
+              {plans.map((p, idx) => {
+                const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hrs`;
+                return (
+                  <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
+                    {idx === 1 && <span class="plan-card__badge">RECOMMENDED</span>}
+                    <h3 class="plan-card__title">{p.name}</h3>
+                    <div class="plan-card__price-wrap">
+                      <span class="plan-card__price">${p.price.toFixed(2)}</span>
+                      <span class="plan-card__currency">{p.currency}</span>
+                      <span class="plan-card__period">/ {periodLabel}</span>
+                    </div>
+                    <p class="plan-card__desc">{p.description}</p>
+                    {user ? (
+                      <button
+                        type="button"
+                        class="btn-sub purchase-pass-btn"
+                        data-plan-id={p.id}
+                        data-book-slug={book.slug}
+                      >
+                        Get Pass (${p.price.toFixed(2)})
+                      </button>
+                    ) : (
+                      <a
+                        href={`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`}
+                        class="btn-sub btn-sub--secondary"
+                        style="text-align: center;"
+                      >
+                        Sign In to Unlock
+                      </a>
+                    )}
                   </div>
-                  <p class="plan-card__desc">{p.description}</p>
-                  {user ? (
-                    <button
-                      type="button"
-                      class="btn-sub purchase-pass-btn"
-                      data-plan-id={p.id}
-                      data-book-slug={book.slug}
-                    >
-                      Get Pass (${p.price.toFixed(2)})
-                    </button>
-                  ) : (
-                    <a
-                      href={`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`}
-                      class="btn-sub btn-sub--secondary"
-                      style="text-align: center;"
-                    >
-                      Sign In to Subscribe
-                    </a>
-                  )}
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            <p style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
-              {accessCheck.reason === 'EXPIRED' && (
-                <strong style="color: var(--accent-deep);">Note: Your previous subscription has expired.</strong>
-              )}
-              {accessCheck.reason === 'REVOKED' && (
-                <strong style="color: var(--accent-deep);">Note: Your previous subscription was cancelled or revoked.</strong>
-              )}
-            </p>
+            <div class="paywall-block__footer">
+              <div style="font-family: var(--font-sans); font-size: var(--step--1); color: var(--ink-3);">
+                {accessCheck.reason === 'EXPIRED' && (
+                  <span style="color: var(--accent);">Your previous pass has expired.</span>
+                )}
+                {accessCheck.reason === 'REVOKED' && (
+                  <span style="color: var(--accent);">Your previous pass was revoked or cancelled.</span>
+                )}
+                {!accessCheck.reason && (
+                  <span>Passes run for their full time window with no automatic renewals.</span>
+                )}
+              </div>
+              <PoweredByPassyn />
+            </div>
           </div>
         )
       }

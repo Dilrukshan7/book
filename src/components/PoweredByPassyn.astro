@@ -1,0 +1,86 @@
+---
+interface Props {
+  class?: string;
+  style?: string;
+}
+
+const { class: className = '', style = '' } = Astro.props;
+---
+
+<a
+  href="https://passyn.dev"
+  target="_blank"
+  rel="noopener noreferrer"
+  class={`powered-by-passyn ${className}`}
+  style={style}
+  title="Access & Subscription Infrastructure powered by Passyn"
+  aria-label="Powered by Passyn (opens in new tab)"
+>
+  <span class="powered-by-passyn__text">powered by</span>
+  <span class="powered-by-passyn__brand">
+    <svg
+      class="powered-by-passyn__icon"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <rect width="20" height="20" x="2" y="2" rx="4" fill="#1B2A5B" stroke="none"></rect>
+      <polygon points="13 3 6 13 12 13 11 21 18 11 12 11 13 3" fill="#F4B740" stroke="#F4B740" stroke-width="1"></polygon>
+    </svg>
+    <span class="powered-by-passyn__name">passyn</span>
+  </span>
+</a>
+
+<style>
+  .powered-by-passyn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    line-height: 1;
+    color: var(--ink-3, #7a776e);
+    text-decoration: none;
+    padding: 3px 6px;
+    border-radius: 3px;
+    transition: color 0.15s ease, opacity 0.15s ease;
+    opacity: 0.82;
+  }
+
+  .powered-by-passyn:hover {
+    opacity: 1;
+    color: var(--ink, #141310);
+  }
+
+  .powered-by-passyn__text {
+    letter-spacing: 0.02em;
+    font-size: 10.5px;
+  }
+
+  .powered-by-passyn__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    color: var(--ink, #141310);
+  }
+
+  .powered-by-passyn__icon {
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .powered-by-passyn__name {
+    letter-spacing: -0.01em;
+  }
+
+  .powered-by-passyn__highlight {
+    color: #d97706;
+  }
+</style>
