@@ -156,9 +156,10 @@ async function runBrowserVerification() {
     await page.fill('#plan-desc', 'Two full days of intensive review and exam problem breakdowns');
 
     await page.click('#submit-new-plan');
+    await page.waitForLoadState('networkidle');
     await page.waitForSelector('text=48-Hour Exam Prep Pass', { timeout: 10000 });
     console.log('   Plan Created: YES (48-Hour Exam Prep Pass)');
-    await page.screenshot({ path: join(SCREENSHOTS_DIR, '09_admin_dashboard.png'), fullPage: false });
+    await page.screenshot({ path: join(SCREENSHOTS_DIR, '09_admin_dashboard.png'), fullPage: false, animations: 'disabled' });
     console.log('   Saved screenshot: 09_admin_dashboard.png');
 
     console.log('\n--- ALL BROWSER E2E VERIFICATIONS PASSED SUCCESSFULLY ---');

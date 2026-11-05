@@ -287,49 +287,57 @@ const jsonLd = {
               </div>
             </div>
           ) : (
-            <div>
-              <div class="plans-grid">
+            <div class="pass-ledger">
+              <div class="pass-ledger__head">
+                <span>Duration</span>
+                <span>Access Details</span>
+                <span>Price</span>
+                <span style="text-align: right;">Action</span>
+              </div>
+              <div class="pass-ledger__rows">
                 {plans.map((p, idx) => {
-                  const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hrs`;
+                  const isFeatured = idx === 1;
+                  const periodLabel = p.duration_hours >= 720 ? '30 Days' : p.duration_hours >= 168 ? '7 Days' : `${p.duration_hours} Hours`;
                   return (
-                    <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
-                      {idx === 1 && <span class="plan-card__badge">POPULAR</span>}
-                      <h3 class="plan-card__title">{p.name}</h3>
-                      <p class="plan-card__meta">{periodLabel} access</p>
-                      <div class="plan-card__price-wrap">
-                        <span class="plan-card__price">${p.price.toFixed(2)}</span>
-                        <span class="plan-card__currency">{p.currency}</span>
-                        <span class="plan-card__period">/ {periodLabel}</span>
+                    <div class={`pass-row plan-card ${isFeatured ? 'plan-card--featured pass-row--featured' : ''}`}>
+                      <div class="pass-row__main">
+                        <span class={`pass-row__tag ${isFeatured ? 'pass-row__tag--popular' : ''}`}>
+                          {periodLabel}
+                        </span>
+                        <h3 class="pass-row__name">{p.name}</h3>
                       </div>
-                      <p class="plan-card__desc">{p.description || 'Full unmetered access to study guides and roadmaps.'}</p>
-                      <ul class="plan-card__features">
-                        <li>All chapter study guides</li>
-                        <li>Problem set & solution breakdowns</li>
-                        <li>No recurring charges</li>
-                      </ul>
-                      {user ? (
-                        <button
-                          type="button"
-                          class="btn-sub purchase-pass-btn"
-                          data-plan-id={p.id}
-                          data-book-slug={book.slug}
-                        >
-                          Get Pass (${p.price.toFixed(2)})
-                        </button>
-                      ) : (
-                        <a
-                          href={`/auth/login?redirect=${encodeURIComponent(`/books/${book.slug}`)}`}
-                          class="btn-sub btn-sub--secondary"
-                          style="text-align: center;"
-                        >
-                          Sign In to Unlock
-                        </a>
-                      )}
+                      <div class="pass-row__desc">
+                        {p.description || 'Full unmetered access to study guides and roadmaps.'}
+                      </div>
+                      <div class="pass-row__price">
+                        <span class="pass-row__amount">${p.price.toFixed(2)}</span>
+                        <span class="pass-row__cur">{p.currency}</span>
+                      </div>
+                      <div class="pass-row__action">
+                        {user ? (
+                          <button
+                            type="button"
+                            class="btn-sub purchase-pass-btn"
+                            data-plan-id={p.id}
+                            data-book-slug={book.slug}
+                          >
+                            Get Pass
+                          </button>
+                        ) : (
+                          <a
+                            href={`/auth/login?redirect=${encodeURIComponent(`/books/${book.slug}`)}`}
+                            class="btn-sub btn-sub--secondary"
+                          >
+                            Sign In
+                          </a>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
               </div>
-              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-2);">
+              <div class="pass-ledger__foot">
+                <span>Instant access &middot; Self-service cancellation anytime</span>
                 <PoweredByPassyn />
               </div>
             </div>

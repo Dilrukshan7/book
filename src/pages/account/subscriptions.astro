@@ -49,56 +49,73 @@ const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at &&
       </div>
 
       {activeSubs.length === 0 ? (
-        <div style="background: var(--paper-raised); border: 1px dashed var(--rule); padding: var(--space-8); border-radius: 4px; text-align: center;">
-          <p style="font-family: var(--font-sans); color: var(--ink-3); margin-bottom: var(--space-4);">
+        <div style="background: var(--paper-raised); border: 1px dashed var(--rule); padding: 2rem; border-radius: var(--radius-md, 4px); text-align: center;">
+          <p style="font-family: var(--face-sans); color: var(--ink-3); margin-bottom: 1rem;">
             You have no active book passes at this moment.
           </p>
-          <a href="/subscriptions" class="btn-sub" style="display: inline-flex; width: auto; padding: var(--space-2) var(--space-5);">
+          <a href="/subscriptions" class="btn-sub" style="display: inline-flex; width: auto; padding: 0.45rem 1.15rem;">
             Browse Study Passes
           </a>
         </div>
       ) : (
-        <div class="plans-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
-          {activeSubs.map((sub) => {
-            const expiresDate = sub.expires_at ? new Date(sub.expires_at).toLocaleString() : 'Never';
-            return (
-              <div class="plan-card plan-card--featured" id={`sub-${sub.id}`}>
-                <span class="plan-card__badge">ACTIVE</span>
-                <h3 class="plan-card__title" style="margin-top: var(--space-1);">
-                  <a href={`/books/${sub.book_slug}`} style="color: var(--ink); text-decoration: none;">
-                    {sub.book_slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-                  </a>
-                </h3>
-                <p class="plan-card__meta">{sub.plan_name}</p>
+        <div class="pass-ledger">
+          <div class="pass-ledger__head">
+            <span>Book</span>
+            <span>Plan & Access Scope</span>
+            <span>Expiration</span>
+            <span style="text-align: right;">Actions</span>
+          </div>
 
-                <div class="plan-card__desc" style="font-family: var(--font-mono); font-size: var(--step--2); color: var(--ink-3);">
-                  <div>Activated: {sub.activated_at ? new Date(sub.activated_at).toLocaleDateString() : '—'}</div>
-                  <div style="color: var(--status-complete); font-weight: 600; margin-top: 4px;">
-                    Expires: {expiresDate}
+          <div class="pass-ledger__rows">
+            {activeSubs.map((sub) => {
+              const expiresDate = sub.expires_at ? new Date(sub.expires_at).toLocaleString() : 'Never';
+              const bookName = sub.book_slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              return (
+                <div class="pass-row plan-card plan-card--featured" id={`sub-${sub.id}`}>
+                  <div class="pass-row__main">
+                    <span class="badge badge--active" style="display: inline-block; width: fit-content; margin-bottom: 2px;">ACTIVE</span>
+                    <h3 class="pass-row__name">
+                      <a href={`/books/${sub.book_slug}`} style="color: var(--ink); text-decoration: none;">
+                        {bookName}
+                      </a>
+                    </h3>
                   </div>
-                  {sub.passyn_access_id && (
-                    <div style="margin-top: 4px; opacity: 0.6; font-size: 10px;">
-                      Ref: #{sub.passyn_access_id.slice(-10)}
-                    </div>
-                  )}
-                </div>
 
-                <div style="display: flex; gap: var(--space-2); margin-top: var(--space-4);">
-                  <a href={`/books/${sub.book_slug}`} class="btn-sub" style="text-align: center; padding: var(--space-1) var(--space-3);">
-                    Read Book
-                  </a>
-                  <button
-                    type="button"
-                    class="btn-sub btn-sub--danger cancel-sub-btn"
-                    data-sub-id={sub.id}
-                    style="width: auto; padding: var(--space-1) var(--space-3); font-size: var(--step--1);"
-                  >
-                    Cancel
-                  </button>
+                  <div class="pass-row__desc">
+                    <strong style="color: var(--ink);">{sub.plan_name}</strong>
+                    {sub.passyn_access_id && (
+                      <span style="display: block; font-family: var(--face-mono); font-size: 10px; color: var(--ink-muted); margin-top: 2px;">
+                        Ref: #{sub.passyn_access_id.slice(-10)}
+                      </span>
+                    )}
+                  </div>
+
+                  <div class="pass-row__price" style="flex-direction: column; align-items: flex-start; gap: 0;">
+                    <span style="font-family: var(--face-mono); font-size: 11px; color: var(--status-complete); font-weight: 600;">
+                      {expiresDate}
+                    </span>
+                    <span style="font-family: var(--face-sans); font-size: 10px; color: var(--ink-muted);">
+                      Activated {sub.activated_at ? new Date(sub.activated_at).toLocaleDateString() : '—'}
+                    </span>
+                  </div>
+
+                  <div class="pass-row__action" style="display: flex; gap: 0.35rem; justify-content: flex-end;">
+                    <a href={`/books/${sub.book_slug}`} class="btn-sub" style="padding: 0.35rem 0.65rem; font-size: var(--t-micro, 11px);">
+                      Read
+                    </a>
+                    <button
+                      type="button"
+                      class="btn-sub btn-sub--danger cancel-sub-btn"
+                      data-sub-id={sub.id}
+                      style="padding: 0.35rem 0.65rem; font-size: var(--t-micro, 11px); min-width: auto;"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </section>

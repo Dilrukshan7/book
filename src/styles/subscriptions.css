@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Minimalist Subscription & Access Passes Styles
-   Editorial, typography-first aesthetic matching ReadBooks design system
+   Minimalist Subscription & Reading Passes Styles
+   Bespoke, typography-first archival ledger matching ReadBooks design system
    (Archival paper, subtle hairlines, restrained ink, vermillion accent)
    ========================================================================== */
 
@@ -8,172 +8,188 @@
 .sub-container {
   max-width: 980px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4) var(--space-16);
+  padding: var(--s-7, 2rem) var(--s-4, 1rem) var(--s-10, 4rem);
 }
 
 .sub-header {
   border-bottom: 1px solid var(--rule);
-  padding-bottom: var(--space-6);
-  margin-bottom: var(--space-10);
+  padding-bottom: var(--s-6, 1.5rem);
+  margin-bottom: var(--s-8, 2rem);
   text-align: center;
 }
 
 .sub-header__eyebrow {
   display: inline-block;
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
+  font-family: var(--face-mono, monospace);
+  font-size: var(--t-micro, 11px);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-label, 0.08em);
   color: var(--accent);
-  margin-bottom: var(--space-2);
+  margin-bottom: var(--s-2, 0.5rem);
+  font-weight: 600;
 }
 
 .sub-header__title {
-  font-family: var(--font-serif);
-  font-size: var(--step-3);
-  font-weight: 600;
+  font-family: var(--face-serif, serif);
+  font-size: var(--t-h1, 2.5rem);
+  font-weight: 400;
   color: var(--ink);
-  line-height: var(--leading-tight);
-  margin-bottom: var(--space-2);
-  letter-spacing: -0.01em;
+  line-height: var(--lh-tight, 1.15);
+  margin-bottom: var(--s-2, 0.5rem);
+  letter-spacing: var(--track-display, -0.02em);
 }
 
 .sub-header__desc {
-  font-family: var(--font-sans);
-  font-size: var(--step-0);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-lead, 1.15rem);
   color: var(--ink-3);
   max-width: 62ch;
   margin: 0 auto;
-  line-height: var(--leading-relaxed);
+  line-height: var(--lh-normal, 1.5);
 }
 
-/* --- Plan Grid & Minimalist Cards --------------------------------------- */
-.plans-grid {
+/* --- Pass Ledger (Minimalist Table / Row Register) ----------------------- */
+.pass-ledger {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md, 4px);
+  margin: var(--s-5, 1.25rem) 0 var(--s-7, 1.75rem);
+  box-shadow: 0 1px 3px rgba(20, 19, 16, 0.03);
+  overflow: hidden;
+}
+
+.pass-ledger__head {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: var(--space-6);
-  margin: var(--space-6) 0 var(--space-8);
+  grid-template-columns: 170px 1fr 110px 140px;
+  gap: var(--s-4, 1rem);
+  padding: 0.65rem 1.25rem;
+  background: var(--paper-subtle);
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--face-mono, monospace);
+  font-size: var(--t-micro, 11px);
+  text-transform: uppercase;
+  letter-spacing: var(--track-label, 0.08em);
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.pass-ledger__rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.pass-row {
+  display: grid;
+  grid-template-columns: 170px 1fr 110px 140px;
+  gap: var(--s-4, 1rem);
+  align-items: center;
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid var(--rule-subtle);
+  background: var(--paper-raised);
+  transition: background var(--fast, 0.15s) ease;
+  position: relative;
+}
+
+.pass-row:last-child {
+  border-bottom: none;
+}
+
+.pass-row:hover {
+  background: var(--paper-muted);
+}
+
+.pass-row--featured {
+  background: #fefdfb;
+}
+
+.pass-row__main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pass-row__tag {
+  font-family: var(--face-mono, monospace);
+  font-size: 10px;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.pass-row__tag--popular {
+  color: var(--accent-deep, #8a210b);
+}
+
+.pass-row__name {
+  font-family: var(--face-serif, serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.pass-row__desc {
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-sm, 0.85rem);
+  color: var(--ink-3);
+  line-height: 1.45;
+}
+
+.pass-row__price {
+  font-family: var(--face-mono, monospace);
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+}
+
+.pass-row__amount {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.pass-row__cur {
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.pass-row__action {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pass-row__action .btn-sub {
+  width: auto;
+  min-width: 120px;
+  padding: 0.4rem 0.8rem;
+  font-size: var(--t-sm, 0.85rem);
+}
+
+.pass-ledger__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: var(--paper-subtle);
+  border-top: 1px solid var(--rule);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-micro, 11px);
+  color: var(--ink-3);
+}
+
+/* Fallback grid if needed */
+.plans-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .plan-card {
-  background: var(--paper-raised);
-  border: 1px solid var(--rule);
-  border-radius: 4px;
-  padding: var(--space-6);
-  display: flex;
-  flex-direction: column;
   position: relative;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.plan-card:hover {
-  border-color: var(--ink-3);
-}
-
-.plan-card--featured {
-  border-color: var(--ink);
-  box-shadow: 0 4px 16px rgba(20, 19, 16, 0.04);
-}
-
-.plan-card__badge {
-  position: absolute;
-  top: -10px;
-  right: var(--space-4);
-  background: var(--ink);
-  color: #fff;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 2px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.plan-card__title {
-  font-family: var(--font-serif);
-  font-size: var(--step-1);
-  font-weight: 600;
-  color: var(--ink);
-  margin-bottom: 2px;
-}
-
-.plan-card__meta {
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  color: var(--ink-3);
-  margin-bottom: var(--space-4);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.plan-card__price-wrap {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--rule-subtle);
-}
-
-.plan-card__price {
-  font-family: var(--font-sans);
-  font-size: var(--step-3);
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1;
-}
-
-.plan-card__currency {
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
-  color: var(--ink-3);
-  text-transform: uppercase;
-}
-
-.plan-card__period {
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
-  color: var(--ink-3);
-  margin-left: auto;
-}
-
-.plan-card__desc {
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
-  color: var(--ink-2);
-  line-height: var(--leading-relaxed);
-  margin-bottom: var(--space-6);
-  flex-grow: 1;
-}
-
-.plan-card__features {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 var(--space-6) 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  border-top: 1px solid var(--rule-subtle);
-  padding-top: var(--space-4);
-}
-
-.plan-card__features li {
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
-  color: var(--ink-2);
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
-  line-height: var(--leading-normal);
-}
-
-.plan-card__features li::before {
-  content: '·';
-  font-size: var(--step-1);
-  line-height: 0.9;
-  color: var(--accent);
-  font-weight: bold;
 }
 
 /* --- Buttons & Controls ------------------------------------------------- */
@@ -181,23 +197,22 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: var(--space-2) var(--space-4);
+  padding: 0.45rem 1rem;
   background: var(--ink);
-  color: #fff;
+  color: var(--paper, #fff);
   border: 1px solid var(--ink);
-  border-radius: 4px;
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
+  border-radius: var(--radius-sm, 3px);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-ui, 0.9rem);
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  transition: background var(--fast, 0.15s) ease, border-color var(--fast, 0.15s) ease, color var(--fast, 0.15s) ease;
 }
 
 .btn-sub:hover {
-  background: var(--ink-2);
-  border-color: var(--ink-2);
+  background: var(--accent);
+  border-color: var(--accent);
   color: #fff;
 }
 
@@ -207,7 +222,7 @@
 }
 
 .btn-sub--secondary {
-  background: transparent;
+  background: var(--paper-raised);
   color: var(--ink);
   border-color: var(--rule-strong);
 }
@@ -235,87 +250,89 @@
   background: var(--paper-raised);
   border: 1px solid var(--rule);
   border-left: 3px solid var(--accent);
-  border-radius: 4px;
-  padding: var(--space-6) var(--space-8);
-  margin: var(--space-8) 0;
+  border-radius: var(--radius-md, 4px);
+  padding: var(--s-6, 1.5rem) var(--s-7, 1.75rem);
+  margin: var(--s-6, 1.5rem) 0;
 }
 
 .paywall-block__header {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--s-4, 1rem);
 }
 
 .paywall-block__tag {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--face-mono, monospace);
   font-size: 11px;
   color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  margin-bottom: var(--space-1);
+  margin-bottom: 2px;
+  font-weight: 600;
 }
 
 .paywall-block__title {
-  font-family: var(--font-serif);
-  font-size: var(--step-2);
+  font-family: var(--face-serif, serif);
+  font-size: var(--t-h3, 1.6rem);
   font-weight: 600;
   color: var(--ink);
-  margin-bottom: var(--space-2);
+  margin-bottom: 0.35rem;
   letter-spacing: -0.01em;
 }
 
 .paywall-block__lead {
-  font-family: var(--font-sans);
-  font-size: var(--step-0);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-ui, 0.95rem);
   color: var(--ink-3);
-  line-height: var(--leading-relaxed);
+  line-height: var(--lh-normal, 1.5);
 }
 
 .paywall-block__footer {
-  margin-top: var(--space-4);
-  padding-top: var(--space-4);
+  margin-top: var(--s-4, 1rem);
+  padding-top: var(--s-3, 0.75rem);
   border-top: 1px solid var(--rule-subtle);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 0.5rem;
 }
 
 /* --- Auth Forms --------------------------------------------------------- */
 .auth-container {
-  max-width: 440px;
-  margin: var(--space-12) auto;
-  padding: var(--space-8);
+  max-width: 420px;
+  margin: var(--s-9, 3rem) auto;
+  padding: var(--s-7, 2rem);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-md, 4px);
+  box-shadow: 0 1px 4px rgba(20, 19, 16, 0.03);
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--s-4, 1rem);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 4px;
 }
 
 .form-label {
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-sm, 0.85rem);
   font-weight: 500;
   color: var(--ink);
 }
 
 .form-input {
-  font-family: var(--font-sans);
-  font-size: var(--step-0);
-  padding: var(--space-2) var(--space-3);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-ui, 0.95rem);
+  padding: 0.5rem 0.75rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm, 3px);
   background: #fff;
   color: var(--ink);
 }
@@ -326,10 +343,10 @@
 }
 
 .form-feedback {
-  padding: var(--space-3);
-  border-radius: 3px;
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm, 3px);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-sm, 0.85rem);
 }
 
 .form-feedback--error {
@@ -347,12 +364,13 @@
 /* --- Badges & Data Tables ----------------------------------------------- */
 .badge {
   display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--face-mono, monospace);
   font-size: 11px;
   padding: 2px 6px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm, 2px);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  font-weight: 600;
 }
 
 .badge--active {
@@ -376,35 +394,54 @@
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--rule);
-  border-radius: 4px;
-  margin-top: var(--space-4);
+  border-radius: var(--radius-md, 4px);
+  margin-top: var(--s-4, 1rem);
+  background: var(--paper-raised);
 }
 
 .admin-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: var(--font-sans);
-  font-size: var(--step--1);
+  font-family: var(--face-sans, sans-serif);
+  font-size: var(--t-sm, 0.85rem);
   text-align: left;
 }
 
 .admin-table th {
   background: var(--paper-subtle);
-  padding: var(--space-3) var(--space-4);
-  font-family: var(--font-mono);
-  font-size: var(--step--2);
+  padding: 0.65rem 1rem;
+  font-family: var(--face-mono, monospace);
+  font-size: var(--t-micro, 11px);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: var(--track-label, 0.06em);
   color: var(--ink-3);
   border-bottom: 1px solid var(--rule);
 }
 
 .admin-table td {
-  padding: var(--space-3) var(--space-4);
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--rule-subtle);
   color: var(--ink-2);
 }
 
 .admin-table tr:hover td {
   background: var(--paper-muted);
+}
+
+/* --- Responsive Adjustments --------------------------------------------- */
+@media (max-width: 768px) {
+  .pass-ledger__head {
+    display: none;
+  }
+  .pass-row {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    padding: 1rem;
+  }
+  .pass-row__action {
+    justify-content: stretch;
+  }
+  .pass-row__action .btn-sub {
+    width: 100%;
+  }
 }

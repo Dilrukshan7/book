@@ -171,40 +171,53 @@ const jsonLd = {
               </p>
             </div>
 
-            <div class="plans-grid" style="margin-bottom: var(--space-6);">
-              {plans.map((p, idx) => {
-                const periodLabel = p.duration_hours >= 720 ? '30 days' : p.duration_hours >= 168 ? '7 days' : `${p.duration_hours} hrs`;
-                return (
-                  <div class={`plan-card ${idx === 1 ? 'plan-card--featured' : ''}`}>
-                    {idx === 1 && <span class="plan-card__badge">RECOMMENDED</span>}
-                    <h3 class="plan-card__title">{p.name}</h3>
-                    <div class="plan-card__price-wrap">
-                      <span class="plan-card__price">${p.price.toFixed(2)}</span>
-                      <span class="plan-card__currency">{p.currency}</span>
-                      <span class="plan-card__period">/ {periodLabel}</span>
+            <div class="pass-ledger" style="margin-bottom: var(--s-4, 1rem);">
+              <div class="pass-ledger__head">
+                <span>Duration</span>
+                <span>Pass Scope</span>
+                <span>Price</span>
+                <span style="text-align: right;">Action</span>
+              </div>
+              <div class="pass-ledger__rows">
+                {plans.map((p, idx) => {
+                  const isFeatured = idx === 1;
+                  const periodLabel = p.duration_hours >= 720 ? '30 Days' : p.duration_hours >= 168 ? '7 Days' : `${p.duration_hours} Hours`;
+                  return (
+                    <div class={`pass-row plan-card ${idx === 1 ? 'plan-card--featured pass-row--featured' : ''}`}>
+                      <div class="pass-row__main">
+                        <span class={`pass-row__tag ${isFeatured ? 'pass-row__tag--popular' : ''}`}>
+                          {periodLabel}
+                        </span>
+                        <h3 class="pass-row__name">{p.name}</h3>
+                      </div>
+                      <div class="pass-row__desc">{p.description}</div>
+                      <div class="pass-row__price">
+                        <span class="pass-row__amount">${p.price.toFixed(2)}</span>
+                        <span class="pass-row__cur">{p.currency}</span>
+                      </div>
+                      <div class="pass-row__action">
+                        {user ? (
+                          <button
+                            type="button"
+                            class="btn-sub purchase-pass-btn"
+                            data-plan-id={p.id}
+                            data-book-slug={book.slug}
+                          >
+                            Get Pass
+                          </button>
+                        ) : (
+                          <a
+                            href={`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`}
+                            class="btn-sub btn-sub--secondary"
+                          >
+                            Sign In
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <p class="plan-card__desc">{p.description}</p>
-                    {user ? (
-                      <button
-                        type="button"
-                        class="btn-sub purchase-pass-btn"
-                        data-plan-id={p.id}
-                        data-book-slug={book.slug}
-                      >
-                        Get Pass (${p.price.toFixed(2)})
-                      </button>
-                    ) : (
-                      <a
-                        href={`/auth/login?redirect=${encodeURIComponent(Astro.url.pathname)}`}
-                        class="btn-sub btn-sub--secondary"
-                        style="text-align: center;"
-                      >
-                        Sign In to Unlock
-                      </a>
-                    )}
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
 
             <div class="paywall-block__footer">
