@@ -5,7 +5,7 @@ import { getDb } from '../../../lib/db';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user || user.role !== 'ADMIN') {
     return new Response(
       JSON.stringify({ success: false, error: { message: 'Admin access required' } }),
@@ -14,8 +14,8 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const db = getDb();
-  const webhookEvents = db.prepare(`SELECT * FROM webhook_events ORDER BY processed_at DESC LIMIT 50`).all();
-  const auditLogs = db.prepare(`SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 50`).all();
+  const webhookEvents = await db.query(`SELECT * FROM webhook_events ORDER BY processed_at DESC LIMIT 50`);
+  const auditLogs = await db.query(`SELECT * FROM audit_logs ORDER BY created_at DESC LIMIT 50`);
 
   return new Response(
     JSON.stringify({

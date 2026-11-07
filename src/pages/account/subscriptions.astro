@@ -7,12 +7,12 @@ import '../../styles/subscriptions.css';
 
 export const prerender = false;
 
-const user = getCurrentUser(Astro.request);
+const user = await getCurrentUser(Astro.request);
 if (!user) {
   return Astro.redirect('/auth/login?redirect=/account/subscriptions');
 }
 
-const allSubs = listUserSubscriptions(user.id);
+const allSubs = await listUserSubscriptions(user.id);
 const activeSubs = allSubs.filter((s) => s.status === 'ACTIVE' && (!s.expires_at || new Date(s.expires_at) > new Date()));
 const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at && new Date(s.expires_at) <= new Date()));
 ---

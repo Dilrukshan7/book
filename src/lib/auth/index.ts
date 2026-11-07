@@ -41,23 +41,22 @@ export function verifyPassword(password: string, storedHash: string): boolean {
   }
 }
 
-export function registerUser(
+export async function registerUser(
   name: string,
   email: string,
   password: string,
   role: 'ADMIN' | 'SUBSCRIBER' = 'SUBSCRIBER'
-): UserRecord {
+): Promise<UserRecord> {
   const db = getDb();
   const normalizedEmail = email.trim().toLowerCase();
   const id = `usr_${randomBytes(12).toString('hex')}`;
   const password_hash = hashPassword(password);
   const now = new Date().toISOString();
 
-  const stmt = db.prepare(`
-    INSERT INTO users (id, email, name, password_hash, role, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `);
-  stmt.run(id, normalizedEmail, name.trim(), password_hash, role, now, now);
+  await db.execute(
+    `INSERT INTO users (id, email, name, password_hash, role, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [id, normalizedEmail, name.trim(), password_hash, role, now, now]
+  );
 
   return {
     id,
@@ -71,11 +70,10 @@ export function registerUser(
   };
 }
 
-export function authenticateUser(email: string, password: string): UserRecord | null {
+export async function authenticateUser(email: string, password: string): Promise<UserRecord | null> {
   const db = getDb();
   const normalizedEmail = email.trim().toLowerCase();
-  const stmt = db.prepare(`SELECT * FROM users WHERE email = ? LIMIT 1`);
-  const user = stmt.get(normalizedEmail) as UserRecord | undefined;
+  const user = await db.queryOne<UserRecord>(`SELECT * FROM users WHERE email = ? LIMIT 1`, [normalizedEmail]);
   if (!user) return null;
 
   if (!verifyPassword(password, user.password_hash)) {
@@ -85,40 +83,38 @@ export function authenticateUser(email: string, password: string): UserRecord | 
   return user;
 }
 
-export function createSession(userId: string): { token: string; expiresAt: string } {
+export async function createSession(userId: string): Promise<{ token: string; expiresAt: string }> {
   const db = getDb();
   const token = randomBytes(32).toString('hex');
   const id = `ses_${randomBytes(12).toString('hex')}`;
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
-  const stmt = db.prepare(`
-    INSERT INTO sessions (id, user_id, token, expires_at)
-    VALUES (?, ?, ?, ?)
-  `);
-  stmt.run(id, userId, token, expiresAt);
+  await db.execute(
+    `INSERT INTO sessions (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)`,
+    [id, userId, token, expiresAt]
+  );
 
   return { token, expiresAt };
 }
 
-export function deleteSession(token: string): void {
+export async function deleteSession(token: string): Promise<void> {
   const db = getDb();
-  const stmt = db.prepare(`DELETE FROM sessions WHERE token = ?`);
-  stmt.run(token);
+  await db.execute(`DELETE FROM sessions WHERE token = ?`, [token]);
 }
 
-export function getUserFromToken(token: string): SessionUser | null {
+export async function getUserFromToken(token: string): Promise<SessionUser | null> {
   if (!token) return null;
   const db = getDb();
   const now = new Date().toISOString();
 
-  const stmt = db.prepare(`
-    SELECT u.id, u.email, u.name, u.role, u.passyn_user_id
-    FROM sessions s
-    JOIN users u ON s.user_id = u.id
-    WHERE s.token = ? AND s.expires_at > ?
-    LIMIT 1
-  `);
-  const user = stmt.get(token, now) as SessionUser | undefined;
+  const user = await db.queryOne<SessionUser>(
+    `SELECT u.id, u.email, u.name, u.role, u.passyn_user_id
+     FROM sessions s
+     JOIN users u ON s.user_id = u.id
+     WHERE s.token = ? AND s.expires_at > ?
+     LIMIT 1`,
+    [token, now]
+  );
   return user || null;
 }
 
@@ -135,12 +131,12 @@ export function parseCookies(cookieHeader: string | null | undefined): Record<st
   return cookies;
 }
 
-export function getCurrentUser(request: Request): SessionUser | null {
+export async function getCurrentUser(request: Request): Promise<SessionUser | null> {
   const cookieHeader = request.headers.get('cookie');
   const cookies = parseCookies(cookieHeader);
   const token = cookies[SESSION_COOKIE_NAME];
   if (!token) return null;
-  return getUserFromToken(token);
+  return await getUserFromToken(token);
 }
 
 export function createSessionCookie(token: string, expiresAt: string): string {
@@ -152,18 +148,17 @@ export function clearSessionCookie(): string {
   return `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
-export function updatePassynUserId(userId: string, passynUserId: string): void {
+export async function updatePassynUserId(userId: string, passynUserId: string): Promise<void> {
   const db = getDb();
-  const stmt = db.prepare(`UPDATE users SET passyn_user_id = ?, updated_at = datetime('now') WHERE id = ?`);
-  stmt.run(passynUserId, userId);
+  await db.execute(`UPDATE users SET passyn_user_id = ?, updated_at = datetime('now') WHERE id = ?`, [passynUserId, userId]);
 }
 
-export function seedAdminIfMissing(): void {
+export async function seedAdminIfMissing(): Promise<void> {
   const db = getDb();
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@readbooks.dev').trim().toLowerCase();
-  const existing = db.prepare(`SELECT id FROM users WHERE email = ?`).get(adminEmail);
+  const existing = await db.queryOne<{ id: string }>(`SELECT id FROM users WHERE email = ?`, [adminEmail]);
   if (!existing) {
     const adminPassword = process.env.ADMIN_PASSWORD || 'AdminPass123!';
-    registerUser('Platform Admin', adminEmail, adminPassword, 'ADMIN');
+    await registerUser('Platform Admin', adminEmail, adminPassword, 'ADMIN');
   }
 }

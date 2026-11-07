@@ -4,7 +4,7 @@ import { getCurrentUser } from '../../../lib/auth';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user) {
     return new Response(
       JSON.stringify({ success: false, data: null, error: { code: 'unauthorized', message: 'Not logged in' } }),

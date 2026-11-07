@@ -5,7 +5,7 @@ import { subscribeUserToPlan } from '../../../lib/subscriptions';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user) {
     return new Response(
       JSON.stringify({

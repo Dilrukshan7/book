@@ -27,7 +27,7 @@ export async function checkBookAccess(
   }
 
   // 3. Look up active subscription in local database
-  const subscription = getUserActiveSubscription(user.id, bookSlug);
+  const subscription = await getUserActiveSubscription(user.id, bookSlug);
   if (!subscription) {
     return { hasAccess: false, reason: 'NO_SUBSCRIPTION' };
   }

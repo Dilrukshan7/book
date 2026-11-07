@@ -26,19 +26,21 @@ export interface PassynClientOptions {
   timeoutMs?: number;
 }
 
+function normalizeBaseUrl(raw?: string): string {
+  let url = (raw || process.env.PASSYN_API_URL || process.env.PASSYN_BASE_URL || 'https://sub.blansyn.com/api').trim().replace(/\/+$/, '');
+  if (url.endsWith('/api/v1')) return url.slice(0, -3);
+  if (url.endsWith('/v1')) return url.replace(/\/v1$/, '/api');
+  if (url.endsWith('/api')) return url;
+  return `${url}/api`;
+}
+
 export class PassynClient {
   private baseUrl: string;
   private apiKey: string;
   private timeoutMs: number;
 
   constructor(options: PassynClientOptions = {}) {
-    this.baseUrl = (
-      options.baseUrl ||
-      process.env.PASSYN_API_URL ||
-      process.env.PASSYN_BASE_URL ||
-      'http://localhost:3000/api'
-    ).replace(/\/+$/, '');
-
+    this.baseUrl = normalizeBaseUrl(options.baseUrl);
     this.apiKey = options.apiKey || process.env.PASSYN_API_KEY || '';
     this.timeoutMs = options.timeoutMs ?? 15_000;
   }

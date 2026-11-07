@@ -7,15 +7,15 @@ import '../../styles/subscriptions.css';
 
 export const prerender = false;
 
-const user = getCurrentUser(Astro.request);
+const user = await getCurrentUser(Astro.request);
 if (!user || user.role !== 'ADMIN') {
   return Astro.redirect('/auth/login?redirect=/admin/subscriptions');
 }
 
 const db = getDb();
-const plans = listAllPlans();
-const subscriptions = listAllSubscriptions();
-const webhookEvents = db.prepare(`SELECT * FROM webhook_events ORDER BY processed_at DESC LIMIT 25`).all() as Array<{
+const plans = await listAllPlans();
+const subscriptions = await listAllSubscriptions();
+const webhookEvents = (await db.query(`SELECT * FROM webhook_events ORDER BY processed_at DESC LIMIT 25`)) as Array<{
   id: string;
   event_id: string;
   event_type: string;

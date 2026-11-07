@@ -5,7 +5,7 @@ import '../../styles/subscriptions.css';
 
 export const prerender = false;
 
-const user = getCurrentUser(Astro.request);
+const user = await getCurrentUser(Astro.request);
 const redirect = Astro.url.searchParams.get('redirect') || '/subscriptions';
 
 if (user) {

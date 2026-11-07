@@ -13,9 +13,9 @@ import '../styles/subscriptions.css';
 export const prerender = false;
 
 await seedDefaultPlansIfMissing();
-const user = getCurrentUser(Astro.request);
-const allPlans = listAllPlans().filter((p) => p.is_active === 1);
-const userSubs = user ? listUserSubscriptions(user.id) : [];
+const user = await getCurrentUser(Astro.request);
+const allPlans = (await listAllPlans()).filter((p) => p.is_active === 1);
+const userSubs = user ? await listUserSubscriptions(user.id) : [];
 const activeSubsMap = new Map<string, typeof userSubs[0]>();
 
 for (const sub of userSubs) {

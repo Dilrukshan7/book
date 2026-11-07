@@ -33,9 +33,9 @@ assertGuidesResolve(entry.data, entry.id, guideIds);
 const book = entry.data;
 
 await seedDefaultPlansIfMissing();
-const user = getCurrentUser(Astro.request);
-const plans = listPlansForBook(book.slug);
-const activeSub = user ? getUserActiveSubscription(user.id, book.slug) : null;
+const user = await getCurrentUser(Astro.request);
+const plans = await listPlansForBook(book.slug);
+const activeSub = user ? await getUserActiveSubscription(user.id, book.slug) : null;
 
 const guides = await getCollection('guides', (g) =>
   g.id.startsWith(`${entry.id}/`),

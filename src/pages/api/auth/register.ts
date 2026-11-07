@@ -29,8 +29,8 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const user = registerUser(name, email, password);
-    const { token, expiresAt } = createSession(user.id);
+    const user = await registerUser(name, email, password);
+    const { token, expiresAt } = await createSession(user.id);
     const cookieHeader = createSessionCookie(token, expiresAt);
 
     return new Response(

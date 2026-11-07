@@ -5,7 +5,7 @@ import { createPlan, listAllPlans } from '../../../../lib/subscriptions';
 export const prerender = false;
 
 export const GET: APIRoute = async ({ request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user || user.role !== 'ADMIN') {
     return new Response(
       JSON.stringify({ success: false, error: { code: 'forbidden', message: 'Admin access required' } }),
@@ -13,7 +13,7 @@ export const GET: APIRoute = async ({ request }) => {
     );
   }
 
-  const plans = listAllPlans();
+  const plans = await listAllPlans();
   return new Response(
     JSON.stringify({ success: true, data: { plans } }),
     { status: 200, headers: { 'Content-Type': 'application/json' } }
@@ -21,7 +21,7 @@ export const GET: APIRoute = async ({ request }) => {
 };
 
 export const POST: APIRoute = async ({ request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user || user.role !== 'ADMIN') {
     return new Response(
       JSON.stringify({ success: false, error: { code: 'forbidden', message: 'Admin access required' } }),

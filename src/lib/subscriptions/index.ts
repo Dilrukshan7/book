@@ -40,27 +40,22 @@ export interface SubscriptionRecord {
   user_email?: string;
 }
 
-export function listPlansForBook(bookSlug: string): BookPlanRecord[] {
+export async function listPlansForBook(bookSlug: string): Promise<BookPlanRecord[]> {
   const db = getDb();
-  const stmt = db.prepare(`
-    SELECT * FROM book_plans
-    WHERE book_slug = ? AND is_active = 1
-    ORDER BY price ASC
-  `);
-  return stmt.all(bookSlug) as unknown as BookPlanRecord[];
+  return await db.query<BookPlanRecord>(
+    `SELECT * FROM book_plans WHERE book_slug = ? AND is_active = 1 ORDER BY price ASC`,
+    [bookSlug]
+  );
 }
 
-export function listAllPlans(): BookPlanRecord[] {
+export async function listAllPlans(): Promise<BookPlanRecord[]> {
   const db = getDb();
-  const stmt = db.prepare(`SELECT * FROM book_plans ORDER BY book_slug, price ASC`);
-  return stmt.all() as unknown as BookPlanRecord[];
+  return await db.query<BookPlanRecord>(`SELECT * FROM book_plans ORDER BY book_slug, price ASC`);
 }
 
-export function getPlanById(planId: string): BookPlanRecord | null {
+export async function getPlanById(planId: string): Promise<BookPlanRecord | null> {
   const db = getDb();
-  const stmt = db.prepare(`SELECT * FROM book_plans WHERE id = ? LIMIT 1`);
-  const plan = stmt.get(planId) as unknown as BookPlanRecord | undefined;
-  return plan || null;
+  return await db.queryOne<BookPlanRecord>(`SELECT * FROM book_plans WHERE id = ? LIMIT 1`, [planId]);
 }
 
 export async function createPlan(input: {
@@ -106,27 +101,26 @@ export async function createPlan(input: {
   const id = `plan_${randomBytes(12).toString('hex')}`;
   const now = new Date().toISOString();
 
-  const stmt = db.prepare(`
-    INSERT INTO book_plans (
+  await db.execute(
+    `INSERT INTO book_plans (
       id, book_slug, passyn_pass_id, name, description,
       price, currency, duration_hours, pass_type, is_active,
       created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  stmt.run(
-    id,
-    input.bookSlug,
-    passynPassId,
-    input.name,
-    input.description || null,
-    input.price,
-    currency,
-    input.durationHours,
-    passType,
-    isActive ? 1 : 0,
-    now,
-    now
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      id,
+      input.bookSlug,
+      passynPassId,
+      input.name,
+      input.description || null,
+      input.price,
+      currency,
+      input.durationHours,
+      passType,
+      isActive ? 1 : 0,
+      now,
+      now,
+    ]
   );
 
   return {
@@ -147,7 +141,7 @@ export async function createPlan(input: {
 
 export async function togglePlanActive(planId: string, isActive: boolean): Promise<void> {
   const db = getDb();
-  const plan = getPlanById(planId);
+  const plan = await getPlanById(planId);
   if (!plan) throw new Error('Plan not found');
 
   const client = getPassynClient();
@@ -159,17 +153,15 @@ export async function togglePlanActive(planId: string, isActive: boolean): Promi
     }
   }
 
-  const stmt = db.prepare(`
-    UPDATE book_plans
-    SET is_active = ?, updated_at = datetime('now')
-    WHERE id = ?
-  `);
-  stmt.run(isActive ? 1 : 0, planId);
+  await db.execute(
+    `UPDATE book_plans SET is_active = ?, updated_at = datetime('now') WHERE id = ?`,
+    [isActive ? 1 : 0, planId]
+  );
 }
 
 export async function archivePlan(planId: string): Promise<void> {
   const db = getDb();
-  const plan = getPlanById(planId);
+  const plan = await getPlanById(planId);
   if (!plan) throw new Error('Plan not found');
 
   const client = getPassynClient();
@@ -181,58 +173,56 @@ export async function archivePlan(planId: string): Promise<void> {
     }
   }
 
-  const stmt = db.prepare(`UPDATE book_plans SET is_active = 0, updated_at = datetime('now') WHERE id = ?`);
-  stmt.run(planId);
+  await db.execute(`UPDATE book_plans SET is_active = 0, updated_at = datetime('now') WHERE id = ?`, [planId]);
 }
 
 // ── Subscriptions ──────────────────────────────────────────────────
 
-export function getUserActiveSubscription(
+export async function getUserActiveSubscription(
   userId: string,
   bookSlug: string
-): SubscriptionRecord | null {
+): Promise<SubscriptionRecord | null> {
   const db = getDb();
   const now = new Date().toISOString();
 
-  const stmt = db.prepare(`
-    SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency, p.duration_hours
-    FROM subscriptions s
-    JOIN book_plans p ON s.plan_id = p.id
-    WHERE s.user_id = ?
-      AND s.book_slug = ?
-      AND s.status = 'ACTIVE'
-      AND (s.expires_at IS NULL OR s.expires_at > ?)
-    ORDER BY s.expires_at DESC
-    LIMIT 1
-  `);
+  const sub = await db.queryOne<SubscriptionRecord>(
+    `SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency, p.duration_hours
+     FROM subscriptions s
+     JOIN book_plans p ON s.plan_id = p.id
+     WHERE s.user_id = ?
+       AND s.book_slug = ?
+       AND s.status = 'ACTIVE'
+       AND (s.expires_at IS NULL OR s.expires_at > ?)
+     ORDER BY s.expires_at DESC
+     LIMIT 1`,
+    [userId, bookSlug, now]
+  );
 
-  const sub = stmt.get(userId, bookSlug, now) as unknown as SubscriptionRecord | undefined;
   return sub || null;
 }
 
-export function listUserSubscriptions(userId: string): SubscriptionRecord[] {
+export async function listUserSubscriptions(userId: string): Promise<SubscriptionRecord[]> {
   const db = getDb();
-  const stmt = db.prepare(`
-    SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency, p.duration_hours
-    FROM subscriptions s
-    JOIN book_plans p ON s.plan_id = p.id
-    WHERE s.user_id = ?
-    ORDER BY s.created_at DESC
-  `);
-  return stmt.all(userId) as unknown as SubscriptionRecord[];
+  return await db.query<SubscriptionRecord>(
+    `SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency, p.duration_hours
+     FROM subscriptions s
+     JOIN book_plans p ON s.plan_id = p.id
+     WHERE s.user_id = ?
+     ORDER BY s.created_at DESC`,
+    [userId]
+  );
 }
 
-export function listAllSubscriptions(): SubscriptionRecord[] {
+export async function listAllSubscriptions(): Promise<SubscriptionRecord[]> {
   const db = getDb();
-  const stmt = db.prepare(`
-    SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency,
-           u.name as user_name, u.email as user_email
-    FROM subscriptions s
-    JOIN book_plans p ON s.plan_id = p.id
-    JOIN users u ON s.user_id = u.id
-    ORDER BY s.created_at DESC
-  `);
-  return stmt.all() as unknown as SubscriptionRecord[];
+  return await db.query<SubscriptionRecord>(
+    `SELECT s.*, p.name as plan_name, p.price as plan_price, p.currency as plan_currency,
+            u.name as user_name, u.email as user_email
+     FROM subscriptions s
+     JOIN book_plans p ON s.plan_id = p.id
+     JOIN users u ON s.user_id = u.id
+     ORDER BY s.created_at DESC`
+  );
 }
 
 export async function subscribeUserToPlan(params: {
@@ -241,17 +231,16 @@ export async function subscribeUserToPlan(params: {
   bookSlug: string;
 }): Promise<SubscriptionRecord> {
   const db = getDb();
-  const plan = getPlanById(params.planId);
+  const plan = await getPlanById(params.planId);
   if (!plan) throw new Error('Subscription plan not found');
   if (!plan.is_active) throw new Error('Selected plan is not currently active');
 
-  const userStmt = db.prepare(`SELECT * FROM users WHERE id = ?`);
-  const user = userStmt.get(params.userId) as {
+  const user = await db.queryOne<{
     id: string;
     email: string;
     name: string;
     passyn_user_id: string | null;
-  } | undefined;
+  }>(`SELECT * FROM users WHERE id = ?`, [params.userId]);
   if (!user) throw new Error('User not found');
 
   const client = getPassynClient();
@@ -270,7 +259,7 @@ export async function subscribeUserToPlan(params: {
           email: user.email,
         });
         passynUserId = passynUser.id;
-        updatePassynUserId(user.id, passynUserId);
+        await updatePassynUserId(user.id, passynUserId);
       }
 
       // 2. Activate Access in Passyn
@@ -292,35 +281,34 @@ export async function subscribeUserToPlan(params: {
   const subscriptionId = `sub_${randomBytes(12).toString('hex')}`;
   const nowIso = now.toISOString();
 
-  const insertStmt = db.prepare(`
-    INSERT INTO subscriptions (
+  await db.execute(
+    `INSERT INTO subscriptions (
       id, user_id, book_slug, plan_id, passyn_access_id,
       status, activated_at, expires_at, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
-  `);
-
-  insertStmt.run(
-    subscriptionId,
-    user.id,
-    params.bookSlug,
-    plan.id,
-    passynAccessId,
-    nowIso,
-    expiresAt,
-    nowIso,
-    nowIso
+    ) VALUES (?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?)`,
+    [
+      subscriptionId,
+      user.id,
+      params.bookSlug,
+      plan.id,
+      passynAccessId,
+      nowIso,
+      expiresAt,
+      nowIso,
+      nowIso,
+    ]
   );
 
   // Log audit trail
-  const logStmt = db.prepare(`
-    INSERT INTO audit_logs (id, user_id, action, resource_type, resource_id, metadata)
-    VALUES (?, ?, 'subscription.created', 'subscription', ?, ?)
-  `);
-  logStmt.run(
-    `log_${randomBytes(12).toString('hex')}`,
-    user.id,
-    subscriptionId,
-    JSON.stringify({ planId: plan.id, bookSlug: params.bookSlug, passynAccessId })
+  await db.execute(
+    `INSERT INTO audit_logs (id, user_id, action, resource_type, resource_id, metadata)
+     VALUES (?, ?, 'subscription.created', 'subscription', ?, ?)`,
+    [
+      `log_${randomBytes(12).toString('hex')}`,
+      user.id,
+      subscriptionId,
+      JSON.stringify({ planId: plan.id, bookSlug: params.bookSlug, passynAccessId }),
+    ]
   );
 
   return {
@@ -350,8 +338,7 @@ export async function cancelSubscription(params: {
   isAdmin?: boolean;
 }): Promise<void> {
   const db = getDb();
-  const stmt = db.prepare(`SELECT * FROM subscriptions WHERE id = ?`);
-  const sub = stmt.get(params.subscriptionId) as SubscriptionRecord | undefined;
+  const sub = await db.queryOne<SubscriptionRecord>(`SELECT * FROM subscriptions WHERE id = ?`, [params.subscriptionId]);
   if (!sub) throw new Error('Subscription not found');
 
   if (!params.isAdmin && sub.user_id !== params.userId) {
@@ -371,46 +358,45 @@ export async function cancelSubscription(params: {
   }
 
   const nowIso = new Date().toISOString();
-  const updateStmt = db.prepare(`
-    UPDATE subscriptions
-    SET status = 'CANCELLED', revoked_at = ?, revoke_reason = ?, updated_at = ?
-    WHERE id = ?
-  `);
-  updateStmt.run(nowIso, params.reason || 'User requested cancellation', nowIso, sub.id);
+  await db.execute(
+    `UPDATE subscriptions
+     SET status = 'CANCELLED', revoked_at = ?, revoke_reason = ?, updated_at = ?
+     WHERE id = ?`,
+    [nowIso, params.reason || 'User requested cancellation', nowIso, sub.id]
+  );
 
-  const logStmt = db.prepare(`
-    INSERT INTO audit_logs (id, user_id, action, resource_type, resource_id, metadata)
-    VALUES (?, ?, 'subscription.cancelled', 'subscription', ?, ?)
-  `);
-  logStmt.run(
-    `log_${randomBytes(12).toString('hex')}`,
-    params.userId || null,
-    sub.id,
-    JSON.stringify({ reason: params.reason })
+  await db.execute(
+    `INSERT INTO audit_logs (id, user_id, action, resource_type, resource_id, metadata)
+     VALUES (?, ?, 'subscription.cancelled', 'subscription', ?, ?)`,
+    [
+      `log_${randomBytes(12).toString('hex')}`,
+      params.userId || null,
+      sub.id,
+      JSON.stringify({ reason: params.reason }),
+    ]
   );
 }
 
 export async function syncSubscriptionWithPassyn(subscriptionId: string): Promise<boolean> {
   const db = getDb();
-  const stmt = db.prepare(`
-    SELECT s.*, p.passyn_pass_id, u.passyn_user_id
-    FROM subscriptions s
-    JOIN book_plans p ON s.plan_id = p.id
-    JOIN users u ON s.user_id = u.id
-    WHERE s.id = ?
-  `);
-  const sub = stmt.get(subscriptionId) as (SubscriptionRecord & {
+  const sub = await db.queryOne<SubscriptionRecord & {
     passyn_pass_id: string;
     passyn_user_id: string | null;
-  }) | undefined;
+  }>(
+    `SELECT s.*, p.passyn_pass_id, u.passyn_user_id
+     FROM subscriptions s
+     JOIN book_plans p ON s.plan_id = p.id
+     JOIN users u ON s.user_id = u.id
+     WHERE s.id = ?`,
+    [subscriptionId]
+  );
 
   if (!sub) return false;
 
   const client = getPassynClient();
   if (!client.isConfigured || !sub.passyn_access_id || sub.passyn_access_id.startsWith('acc_mock_')) {
-    // Check locally by expiry timestamp
     if (sub.status === 'ACTIVE' && sub.expires_at && new Date(sub.expires_at) < new Date()) {
-      db.prepare(`UPDATE subscriptions SET status = 'EXPIRED', updated_at = datetime('now') WHERE id = ?`).run(sub.id);
+      await db.execute(`UPDATE subscriptions SET status = 'EXPIRED', updated_at = datetime('now') WHERE id = ?`, [sub.id]);
       return false;
     }
     return sub.status === 'ACTIVE';
@@ -423,11 +409,11 @@ export async function syncSubscriptionWithPassyn(subscriptionId: string): Promis
 
     if (!verification.valid) {
       const newStatus = verification.reason?.toLowerCase().includes('revok') ? 'REVOKED' : 'EXPIRED';
-      db.prepare(`UPDATE subscriptions SET status = ?, updated_at = datetime('now') WHERE id = ?`).run(newStatus, sub.id);
+      await db.execute(`UPDATE subscriptions SET status = ?, updated_at = datetime('now') WHERE id = ?`, [newStatus, sub.id]);
       return false;
     } else {
       if (verification.status && verification.status !== sub.status) {
-        db.prepare(`UPDATE subscriptions SET status = ?, updated_at = datetime('now') WHERE id = ?`).run(verification.status, sub.id);
+        await db.execute(`UPDATE subscriptions SET status = ?, updated_at = datetime('now') WHERE id = ?`, [verification.status, sub.id]);
       }
       return true;
     }
@@ -437,13 +423,10 @@ export async function syncSubscriptionWithPassyn(subscriptionId: string): Promis
   }
 }
 
-/**
- * Seed default subscription plans for known books if none exist yet.
- */
 export async function seedDefaultPlansIfMissing(): Promise<void> {
   const db = getDb();
-  const count = db.prepare(`SELECT COUNT(*) as count FROM book_plans`).get() as { count: number };
-  if (count.count > 0) return;
+  const countRow = await db.queryOne<{ count: number | string }>(`SELECT COUNT(*) as count FROM book_plans`);
+  if (countRow && Number(countRow.count) > 0) return;
 
   const defaultPlans = [
     {

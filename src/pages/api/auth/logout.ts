@@ -7,7 +7,7 @@ export const POST: APIRoute = async ({ request }) => {
   const cookies = parseCookies(request.headers.get('cookie'));
   const token = cookies['book_session'];
   if (token) {
-    deleteSession(token);
+    await deleteSession(token);
   }
 
   return new Response(

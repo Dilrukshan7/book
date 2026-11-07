@@ -2,8 +2,28 @@ import { DatabaseSync } from 'node:sqlite';
 import { existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { randomBytes, scryptSync } from 'node:crypto';
+import { neon } from '@neondatabase/serverless';
 
-let dbInstance: DatabaseSync | null = null;
+export interface DbClient {
+  isPostgres: boolean;
+  query<T = any>(sqlText: string, params?: any[]): Promise<T[]>;
+  queryOne<T = any>(sqlText: string, params?: any[]): Promise<T | null>;
+  execute(sqlText: string, params?: any[]): Promise<{ changes?: number }>;
+  exec(sqlText: string): Promise<void>;
+  close(): Promise<void> | void;
+}
+
+export function normalizeSql(sqlText: string, isPg: boolean): string {
+  if (isPg) {
+    let s = sqlText.replace(/datetime\('now'\)/gi, 'NOW()');
+    let i = 0;
+    s = s.replace(/\?/g, () => `$${++i}`);
+    return s;
+  }
+  return sqlText;
+}
+
+let dbInstance: DbClient | null = null;
 
 export function getDatabasePath(): string {
   if (process.env.DATABASE_PATH) {
@@ -13,36 +33,97 @@ export function getDatabasePath(): string {
   return join(process.cwd(), 'data', 'book.sqlite');
 }
 
-export function getDb(): DatabaseSync {
-  if (!dbInstance) {
-    const dbPath = getDatabasePath();
-    if (dbPath !== ':memory:') {
-      const dir = dirname(dbPath);
-      if (!existsSync(dir)) {
-        mkdirSync(dir, { recursive: true });
-      }
-    }
-    dbInstance = new DatabaseSync(dbPath);
-    // Enable WAL mode and foreign keys for high reliability and performance
-    dbInstance.exec('PRAGMA journal_mode = WAL;');
-    dbInstance.exec('PRAGMA foreign_keys = ON;');
-    runMigrations(dbInstance);
+export function getDb(): DbClient {
+  if (dbInstance) {
+    return dbInstance;
   }
+
+  const databaseUrl = process.env.DATABASE_URL;
+  if (databaseUrl && (databaseUrl.startsWith('postgres://') || databaseUrl.startsWith('postgresql://'))) {
+    const sql = neon(databaseUrl);
+
+    dbInstance = {
+      isPostgres: true,
+      async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
+        const pgSql = normalizeSql(sqlText, true);
+        const rows = await sql.query(pgSql, params);
+        return rows as T[];
+      },
+      async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
+        const pgSql = normalizeSql(sqlText, true);
+        const rows = await sql.query(pgSql, params);
+        return ((rows && rows[0]) as T) || null;
+      },
+      async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
+        const pgSql = normalizeSql(sqlText, true);
+        const rows = await sql.query(pgSql, params);
+        return { changes: Array.isArray(rows) ? rows.length : 1 };
+      },
+      async exec(sqlText: string): Promise<void> {
+        await sql.query(sqlText);
+      },
+      close() {
+        dbInstance = null;
+      },
+    };
+
+    return dbInstance;
+  }
+
+  // Fallback to SQLite (in-memory or local file for development & test suites)
+  const dbPath = getDatabasePath();
+  if (dbPath !== ':memory:') {
+    const dir = dirname(dbPath);
+    if (!existsSync(dir)) {
+      mkdirSync(dir, { recursive: true });
+    }
+  }
+
+  const sqlite = new DatabaseSync(dbPath);
+  sqlite.exec('PRAGMA journal_mode = WAL;');
+  sqlite.exec('PRAGMA foreign_keys = ON;');
+  runSqliteMigrations(sqlite);
+
+  dbInstance = {
+    isPostgres: false,
+    async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
+      const stmt = sqlite.prepare(sqlText);
+      return stmt.all(...params) as T[];
+    },
+    async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
+      const stmt = sqlite.prepare(sqlText);
+      const row = stmt.get(...params);
+      return (row as T) || null;
+    },
+    async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
+      const stmt = sqlite.prepare(sqlText);
+      stmt.run(...params);
+      return {};
+    },
+    async exec(sqlText: string): Promise<void> {
+      sqlite.exec(sqlText);
+    },
+    close() {
+      try {
+        sqlite.close();
+      } catch {
+        // ignore
+      }
+      dbInstance = null;
+    },
+  };
+
   return dbInstance;
 }
 
 export function closeDb(): void {
   if (dbInstance) {
-    try {
-      dbInstance.close();
-    } catch {
-      // ignore
-    }
+    dbInstance.close();
     dbInstance = null;
   }
 }
 
-export function runMigrations(db: DatabaseSync): void {
+export function runSqliteMigrations(db: DatabaseSync): void {
   // 1. Users table
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
@@ -83,7 +164,7 @@ export function runMigrations(db: DatabaseSync): void {
       price REAL NOT NULL,
       currency TEXT NOT NULL DEFAULT 'USD',
       duration_hours INTEGER NOT NULL DEFAULT 24,
-      pass_type TEXT NOT NULL DEFAULT 'DAY', -- 'DAY' | 'WEEKLY' | 'EXAM' | 'PROJECT' | 'CUSTOM'
+      pass_type TEXT NOT NULL DEFAULT 'DAY',
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -93,7 +174,7 @@ export function runMigrations(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_book_plans_is_active ON book_plans(is_active);
   `);
 
-  // 4. Subscriptions table (User subscriptions linked to Passyn Access)
+  // 4. Subscriptions table
   db.exec(`
     CREATE TABLE IF NOT EXISTS subscriptions (
       id TEXT PRIMARY KEY,
@@ -101,7 +182,7 @@ export function runMigrations(db: DatabaseSync): void {
       book_slug TEXT NOT NULL,
       plan_id TEXT NOT NULL REFERENCES book_plans(id) ON DELETE RESTRICT,
       passyn_access_id TEXT UNIQUE,
-      status TEXT NOT NULL DEFAULT 'PENDING', -- 'PENDING' | 'ACTIVE' | 'EXPIRED' | 'CANCELLED' | 'REVOKED'
+      status TEXT NOT NULL DEFAULT 'PENDING',
       activated_at TEXT,
       expires_at TEXT,
       revoked_at TEXT,
@@ -114,14 +195,14 @@ export function runMigrations(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_subscriptions_passyn_access ON subscriptions(passyn_access_id);
   `);
 
-  // 5. Webhook Events table (for idempotency and audit trail)
+  // 5. Webhook Events table
   db.exec(`
     CREATE TABLE IF NOT EXISTS webhook_events (
       id TEXT PRIMARY KEY,
-      event_id TEXT UNIQUE NOT NULL, -- Idempotency key from Passyn event
+      event_id TEXT UNIQUE NOT NULL,
       event_type TEXT NOT NULL,
       payload TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'PROCESSED', -- 'PROCESSED' | 'FAILED' | 'DUPLICATE'
+      status TEXT NOT NULL DEFAULT 'PROCESSED',
       error_message TEXT,
       processed_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -144,7 +225,7 @@ export function runMigrations(db: DatabaseSync): void {
     CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
   `);
 
-  // 7. Seed default platform admin account if missing
+  // 7. Seed default platform admin account if missing in SQLite
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@readbooks.dev').trim().toLowerCase();
   const existingAdmin = db.prepare(`SELECT id FROM users WHERE email = ?`).get(adminEmail);
   if (!existingAdmin) {
@@ -160,7 +241,7 @@ export function runMigrations(db: DatabaseSync): void {
     `).run(id, adminEmail, passwordHash, now, now);
   }
 
-  // 8. Seed default subscription plans if missing
+  // 8. Seed default subscription plans if missing in SQLite
   const planCount = db.prepare(`SELECT COUNT(*) as count FROM book_plans`).get() as { count: number };
   if (planCount.count === 0) {
     const defaultPlans = [

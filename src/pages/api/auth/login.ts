@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const user = authenticateUser(email, password);
+    const user = await authenticateUser(email, password);
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, error: { message: 'Invalid email or password' } }),
@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
 
-    const { token, expiresAt } = createSession(user.id);
+    const { token, expiresAt } = await createSession(user.id);
     const cookieHeader = createSessionCookie(token, expiresAt);
 
     return new Response(

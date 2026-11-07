@@ -23,6 +23,8 @@
   "dependencies": {
     "@astrojs/node": "^11.1.9",
     "@astrojs/sitemap": "^3.7.3",
+    "@astrojs/vercel": "^11.0.20",
+    "@neondatabase/serverless": "^1.2.0",
     "astro": "^7.2.9"
   },
   "devDependencies": {

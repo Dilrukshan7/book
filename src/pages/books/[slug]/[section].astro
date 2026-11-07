@@ -58,9 +58,9 @@ const { Content } = await render(guide);
 
 // BACKEND-ENFORCED SUBSCRIPTION ACCESS CHECK
 await seedDefaultPlansIfMissing();
-const user = getCurrentUser(Astro.request);
+const user = await getCurrentUser(Astro.request);
 const accessCheck = await checkBookAccess(user, book.slug);
-const plans = listPlansForBook(book.slug);
+const plans = await listPlansForBook(book.slug);
 
 const sectionUrl = `${SITE.url}/books/${book.slug}/${sectionSlug(section.code)}`;
 const jsonLd = {

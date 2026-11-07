@@ -14,11 +14,13 @@ import {
 import { checkBookAccess } from '../src/lib/access';
 
 // Use an in-memory SQLite database for test isolation
+delete process.env.DATABASE_URL;
 process.env.DATABASE_PATH = ':memory:';
 
 describe('Passyn Subscription Management Integration Tests', () => {
   beforeEach(() => {
     // Re-initialize clean in-memory database
+    delete process.env.DATABASE_URL;
     process.env.DATABASE_PATH = ':memory:';
     closeDb();
   });
@@ -49,14 +51,14 @@ describe('Passyn Subscription Management Integration Tests', () => {
     expect(plan.is_active).toBe(1);
     expect(plan.passyn_pass_id).toBeDefined();
 
-    const fetched = getPlanById(plan.id);
+    const fetched = await getPlanById(plan.id);
     expect(fetched).not.toBeNull();
     expect(fetched?.name).toBe('14-Day Sprint Pass');
   });
 
   // 2. Subscription initiation & Passyn user provisioning
   it('2. should initiate subscription and provision Passyn user account', async () => {
-    const user = registerUser('Alice Student', 'alice@university.edu', 'SecurePass123!');
+    const user = await registerUser('Alice Student', 'alice@university.edu', 'SecurePass123!');
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
       name: '24-Hour Pass',
@@ -80,7 +82,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
 
   // 3. Successful subscription activation
   it('3. should successfully activate subscription and verify active status', async () => {
-    const user = registerUser('Bob Explorer', 'bob@readbooks.dev', 'BobPassword!');
+    const user = await registerUser('Bob Explorer', 'bob@readbooks.dev', 'BobPassword!');
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
       name: 'Weekly Pass',
@@ -95,7 +97,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
       bookSlug: plan.book_slug,
     });
 
-    const active = getUserActiveSubscription(user.id, plan.book_slug);
+    const active = await getUserActiveSubscription(user.id, plan.book_slug);
     expect(active).not.toBeNull();
     expect(active?.status).toBe('ACTIVE');
     expect(active?.book_slug).toBe(plan.book_slug);
@@ -111,7 +113,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
 
   // 4. Failed subscription activation
   it('4. should reject activation when plan is inactive or does not exist', async () => {
-    const user = registerUser('Carol Reader', 'carol@readbooks.dev', 'PasswordCarol!');
+    const user = await registerUser('Carol Reader', 'carol@readbooks.dev', 'PasswordCarol!');
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
       name: 'Disabled Pass',
@@ -203,7 +205,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
 
   // 8. Subscription cancellation
   it('8. should allow customer to cancel subscription and immediately revoke access', async () => {
-    const user = registerUser('Dave Student', 'dave@readbooks.dev', 'DavePassword!');
+    const user = await registerUser('Dave Student', 'dave@readbooks.dev', 'DavePassword!');
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
       name: '24-Hour Pass',
@@ -217,7 +219,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
       bookSlug: plan.book_slug,
     });
 
-    expect(getUserActiveSubscription(user.id, plan.book_slug)).not.toBeNull();
+    expect(await getUserActiveSubscription(user.id, plan.book_slug)).not.toBeNull();
 
     await cancelSubscription({
       subscriptionId: sub.id,
@@ -225,7 +227,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
       reason: 'No longer needed',
     });
 
-    const afterCancel = getUserActiveSubscription(user.id, plan.book_slug);
+    const afterCancel = await getUserActiveSubscription(user.id, plan.book_slug);
     expect(afterCancel).toBeNull();
 
     const access = await checkBookAccess(
@@ -238,7 +240,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
 
   // 9. Subscription expiration
   it('9. should deny access when subscription duration has expired', async () => {
-    const user = registerUser('Eve Expired', 'eve@readbooks.dev', 'EvePassword!');
+    const user = await registerUser('Eve Expired', 'eve@readbooks.dev', 'EvePassword!');
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
       name: 'Expired Test Pass',
@@ -255,9 +257,9 @@ describe('Passyn Subscription Management Integration Tests', () => {
     // Manually set expiration date in the past
     const pastDate = new Date(Date.now() - 3600000).toISOString();
     const db = getDb();
-    db.prepare(`UPDATE subscriptions SET expires_at = ? WHERE id = ?`).run(pastDate, sub.id);
+    await db.execute(`UPDATE subscriptions SET expires_at = ? WHERE id = ?`, [pastDate, sub.id]);
 
-    const active = getUserActiveSubscription(user.id, plan.book_slug);
+    const active = await getUserActiveSubscription(user.id, plan.book_slug);
     expect(active).toBeNull();
 
     const access = await checkBookAccess(
@@ -277,7 +279,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
     expect(unauthAccess.reason).toBe('UNAUTHENTICATED');
 
     // Authenticated user without subscription
-    const user = registerUser('Frank Unsubscribed', 'frank@readbooks.dev', 'FrankPass!');
+    const user = await registerUser('Frank Unsubscribed', 'frank@readbooks.dev', 'FrankPass!');
     const noSubAccess = await checkBookAccess(
       { id: user.id, email: user.email, name: user.name, role: user.role, passyn_user_id: null },
       'introduction-to-linear-algebra',
@@ -289,8 +291,8 @@ describe('Passyn Subscription Management Integration Tests', () => {
 
   // 11. Cross-user subscription access attempts (IDOR prevention)
   it('11. should prevent user A from modifying or cancelling user B subscription', async () => {
-    const userA = registerUser('User A', 'userA@readbooks.dev', 'PassA123!');
-    const userB = registerUser('User B', 'userB@readbooks.dev', 'PassB123!');
+    const userA = await registerUser('User A', 'userA@readbooks.dev', 'PassA123!');
+    const userB = await registerUser('User B', 'userB@readbooks.dev', 'PassB123!');
 
     const plan = await createPlan({
       bookSlug: 'introduction-to-linear-algebra',
@@ -316,7 +318,7 @@ describe('Passyn Subscription Management Integration Tests', () => {
     ).rejects.toThrow('Forbidden: you do not own this subscription');
 
     // Verify User A subscription is still intact and ACTIVE
-    const stillActive = getUserActiveSubscription(userA.id, plan.book_slug);
+    const stillActive = await getUserActiveSubscription(userA.id, plan.book_slug);
     expect(stillActive).not.toBeNull();
     expect(stillActive?.id).toBe(subA.id);
   });

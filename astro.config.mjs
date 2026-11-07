@@ -2,13 +2,16 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 import { SITE } from './src/site.config.ts';
+
+const isVercel = Boolean(process.env.VERCEL || process.env.VERCEL_ENV);
 
 // https://astro.build/config
 export default defineConfig({
   site: SITE.url,
   trailingSlash: 'ignore',
-  adapter: node({
+  adapter: isVercel ? vercel() : node({
     mode: 'standalone',
   }),
   integrations: [

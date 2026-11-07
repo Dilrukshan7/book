@@ -5,7 +5,7 @@ import { cancelSubscription } from '../../../../../lib/subscriptions';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ params, request }) => {
-  const user = getCurrentUser(request);
+  const user = await getCurrentUser(request);
   if (!user || user.role !== 'ADMIN') {
     return new Response(
       JSON.stringify({ success: false, error: { message: 'Admin access required' } }),
