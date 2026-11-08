@@ -2,13 +2,18 @@
 interface Props {
   class?: string;
   style?: string;
+  href?: string;
 }
 
-const { class: className = '', style = '' } = Astro.props;
+const {
+  class: className = '',
+  style = '',
+  href = process.env.PASSYN_PUBLIC_URL || 'https://sub.blansyn.com',
+} = Astro.props;
 ---
 
 <a
-  href="https://passyn.dev"
+  href={href}
   target="_blank"
   rel="noopener noreferrer"
   class={`powered-by-passyn ${className}`}
