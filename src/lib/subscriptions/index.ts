@@ -262,11 +262,51 @@ export async function subscribeUserToPlan(params: {
         await updatePassynUserId(user.id, passynUserId);
       }
 
-      // 2. Activate Access in Passyn
-      const access = await client.access.activate({
-        userId: passynUserId,
-        passId: plan.passyn_pass_id,
-      });
+      // 2. Activate Access in Passyn (with automatic self-healing if pass ID is out of sync)
+      let targetPassId = plan.passyn_pass_id;
+
+      if (!targetPassId || targetPassId.startsWith('pass_mock_')) {
+        const createdPass = await client.passes.create({
+          name: `${plan.name} (${plan.book_slug})`,
+          description: plan.description || undefined,
+          price: plan.price,
+          currency: plan.currency || 'USD',
+          durationHours: plan.duration_hours,
+          type: (plan.pass_type as PassType) || 'DAY',
+          isActive: true,
+        });
+        targetPassId = createdPass.id;
+        await db.execute('UPDATE book_plans SET passyn_pass_id = ? WHERE id = ?', [targetPassId, plan.id]);
+      }
+
+      let access;
+      try {
+        access = await client.access.activate({
+          userId: passynUserId,
+          passId: targetPassId,
+        });
+      } catch (activateErr: any) {
+        if (activateErr?.message?.toLowerCase().includes('pass not found')) {
+          console.warn(`Pass ${targetPassId} not found in Passyn, auto-provisioning...`);
+          const recreatedPass = await client.passes.create({
+            name: `${plan.name} (${plan.book_slug})`,
+            description: plan.description || undefined,
+            price: plan.price,
+            currency: plan.currency || 'USD',
+            durationHours: plan.duration_hours,
+            type: (plan.pass_type as PassType) || 'DAY',
+            isActive: true,
+          });
+          targetPassId = recreatedPass.id;
+          await db.execute('UPDATE book_plans SET passyn_pass_id = ? WHERE id = ?', [targetPassId, plan.id]);
+          access = await client.access.activate({
+            userId: passynUserId,
+            passId: targetPassId,
+          });
+        } else {
+          throw activateErr;
+        }
+      }
 
       passynAccessId = access.id;
       if (access.expiresAt) {
