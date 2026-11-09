@@ -12,16 +12,105 @@ import '../styles/subscriptions.css';
 
 export const prerender = false;
 
-await seedDefaultPlansIfMissing();
-const user = await getCurrentUser(Astro.request);
-const allPlans = (await listAllPlans()).filter((p) => p.is_active === 1);
-const userSubs = user ? await listUserSubscriptions(user.id) : [];
-const activeSubsMap = new Map<string, typeof userSubs[0]>();
+let user: any = null;
+let allPlans: any[] = [];
+let userSubs: any[] = [];
+const activeSubsMap = new Map<string, any>();
 
-for (const sub of userSubs) {
-  if (sub.status === 'ACTIVE' && (!sub.expires_at || new Date(sub.expires_at) > new Date())) {
-    activeSubsMap.set(sub.book_slug, sub);
+try {
+  await seedDefaultPlansIfMissing();
+} catch (err) {
+  console.warn('Seed default plans notice:', err);
+}
+
+try {
+  user = await getCurrentUser(Astro.request);
+} catch (err) {
+  console.warn('Get current user notice:', err);
+}
+
+try {
+  allPlans = (await listAllPlans()).filter((p) => p.is_active === 1);
+} catch (err) {
+  console.warn('List plans notice:', err);
+}
+
+if (!allPlans || allPlans.length === 0) {
+  allPlans = [
+    {
+      id: 'plan_lin_alg_24h',
+      book_slug: 'introduction-to-linear-algebra',
+      name: '24-Hour Intensive Pass',
+      description: 'Full unmetered access to all study guides, video notes, and roadmap milestones for 24 hours.',
+      price: 4.99,
+      duration_hours: 24,
+      pass_type: 'DAY',
+      is_active: 1,
+    },
+    {
+      id: 'plan_lin_alg_7d',
+      book_slug: 'introduction-to-linear-algebra',
+      name: '7-Day Study Sprint Pass',
+      description: 'One full week of structured access to study guides and problem set breakdowns.',
+      price: 14.99,
+      duration_hours: 168,
+      pass_type: 'WEEKLY',
+      is_active: 1,
+    },
+    {
+      id: 'plan_lin_alg_30d',
+      book_slug: 'introduction-to-linear-algebra',
+      name: 'Semester Mastery Pass (30 Days)',
+      description: '30-day comprehensive access with full interactive progress tracking and study guides.',
+      price: 29.99,
+      duration_hours: 720,
+      pass_type: 'CUSTOM',
+      is_active: 1,
+    },
+    {
+      id: 'plan_data_24h',
+      book_slug: 'linear-algebra-and-learning-from-data',
+      name: '24-Hour Sprint Pass',
+      description: '24-hour full access to MIT 18.065 deep learning and matrix calculus study guides.',
+      price: 5.99,
+      duration_hours: 24,
+      pass_type: 'DAY',
+      is_active: 1,
+    },
+    {
+      id: 'plan_data_7d',
+      book_slug: 'linear-algebra-and-learning-from-data',
+      name: 'Weekly Deep-Dive Pass',
+      description: '7-day deep-dive into SVD, PCA, neural networks, and optimization roadmaps.',
+      price: 18.99,
+      duration_hours: 168,
+      pass_type: 'WEEKLY',
+      is_active: 1,
+    },
+    {
+      id: 'plan_data_30d',
+      book_slug: 'linear-algebra-and-learning-from-data',
+      name: 'Full Course Pass (30 Days)',
+      description: '30 days of comprehensive study guide and deep learning mathematics access.',
+      price: 34.99,
+      duration_hours: 720,
+      pass_type: 'CUSTOM',
+      is_active: 1,
+    },
+  ];
+}
+
+try {
+  if (user) {
+    userSubs = await listUserSubscriptions(user.id);
+    for (const sub of userSubs) {
+      if (sub.status === 'ACTIVE' && (!sub.expires_at || new Date(sub.expires_at) > new Date())) {
+        activeSubsMap.set(sub.book_slug, sub);
+      }
+    }
   }
+} catch (err) {
+  console.warn('List subscriptions notice:', err);
 }
 
 const books = await getCollection('books');

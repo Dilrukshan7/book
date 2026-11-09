@@ -12,7 +12,12 @@ if (!user) {
   return Astro.redirect('/auth/login?redirect=/account/subscriptions');
 }
 
-const allSubs = await listUserSubscriptions(user.id);
+let allSubs: any[] = [];
+try {
+  allSubs = await listUserSubscriptions(user.id);
+} catch (e) {
+  console.warn('Subscriptions lookup notice:', e);
+}
 const activeSubs = allSubs.filter((s) => s.status === 'ACTIVE' && (!s.expires_at || new Date(s.expires_at) > new Date()));
 const pastSubs = allSubs.filter((s) => s.status !== 'ACTIVE' || (s.expires_at && new Date(s.expires_at) <= new Date()));
 ---

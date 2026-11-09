@@ -57,10 +57,34 @@ const links = resolveSectionLinks(book, section);
 const { Content } = await render(guide);
 
 // BACKEND-ENFORCED SUBSCRIPTION ACCESS CHECK
-await seedDefaultPlansIfMissing();
-const user = await getCurrentUser(Astro.request);
-const accessCheck = await checkBookAccess(user, book.slug);
-const plans = await listPlansForBook(book.slug);
+let user: any = null;
+let accessCheck: any = { hasAccess: false };
+let plans: any[] = [];
+
+try {
+  await seedDefaultPlansIfMissing();
+} catch (e) {
+  console.warn('Seed notice:', e);
+}
+
+try {
+  user = await getCurrentUser(Astro.request);
+} catch (e) {
+  console.warn('Auth notice:', e);
+}
+
+try {
+  accessCheck = await checkBookAccess(user, book.slug);
+} catch (e) {
+  console.warn('Access check notice:', e);
+  accessCheck = { hasAccess: false };
+}
+
+try {
+  plans = await listPlansForBook(book.slug);
+} catch (e) {
+  console.warn('Plans notice:', e);
+}
 
 const sectionUrl = `${SITE.url}/books/${book.slug}/${sectionSlug(section.code)}`;
 const jsonLd = {

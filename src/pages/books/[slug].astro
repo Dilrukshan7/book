@@ -32,10 +32,35 @@ assertGuidesResolve(entry.data, entry.id, guideIds);
 
 const book = entry.data;
 
-await seedDefaultPlansIfMissing();
-const user = await getCurrentUser(Astro.request);
-const plans = await listPlansForBook(book.slug);
-const activeSub = user ? await getUserActiveSubscription(user.id, book.slug) : null;
+let user: any = null;
+let plans: any[] = [];
+let activeSub: any = null;
+
+try {
+  await seedDefaultPlansIfMissing();
+} catch (e) {
+  console.warn('Seed notice:', e);
+}
+
+try {
+  user = await getCurrentUser(Astro.request);
+} catch (e) {
+  console.warn('Auth notice:', e);
+}
+
+try {
+  plans = await listPlansForBook(book.slug);
+} catch (e) {
+  console.warn('Plans notice:', e);
+}
+
+try {
+  if (user) {
+    activeSub = await getUserActiveSubscription(user.id, book.slug);
+  }
+} catch (e) {
+  console.warn('Active sub notice:', e);
+}
 
 const guides = await getCollection('guides', (g) =>
   g.id.startsWith(`${entry.id}/`),

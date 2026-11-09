@@ -24,13 +24,115 @@ export function normalizeSql(sqlText: string, isPg: boolean): string {
 }
 
 let dbInstance: DbClient | null = null;
+let fallbackSqliteInstance: DbClient | null = null;
 
 export function getDatabasePath(): string {
   if (process.env.DATABASE_PATH) {
     return process.env.DATABASE_PATH;
   }
+  // If running in Vercel, AWS Lambda, or serverless environments, cwd is read-only
+  if (process.env.VERCEL || process.env.VERCEL_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    const tmp = process.env.TMPDIR || process.env.TEMP || '/tmp';
+    return join(tmp, 'book.sqlite');
+  }
   // Default to project root / data / book.sqlite
   return join(process.cwd(), 'data', 'book.sqlite');
+}
+
+function createMemorySqlite(): DbClient {
+  try {
+    const sqlite = new DatabaseSync(':memory:');
+    runSqliteMigrations(sqlite);
+    return {
+      isPostgres: false,
+      async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
+        return sqlite.prepare(sqlText).all(...params) as T[];
+      },
+      async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
+        return (sqlite.prepare(sqlText).get(...params) as T) || null;
+      },
+      async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
+        sqlite.prepare(sqlText).run(...params);
+        return {};
+      },
+      async exec(sqlText: string): Promise<void> {
+        sqlite.exec(sqlText);
+      },
+      close() {
+        try { sqlite.close(); } catch {}
+      },
+    };
+  } catch {
+    return {
+      isPostgres: false,
+      async query<T = any>(): Promise<T[]> { return []; },
+      async queryOne<T = any>(): Promise<T | null> { return null; },
+      async execute(): Promise<{ changes?: number }> { return { changes: 0 }; },
+      async exec(): Promise<void> {},
+      close() {},
+    };
+  }
+}
+
+export function getFallbackSqlite(): DbClient {
+  if (fallbackSqliteInstance) {
+    return fallbackSqliteInstance;
+  }
+
+  const dbPath = getDatabasePath();
+  if (dbPath !== ':memory:') {
+    try {
+      const dir = dirname(dbPath);
+      if (!existsSync(dir)) {
+        mkdirSync(dir, { recursive: true });
+      }
+    } catch (e) {
+      console.warn('Could not ensure sqlite directory, using :memory: fallback:', e);
+      fallbackSqliteInstance = createMemorySqlite();
+      return fallbackSqliteInstance;
+    }
+  }
+
+  try {
+    const sqlite = new DatabaseSync(dbPath);
+    sqlite.exec('PRAGMA journal_mode = WAL;');
+    sqlite.exec('PRAGMA foreign_keys = ON;');
+    runSqliteMigrations(sqlite);
+
+    fallbackSqliteInstance = {
+      isPostgres: false,
+      async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
+        const stmt = sqlite.prepare(sqlText);
+        return stmt.all(...params) as T[];
+      },
+      async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
+        const stmt = sqlite.prepare(sqlText);
+        const row = stmt.get(...params);
+        return (row as T) || null;
+      },
+      async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
+        const stmt = sqlite.prepare(sqlText);
+        stmt.run(...params);
+        return {};
+      },
+      async exec(sqlText: string): Promise<void> {
+        sqlite.exec(sqlText);
+      },
+      close() {
+        try {
+          sqlite.close();
+        } catch {
+          // ignore
+        }
+        fallbackSqliteInstance = null;
+      },
+    };
+    return fallbackSqliteInstance;
+  } catch (err) {
+    console.warn('DatabaseSync initialization failed, falling back to in-memory sqlite:', err);
+    fallbackSqliteInstance = createMemorySqlite();
+    return fallbackSqliteInstance;
+  }
 }
 
 export function getDb(): DbClient {
@@ -38,31 +140,60 @@ export function getDb(): DbClient {
     return dbInstance;
   }
 
-  const databaseUrl = process.env.DATABASE_URL;
+  const databaseUrl =
+    process.env.DATABASE_URL ||
+    process.env.READBOOKS_DB_URL ||
+    process.env.POSTGRES_URL ||
+    process.env.POSTGRES_PRISMA_URL;
+
   if (databaseUrl && (databaseUrl.startsWith('postgres://') || databaseUrl.startsWith('postgresql://'))) {
     const sql = neon(databaseUrl);
 
     dbInstance = {
       isPostgres: true,
       async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
-        const pgSql = normalizeSql(sqlText, true);
-        const rows = await sql.query(pgSql, params);
-        return rows as T[];
+        try {
+          const pgSql = normalizeSql(sqlText, true);
+          const rows = await sql.query(pgSql, params);
+          return rows as T[];
+        } catch (err: any) {
+          console.warn('[DB] Neon Postgres query failed, falling back to SQLite:', err?.message || err);
+          return await getFallbackSqlite().query<T>(sqlText, params);
+        }
       },
       async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
-        const pgSql = normalizeSql(sqlText, true);
-        const rows = await sql.query(pgSql, params);
-        return ((rows && rows[0]) as T) || null;
+        try {
+          const pgSql = normalizeSql(sqlText, true);
+          const rows = await sql.query(pgSql, params);
+          return ((rows && rows[0]) as T) || null;
+        } catch (err: any) {
+          console.warn('[DB] Neon Postgres queryOne failed, falling back to SQLite:', err?.message || err);
+          return await getFallbackSqlite().queryOne<T>(sqlText, params);
+        }
       },
       async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
-        const pgSql = normalizeSql(sqlText, true);
-        const rows = await sql.query(pgSql, params);
-        return { changes: Array.isArray(rows) ? rows.length : 1 };
+        try {
+          const pgSql = normalizeSql(sqlText, true);
+          const rows = await sql.query(pgSql, params);
+          return { changes: Array.isArray(rows) ? rows.length : 1 };
+        } catch (err: any) {
+          console.warn('[DB] Neon Postgres execute failed, falling back to SQLite:', err?.message || err);
+          return await getFallbackSqlite().execute(sqlText, params);
+        }
       },
       async exec(sqlText: string): Promise<void> {
-        await sql.query(sqlText);
+        try {
+          await sql.query(sqlText);
+        } catch (err: any) {
+          console.warn('[DB] Neon Postgres exec failed, falling back to SQLite:', err?.message || err);
+          await getFallbackSqlite().exec(sqlText);
+        }
       },
       close() {
+        if (fallbackSqliteInstance) {
+          fallbackSqliteInstance.close();
+          fallbackSqliteInstance = null;
+        }
         dbInstance = null;
       },
     };
@@ -70,56 +201,17 @@ export function getDb(): DbClient {
     return dbInstance;
   }
 
-  // Fallback to SQLite (in-memory or local file for development & test suites)
-  const dbPath = getDatabasePath();
-  if (dbPath !== ':memory:') {
-    const dir = dirname(dbPath);
-    if (!existsSync(dir)) {
-      mkdirSync(dir, { recursive: true });
-    }
-  }
-
-  const sqlite = new DatabaseSync(dbPath);
-  sqlite.exec('PRAGMA journal_mode = WAL;');
-  sqlite.exec('PRAGMA foreign_keys = ON;');
-  runSqliteMigrations(sqlite);
-
-  dbInstance = {
-    isPostgres: false,
-    async query<T = any>(sqlText: string, params: any[] = []): Promise<T[]> {
-      const stmt = sqlite.prepare(sqlText);
-      return stmt.all(...params) as T[];
-    },
-    async queryOne<T = any>(sqlText: string, params: any[] = []): Promise<T | null> {
-      const stmt = sqlite.prepare(sqlText);
-      const row = stmt.get(...params);
-      return (row as T) || null;
-    },
-    async execute(sqlText: string, params: any[] = []): Promise<{ changes?: number }> {
-      const stmt = sqlite.prepare(sqlText);
-      stmt.run(...params);
-      return {};
-    },
-    async exec(sqlText: string): Promise<void> {
-      sqlite.exec(sqlText);
-    },
-    close() {
-      try {
-        sqlite.close();
-      } catch {
-        // ignore
-      }
-      dbInstance = null;
-    },
-  };
-
-  return dbInstance;
+  return getFallbackSqlite();
 }
 
 export function closeDb(): void {
   if (dbInstance) {
     dbInstance.close();
     dbInstance = null;
+  }
+  if (fallbackSqliteInstance) {
+    fallbackSqliteInstance.close();
+    fallbackSqliteInstance = null;
   }
 }
 
